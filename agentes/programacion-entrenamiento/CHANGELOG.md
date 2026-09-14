@@ -1,5 +1,16 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.7.0 — 2026-09-14
+
+Relectura completa de los capítulos del libro todavía no aplicados (Routing, Resource-Aware Optimization, Reasoning Techniques, Prioritization, Parallelization) y actualización del `system-prompt.md` en consecuencia (v0.3.0).
+
+- **Nuevo Paso 2 explícito — Productor con razonamiento (Chain-of-Thought, cap. 17):** antes de generar el borrador, el Productor debe listar por escrito los módulos activos, los conflictos detectados entre ellos y cómo los resuelve según la jerarquía universal. Antes esto ocurría implícitamente sin dejar rastro auditable.
+- **Precisión terminológica (Routing, cap. 2):** el Paso 0 se documenta explícitamente como enrutamiento *multi-etiqueta* (varios módulos activos a la vez), distinto del enrutamiento clásico excluyente. La elección entre `periodizacion-orientada-evento.md` y `periodizacion-por-calendario.md` se documenta como enrutamiento determinista por regla (existe `fecha_evento` o no) — nunca una decisión que el Productor deba razonar.
+- **Nueva sección "Asignación de modelo por paso" (Resource-Aware Optimization, cap. 16):** modelo rápido/económico para Paso 0, Paso 1 y Paso 4 (Crítico); el modelo más capaz disponible reservado para el Paso 2 (Productor), que es donde un error cuesta más caro.
+- **Regla de prioridad para `requiere_revision` concurrentes (Prioritization, cap. 20):** cuando coinciden varios motivos de revisión, se ordenan por la jerarquía universal (seguridad primero), no se mezclan sin indicar cuál es más urgente.
+- **Parallelization (cap. 3):** revisado — no se encontró una aplicación real a esta escala (la cadena de 6 pasos es secuencial por dependencia; el validador determinista ya es código, no LLM). Sin cambios; se deja anotado por si Mesociclo 1 introduce generación por lotes de varios clientes a la vez.
+- Referencias cruzadas de sección corregidas en todos los módulos tras la renumeración del `system-prompt.md`.
+
 ## v0.6.0 — 2026-09-14
 
 Se pospone el módulo de embarazo (sin cliente real que lo necesite ahora) y se prioriza cerrar huecos de base que afectan a todos los clientes.

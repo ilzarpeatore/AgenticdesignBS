@@ -64,7 +64,7 @@ Cribado (sección 1) → ¿alguna respuesta activa la sección 2?
 
 - **Con `seleccion-ejercicios-sustitucion-lesion.md`:** ese módulo adapta (sustituye un ejercicio); este módulo, cuando aplica, impide programar del todo hasta autorización o deriva sin programar. Este módulo tiene precedencia — se consulta antes.
 - **Con `hipertrofia-recomposicion-corporal.md`:** el cribado de RED-S/trastorno alimentario de este módulo es previo y superior a cualquier lógica de déficit calórico de ese módulo — si se activa, `hipertrofia-recomposicion-corporal.md` no se activa en absoluto para ese cliente hasta resolución médica.
-- **Con cualquier módulo de contenido:** todas las reglas de este módulo tienen la prioridad más alta de la jerarquía universal (`system-prompt.md`, sección 4, punto 1 — seguridad) y se comprueban antes de que cualquier otro módulo entre en juego.
+- **Con cualquier módulo de contenido:** todas las reglas de este módulo tienen la prioridad más alta de la jerarquía universal (`system-prompt.md`, sección 5, punto 1 — seguridad) y se comprueban antes de que cualquier otro módulo entre en juego.
 
 ## Referencias
 

@@ -28,9 +28,9 @@ Como en un programa de entrenamiento real: no se sube de fase por calendario, se
 
 No es un agente monolítico ni un router que encasilla al cliente en una categoría fija. Es un marco fijo que combina módulos de conocimiento relevantes al caso, en una cadena de 6 pasos:
 
-0. **Selección de módulos** (Knowledge Retrieval / Agentic RAG) — ¿qué módulos de `agentes/programacion-entrenamiento/modulos/` aplican a este cliente?
+0. **Selección de módulos** (Knowledge Retrieval / Agentic RAG; enrutamiento multi-etiqueta, cap. 2) — ¿qué módulos de `agentes/programacion-entrenamiento/modulos/` aplican a este cliente? Dentro de este paso, la elección de periodización (por evento vs. por calendario) es enrutamiento determinista por regla, no una decisión que el modelo deba razonar.
 1. **Validación de entrada** (Exception Handling) — ¿faltan datos críticos? Si sí, se piden, no se asumen.
-2. **Productor** (Planning + Prompt Chaining) — sintetiza un borrador combinando los módulos activos, según la jerarquía universal de conflictos.
+2. **Productor** (Planning + Prompt Chaining + Chain-of-Thought, cap. 17) — razona por escrito qué módulos están activos y cómo resuelve sus conflictos, y solo entonces sintetiza el borrador según la jerarquía universal.
 3. **Validador determinista** (Tool Use) — código, no el LLM, comprueba mecánicamente lo verificable (checklist mecánica de cada módulo).
 4. **Crítico** (Reflection — patrón Productor-Crítico) — segunda pasada de LLM que revisa lo que requiere juicio.
 5. **Revisión humana** (Human-in-the-Loop) — en M0, el 100% de los borradores.

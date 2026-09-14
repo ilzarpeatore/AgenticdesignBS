@@ -1,8 +1,8 @@
 # Módulo: Periodización por calendario
 
 **Tipo:** General, condicional
-**Se activa cuando:** NO existe `fecha_evento` en el perfil del cliente (objetivo sin competición ni fecha límite: recomposición corporal, mantenimiento, fuerza general). Si en algún momento aparece una fecha, el módulo `periodizacion-orientada-evento.md` toma el control.
-**Versión:** 0.1.0 · **Última actualización:** 2026-09-14
+**Se activa cuando:** NO existe `fecha_evento` en el perfil del cliente (objetivo sin competición ni fecha límite: recomposición corporal, mantenimiento, fuerza general). Si en algún momento aparece una fecha, el módulo `periodizacion-orientada-evento.md` toma el control. Esta comprobación es determinista (existe el dato o no existe) — no requiere que el Productor razone sobre ello, solo que lo consulte.
+**Versión:** 0.2.0 · **Última actualización:** 2026-09-14
 **Procedencia:** formalización de la jerarquía de periodización descrita en `docs/roadmap.md` — no existía todavía como módulo independiente.
 
 ## Regla operativa

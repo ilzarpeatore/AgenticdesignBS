@@ -1,8 +1,8 @@
 # Módulo: Periodización orientada a evento
 
 **Tipo:** General, condicional
-**Se activa cuando:** existe una `fecha_evento` en el perfil del cliente (carrera, competición, examen físico, o cualquier otra fecha objetivo). Mientras está activo, sustituye a la periodización por calendario fijo.
-**Versión:** 0.1.0 · **Última actualización:** 2026-09-14
+**Se activa cuando:** existe una `fecha_evento` en el perfil del cliente (carrera, competición, examen físico, o cualquier otra fecha objetivo). Mientras está activo, sustituye a la periodización por calendario fijo. La comprobación es determinista (Routing basado en regla, cap. 2) — no una decisión que el Productor deba razonar cada vez.
+**Versión:** 0.2.0 · **Última actualización:** 2026-09-14
 **Procedencia:** adaptado de la sección 3.7 del agente original de fuerza/pliometría para media maratón — generalizado: la lógica de fases no es específica de correr, es específica de tener una fecha.
 
 ## Regla operativa
