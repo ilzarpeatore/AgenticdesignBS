@@ -90,11 +90,37 @@
             "type": "string",
             "description": "Solo aplica si categoria es lesion_localizada."
           },
+          "gesto_doloroso": {
+            "type": "string",
+            "description": "Obligatorio si categoria es lesion_localizada: qué gesto o movimiento concreto provoca el dolor (ej. 'elevar el brazo por encima de la cabeza', 'flexión profunda de rodilla'). Sin esto no hay forma fiable de saber qué excluir."
+          },
+          "fase": {
+            "type": "string",
+            "enum": ["aguda", "en_recuperacion", "cronica_controlada"],
+            "description": "Obligatorio si categoria es lesion_localizada. 'aguda' -> excluir por completo el patrón (system-prompt.md, sección 1). 'en_recuperacion'/'cronica_controlada' -> puede admitir adaptación, nunca exclusión silenciosa de la ambigüedad."
+          },
+          "empeora_con_actividad_o_impacto": {
+            "type": "boolean",
+            "description": "Obligatorio si categoria es lesion_localizada: si el dolor empeora con la actividad o con impacto (carrera, saltos, cambios de dirección)."
+          },
           "autorizacion_profesional": {
             "type": "boolean",
-            "description": "Obligatorio si categoria es contraindicacion_relativa: si un médico ha autorizado entrenar bajo esa condición con matices."
+            "description": "Obligatorio si categoria es contraindicacion_relativa (autorización médica) o si categoria es lesion_localizada y fase es 'aguda' (autorización para entrenar/adaptar en vez de excluir por completo)."
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "categoria": { "const": "lesion_localizada" } }, "required": ["categoria"] },
+            "then": { "required": ["patron_movimiento_afectado", "gesto_doloroso", "fase", "empeora_con_actividad_o_impacto"] }
+          },
+          {
+            "if": {
+              "properties": { "categoria": { "const": "lesion_localizada" }, "fase": { "const": "aguda" } },
+              "required": ["categoria", "fase"]
+            },
+            "then": { "required": ["autorizacion_profesional"] }
+          }
+        ]
       }
     },
     "restricciones_dieteticas": {

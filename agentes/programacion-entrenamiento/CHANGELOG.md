@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.10.0 — 2026-09-14
+
+Segunda fase de las mejoras identificadas tras el caso real de Toni: el intake de lesiones pasa de advisory a bloqueante.
+
+- **`esquemas/perfil-cliente.schema.json`:** para `restricciones_salud` con `categoria: lesion_localizada`, ahora son obligatorios `gesto_doloroso`, `fase` (`aguda`/`en_recuperacion`/`cronica_controlada`) y `empeora_con_actividad_o_impacto`; `autorizacion_profesional` pasa a ser obligatorio también cuando `fase: aguda` (antes solo para `contraindicacion_relativa`). Aplicado con `if`/`then` de JSON Schema, no solo como descripción.
+- **`system-prompt.md` (v0.6.0):** el Paso 1 apartado 5 y la lista "NO debes" declaran explícitamente que no se genera nada, ni siquiera un borrador preliminar, sin estos cuatro datos ante una lesión localizada. El caso límite "información vaga sobre una molestia" deja de decir "pide especificidad" (tono de recomendación) y pasa a "bloqueante, no un matiz a resolver sobre la marcha".
+- **`modulos/seleccion-ejercicios-sustitucion-lesion.md` (v0.2.0):** el guardrail duro ("lesión activa → excluir por completo") se redefine en términos del campo `fase` en vez de la palabra ambigua "activa"; se documenta el caso real que expuso la tensión (lesión de manguito rotador sin especificidad forzó una decisión de juicio del Productor).
+
 ## v0.9.0 — 2026-09-14
 
 Primera fase de las mejoras identificadas tras el caso real de Toni: el validador determinista (Paso 3) deja de ser un backlog histórico ("hoy es prosa que se lee a ojo", desde v0.1.0) y pasa a ser código real, probado contra un archivo real.
