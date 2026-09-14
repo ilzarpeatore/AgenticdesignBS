@@ -1,5 +1,16 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.9.0 — 2026-09-14
+
+Primera fase de las mejoras identificadas tras el caso real de Toni: el validador determinista (Paso 3) deja de ser un backlog histórico ("hoy es prosa que se lee a ojo", desde v0.1.0) y pasa a ser código real, probado contra un archivo real.
+
+- **Nueva carpeta `validador/`:**
+  - `validar_programa.py` — comprueba mecánicamente el `.xlsx` final (formato de `formato-salida/formato-excel.md`): hojas y columnas exactas, `semanas` declaradas vs. semanas realmente escritas (y sin huecos), `ejercicio`/`series`/`reps` obligatorias por fila salvo descanso, filas de descanso sin columnas de ejercicio rellenas, `nombre_dia` consistente dentro del mismo día, `dia` en rango 1-7, y una lista opcional de ejercicios excluidos por cliente (lesión, material no disponible). `rir`+`rpe` simultáneos y un ejercicio ausente del catálogo quedan como advertencia, no error, tal como ya especificaba `formato-excel.md`.
+  - `tests/` — 13 pruebas. El fixture principal es el programa real entregado a Toni (`Mesociclo_1_TONI_Septiembre.xlsx`), no un ejemplo sintético; el resto son copias de ese mismo archivo mutadas para provocar cada fallo uno a uno.
+  - `README.md` — qué comprueba, qué es solo advertencia y por qué, uso de la CLI.
+- **`system-prompt.md` (v0.5.0):** el Paso 3/4 ahora referencia el código real; un borrador no avanza a Crítico/revisión humana si `validar_programa.py` devuelve errores.
+- **`docs/roadmap.md`:** eliminado del backlog el ítem ya resuelto.
+
 ## v0.8.0 — 2026-09-14
 
 Se integra el formato de entrega real hacia el sistema BeFit — hasta ahora el "formato de salida" del agente era solo interno (JSON de esquemas); ahora hay un formato de entrega final real, que es lo que de verdad se importa a producción.

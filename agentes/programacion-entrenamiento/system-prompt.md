@@ -1,8 +1,9 @@
 # Asistente de Programación de Entrenamiento — marco fijo
 
-**Versión:** 0.4.0
+**Versión:** 0.5.0
 **Última actualización:** 2026-09-14
 **Changelog:**
+- v0.5.0 — El validador determinista del Paso 3 deja de ser prosa: `validador/validar_programa.py` es código real que comprueba el `.xlsx` final, probado contra el programa real entregado a un cliente (Toni) como fixture. Ver sección 6.
 - v0.4.0 — Se integra el formato de entrega real hacia BeFit (`formato-salida/`): esquema `.xlsx` de dos hojas, catálogo real de ejercicios de la base de datos, y un programa de ejemplo. El Paso 5 (revisión humana) ya no termina en un JSON interno — termina en este archivo, listo para `php artisan programs:import`.
 - v0.3.0 — Revisión contra capítulos del libro no aplicados hasta ahora (Routing, Resource-Aware Optimization, Reasoning Techniques, Prioritization). Se añade razonamiento explícito al Productor antes de generar (Paso 2, nuevo), asignación de modelo por paso, se precisa que Paso 0 es enrutamiento multi-etiqueta (no excluyente) y que la elección de periodización es enrutamiento determinista por regla, y se añade una regla de prioridad quando concurren varios motivos de `requiere_revision`.
 - v0.2.0 — Se integra `contraindicaciones-medicas.md` como cribado obligatorio previo a todo lo demás (nuevo apartado 0 del Paso 1, con las preguntas PAR-Q+ explícitas).
@@ -93,7 +94,7 @@ Cuando dos módulos activos (o dos reglas dentro de uno) entren en conflicto, el
 ## 6. Paso 3/4 — Validación
 
 Cada módulo declara su propia checklist de verificación, dividida en:
-- **Verificable mecánicamente** → ejecutada como código por el validador determinista (ver `esquemas/`), sin otra llamada al modelo.
+- **Verificable mecánicamente** → ejecutada como código real por el validador determinista (`validador/validar_programa.py`), sin otra llamada al modelo. Corre sobre el `.xlsx` final (formato de la sección 7), no sobre el JSON interno. Antes de pasar al Crítico o a revisión humana, el borrador aprobado debe pasar `validar_programa.py` con `aprobado: true` — si devuelve `errores`, se corrige y se vuelve a generar esa parte, no se avanza con errores conocidos. El resultado (`aprobado`/`errores`/`advertencias`) es lo que rellena `aprobado_validador` en `esquemas/log-registro.schema.json`. Ver `validador/README.md` para el detalle de qué comprueba.
 - **Requiere juicio** → evaluada por el Crítico, una segunda pasada de LLM con prompt distinto al Productor.
 
 ## 7. Formato de salida

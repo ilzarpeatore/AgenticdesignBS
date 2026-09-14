@@ -77,7 +77,6 @@ No es un agente monolítico ni un router que encasilla al cliente en una categor
 
 ## Backlog abierto
 
-- Automatizar la checklist "verificable mecánicamente" de cada módulo como validador determinista real (hoy es prosa que se lee a ojo).
 - Definir el esquema real de `perfil_cliente` con datos reales de clientes actuales.
 - Módulos de población/deporte específicos: solo cuando exista un cliente real que lo necesite (fútbol, embarazo, patología concreta) — explícitamente pospuestos, no se escriben por completitud especulativa.
 - Decidir el segundo agente candidato para cuando se cierre el criterio de progresión M0 → M1.
