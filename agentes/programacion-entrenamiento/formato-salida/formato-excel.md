@@ -104,3 +104,13 @@ Para un ejemplo completo y real de 4 semanas × 5 sesiones, abre `excel.example.
 - [ ] Cada fila de ejercicio tiene `series` y `reps` rellenos.
 - [ ] No se han escrito filas para los días de descanso (salvo que se quiera añadir una nota a ese día).
 - [ ] `rir` o `rpe`, no ambos a la vez en el mismo ejercicio (si se rellenan los dos, no es un error, pero solo se usa `rpe`).
+
+---
+
+## Frontera de responsabilidad: integridad del catálogo de ejercicios
+
+Quien genera este `.xlsx` (agente o humano) solo puede garantizar que el texto de `ejercicio` coincide con un título que existe en `catalogo-ejercicios.xlsx` en el momento en que se consultó ese catálogo. **No puede garantizar, ni tiene forma de comprobar, el estado interno de esos registros en la base de datos** (por ejemplo, si un ejercicio con ese título exacto está soft-deleted). Esa integridad es responsabilidad exclusiva del backend, en el matcher de `programs:import` — no de este documento ni de quien rellena el Excel.
+
+Incidente real (2026-09-14): un ejercicio con título exacto coincidente estaba soft-deleted en la base de datos; el matcher lo incluía igualmente como candidato (`withTrashed()`), un match de título exacto contra un registro borrado ganó a cualquier match aproximado contra uno activo, y el import guardó un `exercise_id` que la aplicación no podía resolver. El arreglo correcto se hizo en el propio matcher (comentario en la línea exacta de código explicando por qué no usar `withTrashed()` ahí), no aquí — un parche del tipo "evita este nombre de ejercicio" en este documento habría tratado el síntoma, no la causa, y no habría escalado a otros ejercicios borrados que ni el agente ni quien revisa el Excel pueden conocer de antemano.
+
+Para detectar esta categoría de fallo de forma sistemática (no solo este caso puntual), ver el comando de integridad `php artisan programs:check-integrity` en el repositorio del backend de BeFit — recorre `workout_template_exercises.exercise_id` en busca de referencias que no resuelven contra ejercicios activos.
