@@ -1,5 +1,12 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.11.0 — 2026-09-14
+
+Tercera fase de las mejoras identificadas tras el caso real de Toni: la consulta del catálogo de ejercicios se formaliza como paso explícito, en vez de referencia pasiva.
+
+- **`system-prompt.md` (v0.7.0):** nuevo punto 4 dentro del razonamiento del Paso 2 (Productor) — "Consulta del catálogo de ejercicios" (Tool Use, cap. 5). Para cada ejercicio, el Productor debe documentar el nombre buscado, el título del catálogo encontrado (si lo hay) y, ante una sustitución forzada por lesión o material, qué alternativa del catálogo mantiene el mismo patrón y vector de resistencia. Refleja el uso real que ya se le dio al catálogo al generar el programa de Toni (Press banca con mancuernas, sustitución de Hack Squat por Prensa de piernas, etc.), ahora como paso explícito y no como consulta implícita sin rastro.
+- **`docs/roadmap.md`:** la descripción del Paso 2 en la tabla de arquitectura menciona ahora la consulta activa del catálogo (Tool Use) junto al razonamiento Chain-of-Thought.
+
 ## v0.10.0 — 2026-09-14
 
 Segunda fase de las mejoras identificadas tras el caso real de Toni: el intake de lesiones pasa de advisory a bloqueante.
