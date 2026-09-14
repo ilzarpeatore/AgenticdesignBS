@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.12.0 — 2026-09-14
+
+Cuarta y última fase de las mejoras identificadas tras el caso real de Toni: el razonamiento del Paso 2 pasa de narración efímera en el chat a dato persistido y auditable.
+
+- **`esquemas/log-registro.schema.json`:** nuevo campo obligatorio `razonamiento` (texto libre, no vacío) — traza completa del Chain-of-Thought del Paso 2: módulos activos y por qué, conflictos detectados, resolución según la jerarquía universal, y la consulta del catálogo de ejercicios (Fase 3 de esta misma serie de mejoras).
+- **`system-prompt.md` (v0.8.0):** el Paso 2 indica explícitamente que ese razonamiento se guarda en este campo, no solo se narra.
+- **`docs/roadmap.md`:** la fila de memoria episódica menciona ahora `razonamiento` junto a `historial_ciclos`.
+
 ## v0.11.0 — 2026-09-14
 
 Tercera fase de las mejoras identificadas tras el caso real de Toni: la consulta del catálogo de ejercicios se formaliza como paso explícito, en vez de referencia pasiva.

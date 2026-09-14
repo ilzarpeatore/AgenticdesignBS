@@ -50,7 +50,7 @@ No es un agente monolítico ni un router que encasilla al cliente en una categor
 |---|---|---|
 | Semántica | `perfil_cliente`: objetivo(s), deporte/actividad, restricciones — varias etiquetas | Decide qué módulos se activan |
 | Procedimental | La base de conocimiento modular completa + `reglas_programa` | Sostiene el conocimiento científico y las personalizaciones del cliente |
-| Episódica | `historial_ciclos`: adherencia y resultado real de cada ciclo | El ciclo N+1 depende de cómo fue realmente el ciclo N, no de una suposición |
+| Episódica | `historial_ciclos`: adherencia y resultado real de cada ciclo, más el `razonamiento` (Chain-of-Thought del Paso 2) de cada generación | El ciclo N+1 depende de cómo fue realmente el ciclo N, no de una suposición; el razonamiento guardado hace que la síntesis de módulos sea auditable después, no solo mientras se genera |
 
 ### Periodización: dos anclajes posibles
 

@@ -1,8 +1,9 @@
 # Asistente de Programación de Entrenamiento — marco fijo
 
-**Versión:** 0.7.0
+**Versión:** 0.8.0
 **Última actualización:** 2026-09-14
 **Changelog:**
+- v0.8.0 — El razonamiento explícito del Paso 2 (módulos activos, conflictos, resolución, consulta del catálogo) deja de vivir solo en la conversación de generación: se persiste en el nuevo campo obligatorio `razonamiento` de `esquemas/log-registro.schema.json`, quedando auditable después del hecho.
 - v0.7.0 — La consulta del catálogo de ejercicios (`formato-salida/catalogo-ejercicios.xlsx`) se formaliza como paso explícito de búsqueda (Tool Use, cap. 5) dentro del razonamiento del Productor (Paso 2, nuevo punto 4), en vez de tratarse como referencia pasiva de fondo — refleja cómo se usó realmente en el caso de Toni (búsqueda activa + sustitución cuando el nombre ideal no existía en el catálogo).
 - v0.6.0 — El intake de lesiones (Paso 1, apartado 5) pasa de recomendación a bloqueo duro: no se genera ni un borrador preliminar si una `lesion_localizada` no tiene `gesto_doloroso`, `fase` y `empeora_con_actividad_o_impacto` (y `autorizacion_profesional` si `fase: aguda`) — campos ahora obligatorios en `esquemas/perfil-cliente.schema.json`. Cierra la ambigüedad expuesta por un caso real (lesión de manguito rotador declarada sin especificidad, que forzó una decisión de juicio en tensión con el guardrail de `seleccion-ejercicios-sustitucion-lesion.md`).
 - v0.5.0 — El validador determinista del Paso 3 deja de ser prosa: `validador/validar_programa.py` es código real que comprueba el `.xlsx` final, probado contra el programa real entregado a un cliente (Toni) como fixture. Ver sección 6.
@@ -82,7 +83,7 @@ Antes de escribir el JSON final, razona por escrito, en este orden (Chain-of-Tho
 4. **Consulta del catálogo de ejercicios (Tool Use, cap. 5):** para cada ejercicio que planeas incluir, busca activamente en `formato-salida/catalogo-ejercicios.xlsx` el título existente más cercano — no es referencia pasiva de fondo, es un paso de búsqueda explícito antes de fijar el nombre final. Documenta, por ejercicio: el nombre buscado, el título del catálogo encontrado (si lo hay) y, si la exclusión de material o una restricción de salud obliga a sustituir el ejercicio ideal, qué alternativa ofrece el catálogo que mantenga el mismo patrón de movimiento y vector de resistencia (`seleccion-ejercicios-sustitucion-lesion.md`). Si no existe ningún título razonablemente cercano, usa un nombre descriptivo estándar y anótalo como ejercicio nuevo — no es un error (ver "Frontera de responsabilidad" en `formato-salida/formato-excel.md`), pero debe quedar explícito que la búsqueda se hizo y no encontró coincidencia, no que se saltó.
 5. **Borrador:** solo después de lo anterior, genera el contenido del nivel de detalle pedido, usando en la columna `ejercicio` los nombres ya resueltos en el paso anterior.
 
-Este razonamiento no es opcional ni decorativo — es lo que hace auditable la síntesis cuando hay varios módulos combinados a la vez, que es precisamente el caso más propenso a error de todo el sistema. Puede quedar como un bloque interno separado del borrador final, no hace falta mostrárselo al cliente.
+Este razonamiento no es opcional ni decorativo — es lo que hace auditable la síntesis cuando hay varios módulos combinados a la vez, que es precisamente el caso más propenso a error de todo el sistema. Puede quedar como un bloque interno separado del borrador final, no hace falta mostrárselo al cliente. Guárdalo íntegro en el campo `razonamiento` (obligatorio) de `esquemas/log-registro.schema.json` — sin eso, este razonamiento solo vive en la conversación donde se generó y desaparece con ella; guardarlo es lo que lo hace revisable después, no solo en el momento.
 
 ## 5. Jerarquía universal de resolución de conflictos
 

@@ -3,7 +3,7 @@
   "title": "Registro de generación — memoria episódica",
   "description": "Una entrada por borrador generado. Es la memoria episódica del agente: sin ella, cada ciclo se generaría como si el anterior no hubiera pasado. También alimenta el criterio de progresión M0 -> M1.",
   "type": "object",
-  "required": ["fecha", "cliente_id", "modulos_activos", "confianza", "requiere_revision"],
+  "required": ["fecha", "cliente_id", "modulos_activos", "razonamiento", "confianza", "requiere_revision"],
   "properties": {
     "fecha": { "type": "string", "format": "date-time" },
     "cliente_id": { "type": "string" },
@@ -14,6 +14,11 @@
       "type": "array",
       "items": { "type": "string" },
       "description": "Qué módulos decidió el Paso 0 que aplicaban a este cliente en esta generación."
+    },
+    "razonamiento": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Traza completa del razonamiento explícito del Paso 2 (Chain-of-Thought, system-prompt.md sección 4): módulos activos y por qué, conflictos detectados entre ellos, cómo se resolvió cada uno según la jerarquía universal, y la consulta del catálogo de ejercicios (qué se buscó, qué se encontró, qué sustitución se hizo y por qué). Antes solo existía como narración en la conversación de generación, sin quedar guardado como dato auditable — este campo lo persiste. Obligatorio: nunca se genera un borrador sin rellenarlo."
     },
     "adherencia_real": {
       "type": ["string", "null"],
