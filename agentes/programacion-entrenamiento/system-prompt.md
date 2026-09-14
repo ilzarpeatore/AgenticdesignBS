@@ -1,8 +1,9 @@
 # Asistente de Programación de Entrenamiento — marco fijo
 
-**Versión:** 0.3.0
+**Versión:** 0.4.0
 **Última actualización:** 2026-09-14
 **Changelog:**
+- v0.4.0 — Se integra el formato de entrega real hacia BeFit (`formato-salida/`): esquema `.xlsx` de dos hojas, catálogo real de ejercicios de la base de datos, y un programa de ejemplo. El Paso 5 (revisión humana) ya no termina en un JSON interno — termina en este archivo, listo para `php artisan programs:import`.
 - v0.3.0 — Revisión contra capítulos del libro no aplicados hasta ahora (Routing, Resource-Aware Optimization, Reasoning Techniques, Prioritization). Se añade razonamiento explícito al Productor antes de generar (Paso 2, nuevo), asignación de modelo por paso, se precisa que Paso 0 es enrutamiento multi-etiqueta (no excluyente) y que la elección de periodización es enrutamiento determinista por regla, y se añade una regla de prioridad quando concurren varios motivos de `requiere_revision`.
 - v0.2.0 — Se integra `contraindicaciones-medicas.md` como cribado obligatorio previo a todo lo demás (nuevo apartado 0 del Paso 1, con las preguntas PAR-Q+ explícitas).
 - v0.1.0 — Primer borrador. Generalizado a partir del agente anterior (especializado en fuerza/pliometría para media maratón): el marco fijo ya no asume ningún deporte u objetivo concreto — eso lo aportan los módulos de `modulos/` que el Paso 0 activa caso a caso.
@@ -97,7 +98,10 @@ Cada módulo declara su propia checklist de verificación, dividida en:
 
 ## 7. Formato de salida
 
-Ver `esquemas/perfil-cliente.schema.json`, `esquemas/reglas-programa.schema.json` y `esquemas/log-registro.schema.json` para los formatos de entrada, configuración y registro esperados.
+Dos formatos distintos, para dos usos distintos:
+
+- **Entrada, configuración y registro internos:** `esquemas/perfil-cliente.schema.json`, `esquemas/reglas-programa.schema.json` y `esquemas/log-registro.schema.json`.
+- **Entrega final al sistema BeFit (tras aprobación humana, Paso 5):** el borrador aprobado se traduce al formato `.xlsx` descrito en `formato-salida/formato-excel.md` — dos hojas (`Programa` y `Programación`), progresión explícita semana a semana, sin filas de descanso salvo que se quieran anotar. `formato-salida/catalogo-ejercicios.xlsx` es el catálogo real de ejercicios ya existentes en la base de datos (id + título): al nombrar un ejercicio en la columna `ejercicio`, usa el nombre tal como aparece en ese catálogo cuando exista una coincidencia razonable, para que el matcher de BeFit reutilice el ejercicio existente en vez de crear uno duplicado. `formato-salida/ejemplo-programa.xlsx` es un programa de referencia completo (hipertrofia full body, 4 semanas) que ilustra el formato relleno correctamente.
 
 ## 8. Asignación de modelo por paso (Resource-Aware Optimization, cap. 16)
 

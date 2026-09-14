@@ -1,5 +1,15 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.8.0 — 2026-09-14
+
+Se integra el formato de entrega real hacia el sistema BeFit — hasta ahora el "formato de salida" del agente era solo interno (JSON de esquemas); ahora hay un formato de entrega final real, que es lo que de verdad se importa a producción.
+
+- **Nueva carpeta `formato-salida/`:**
+  - `formato-excel.md` — especificación completa del `.xlsx` de dos hojas (`Programa` + `Programación`), 19 columnas, reglas de días de descanso implícitos, progresión explícita semana a semana, notación de bloques/superseries.
+  - `catalogo-ejercicios.xlsx` — catálogo real de 1.505 ejercicios ya existentes en la base de datos (id + título) — usar estos nombres al escribir la columna `ejercicio` siempre que exista coincidencia razonable, para que el matcher de BeFit reutilice el ejercicio en vez de crear un duplicado.
+  - `ejemplo-programa.xlsx` — programa de referencia completo y correctamente relleno (hipertrofia full body, 5 sesiones, 4 semanas con deload).
+- **`system-prompt.md` (v0.4.0):** el Paso 5 (revisión humana) ya no termina en el JSON interno — termina en este archivo `.xlsx`, listo para `php artisan programs:import`.
+
 ## v0.7.0 — 2026-09-14
 
 Relectura completa de los capítulos del libro todavía no aplicados (Routing, Resource-Aware Optimization, Reasoning Techniques, Prioritization, Parallelization) y actualización del `system-prompt.md` en consecuencia (v0.3.0).
