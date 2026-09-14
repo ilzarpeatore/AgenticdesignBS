@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Perfil de cliente — Asistente de Programación de Entrenamiento",
+  "description": "Conjunto de etiquetas del cliente que decide qué módulos de conocimiento se activan (Paso 0). No es una categoría única: un cliente puede activar varios módulos a la vez.",
+  "type": "object",
+  "required": ["cliente_id", "cribado_medico", "objetivos", "restricciones_salud", "nivel_fuerza", "disponibilidad"],
+  "properties": {
+    "cliente_id": {
+      "type": "string",
+      "description": "Identificador estable del cliente."
+    },
+    "cribado_medico": {
+      "type": "object",
+      "description": "Respuestas al cribado obligatorio del módulo contraindicaciones-medicas.md (estilo PAR-Q+). Debe completarse antes de generar cualquier borrador, incluso el primero.",
+      "required": ["dolor_toracico", "perdida_conciencia", "diagnostico_conocido", "cirugia_o_lesion_reciente", "embarazo_o_posibilidad", "alteracion_menstrual_o_fractura_estres", "trastorno_alimentario"],
+      "properties": {
+        "dolor_toracico": { "type": "boolean" },
+        "perdida_conciencia": { "type": "boolean" },
+        "diagnostico_conocido": {
+          "type": ["string", "null"],
+          "description": "Diagnóstico cardíaco, pulmonar o metabólico conocido, si existe. Incluye medicación relevante."
+        },
+        "cirugia_o_lesion_reciente": { "type": "boolean" },
+        "embarazo_o_posibilidad": { "type": "boolean" },
+        "alteracion_menstrual_o_fractura_estres": {
+          "type": "boolean",
+          "description": "Cribado básico de RED-S / baja disponibilidad energética."
+        },
+        "trastorno_alimentario": { "type": "boolean" },
+        "resultado": {
+          "type": "string",
+          "enum": ["limpio", "contraindicacion_relativa", "contraindicacion_absoluta"],
+          "description": "Resultado del cribado según contraindicaciones-medicas.md, calculado a partir de las respuestas anteriores."
+        }
+      }
+    },
+    "objetivos": {
+      "type": "array",
+      "description": "Uno o más objetivos declarados. No excluyentes entre sí.",
+      "items": {
+        "type": "object",
+        "required": ["categoria"],
+        "properties": {
+          "categoria": {
+            "type": "string",
+            "description": "Ancla qué módulos de objetivo se consideran, no cuáles se excluyen. Ejemplos: recomposicion_corporal, rendimiento_deportivo, fuerza, salud_patologia, mantenimiento."
+          },
+          "detalle": {
+            "type": "string",
+            "description": "Matiz en texto libre sobre esta categoría (ej. 'mantener fuerza en press banca')."
+          }
+        }
+      }
+    },
+    "actividad_principal": {
+      "type": "object",
+      "description": "Actividad concurrente que el cliente ya gestiona (running, fútbol, otro deporte) y que este agente no diseña, pero necesita conocer para gestionar la carga total.",
+      "properties": {
+        "tipo": { "type": "string", "description": "Ej. 'running', 'futbol', 'ninguna'." },
+        "fecha_evento": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Fecha objetivo (carrera, competición, examen físico). Si existe, activa el módulo periodizacion-orientada-evento."
+        },
+        "plan_actual": {
+          "type": "string",
+          "description": "Descripción del plan/volumen actual de la actividad principal (días/semana, volumen, intensidades), tal como lo aporta el cliente."
+        }
+      }
+    },
+    "nivel_fuerza": {
+      "type": "string",
+      "enum": ["principiante", "intermedio", "avanzado"],
+      "description": "Nivel de experiencia con entrenamiento de fuerza — independiente del nivel en la actividad principal."
+    },
+    "restricciones_salud": {
+      "type": "array",
+      "description": "Lesiones, patologías activas o condiciones médicas declaradas.",
+      "items": {
+        "type": "object",
+        "required": ["descripcion", "categoria"],
+        "properties": {
+          "descripcion": { "type": "string" },
+          "categoria": {
+            "type": "string",
+            "enum": ["lesion_localizada", "contraindicacion_relativa", "contraindicacion_absoluta"],
+            "description": "lesion_localizada -> la gestiona seleccion-ejercicios-sustitucion-lesion.md (sustituir el ejercicio). contraindicacion_relativa/absoluta -> las gestiona contraindicaciones-medicas.md (no programar hasta autorización, o derivar sin programar)."
+          },
+          "patron_movimiento_afectado": {
+            "type": "string",
+            "description": "Solo aplica si categoria es lesion_localizada."
+          },
+          "autorizacion_profesional": {
+            "type": "boolean",
+            "description": "Obligatorio si categoria es contraindicacion_relativa: si un médico ha autorizado entrenar bajo esa condición con matices."
+          }
+        }
+      }
+    },
+    "restricciones_dieteticas": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Alergias o restricciones religiosas/éticas — competencia del Agente Nutricional, se registran aquí solo para coherencia entre agentes."
+    },
+    "disponibilidad": {
+      "type": "object",
+      "required": ["dias_entrenamiento", "minutos_por_sesion"],
+      "properties": {
+        "dias_entrenamiento": { "type": "array", "items": { "type": "string" } },
+        "minutos_por_sesion": { "type": "integer" }
+      }
+    },
+    "material_disponible": {
+      "type": "string",
+      "description": "Ej. 'gimnasio completo', 'mancuernas hasta 24kg y bandas', etc."
+    },
+    "preferencias": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "referencias_carga": {
+      "type": "object",
+      "description": "1RM o cargas de trabajo actuales, si existen. Opcional — su ausencia activa la 'semana de calibración' del system-prompt.",
+      "additionalProperties": { "type": "number" }
+    }
+  }
+}

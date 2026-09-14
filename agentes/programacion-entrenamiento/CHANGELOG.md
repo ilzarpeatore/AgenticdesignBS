@@ -1,0 +1,64 @@
+# Changelog — Asistente de Programación de Entrenamiento
+
+## v0.6.0 — 2026-09-14
+
+Se pospone el módulo de embarazo (sin cliente real que lo necesite ahora) y se prioriza cerrar huecos de base que afectan a todos los clientes.
+
+- **Nuevo módulo general:** `modulos/calentamiento-activacion.md` — protocolo RAMP, series de aproximación (3-5, cercanas al peso de trabajo cuanto más exigente la carga), estiramiento estático solo al final de la sesión (nunca antes de fuerza/potencia si supera 60s), versión reducida para sesiones con poco tiempo. Referencias: Jeffreys 2007 (RAMP); Behm et al. 2019 (estiramiento estático agudo).
+- **Nuevo módulo general:** `modulos/monitorizacion-fatiga-bienestar.md` — RPE de sesión (método Foster) para calcular carga de entrenamiento real, cuestionario de bienestar diario (Hooper-Mackinnon: sueño, fatiga, dolor muscular, estrés), y cómo usar ambos para ajustar sesiones puntuales o adelantar un deload. Da herramientas concretas a las "señales de fatiga" que `gestion-fatiga-deload.md` solo describía de forma genérica.
+- **`esquemas/log-registro.schema.json`:** nuevos campos `rpe_sesion`, `carga_sesion` y `bienestar_diario`.
+- **Conflictos anotados** en `gestion-fatiga-deload.md`, `pliometria-rigidez-tendinosa.md`.
+- **Backlog limpiado:** ítems ya resueltos eliminados de `docs/roadmap.md`; módulos de población/deporte específicos (fútbol, embarazo, patología concreta) quedan explícitamente pospuestos hasta que exista un cliente real que los necesite.
+
+## v0.5.0 — 2026-09-14
+
+Cierra la mitad que faltaba de "carga y volumen": `progresion-carga.md` solo cubría carga (peso); ahora `biomecanica-programacion-hipertrofia.md` añade cómo debe progresar el volumen (número de series) dentro de un mesociclo.
+
+- **`biomecanica-programacion-hipertrofia.md` (v0.2.0):** nueva sección 9, "Progresión de volumen dentro del mesociclo" — marco MEV/MAV/MRV (Israetel/RP Strength), esquema de progresión de 1-2 series/semana, regla de no subir carga y volumen agresivamente a la vez, y nota de nivel de certeza (marco práctico de la industria, no consenso académico cerrado sobre acumulación de fatiga). Referencias añadidas: Israetel et al.; *Mesocycle Progression in Hypertrophy: Volume Versus Intensity* (S&C Journal, 2020).
+- **Conflictos anotados** en `progresion-carga.md` y `gestion-fatiga-deload.md` para reflejar la interacción carga/volumen y cómo el MRV teórico se ajusta con señales reales de fatiga.
+
+## v0.4.0 — 2026-09-14
+
+Respuesta a control de calidad: el agente no bajaba a nivel de biomecánica ni de programación fina de carga/volumen para hipertrofia — solo manejaba el contexto de déficit/recomposición. Deep search y nuevo módulo general para cerrar ese hueco.
+
+- **Nuevo módulo general:** `modulos/biomecanica-programacion-hipertrofia.md` — perfiles de resistencia (curvas de fuerza), rango de movimiento e hipertrofia mediada por estiramiento, proximidad al fallo (RIR), rango de repeticiones, descansos entre series, orden de ejercicios, enfoque atencional, peso libre vs. máquina, unilateral vs. bilateral. Referencias: Warneke et al. 2023; Schoenfeld 2021 (continuo de repeticiones); Singer/Wolf/Generoso/Schoenfeld 2024 (descansos); meta-análisis de orden de ejercicios 2020; investigación de enfoque atencional; meta-análisis peso libre vs. máquina 2023.
+- **`hipertrofia-recomposicion-corporal.md` (v0.2.0):** se reorganiza para no duplicar contenido — ahora se apoya en el módulo nuevo para el "cómo" (RIR, ROM, descansos) y se queda solo con el "cuánto y en qué contexto energético" (déficit, viabilidad por nivel, periodización). Declarado que ambos módulos se activan siempre juntos.
+
+## v0.3.0 — 2026-09-14
+
+Integración de contraindicaciones médicas reales (ACSM, PAR-Q+, ACOG, RED-S), siguiendo el proceso de `CONTRIBUTING.md`.
+
+- **Nuevo módulo, capa de seguridad transversal:** `modulos/contraindicaciones-medicas.md` — cribado obligatorio tipo PAR-Q+, contraindicaciones absolutas (cardiovasculares, aneurisma, retinopatía proliferativa, hernia sintomática, embarazo de riesgo, trastorno alimentario activo/RED-S) y relativas (hipertensión, diabetes no controlada, osteoporosis, anticoagulantes, cardiopatía estable, embarazo sin contraindicación absoluta) con su protocolo de actuación. Referencias: ACSM Guidelines for Exercise Testing and Prescription; PAR-Q+; ACOG; Mountjoy et al. (RED-S); Retina Today (2021).
+- **`system-prompt.md` (v0.2.0):** el cribado de este módulo pasa a ser el primer paso del Paso 1, obligatorio antes de la selección de módulos (Paso 0). Si detecta contraindicación absoluta, el pipeline se detiene sin generar nada.
+- **`esquemas/perfil-cliente.schema.json`:** nuevo campo obligatorio `cribado_medico` (respuestas PAR-Q+); `restricciones_salud` ahora distingue `categoria` (lesión localizada vs. contraindicación relativa/absoluta) para enrutar cada caso al módulo correcto.
+- **Conflictos anotados** en `seleccion-ejercicios-sustitucion-lesion.md` (precedencia: contraindicaciones médicas se resuelven antes) y en `hipertrofia-recomposicion-corporal.md` (RED-S/trastorno alimentario bloquea la activación del módulo, no solo el déficit calórico).
+
+## v0.2.0 — 2026-09-14
+
+Deep search de evidencia científica para el módulo de recomposición corporal (pendiente desde v0.1.0), siguiendo el proceso de `CONTRIBUTING.md`.
+
+- **Nuevo módulo específico:** `modulos/hipertrofia-recomposicion-corporal.md` — viabilidad por nivel de entrenamiento, condiciones energéticas/proteicas (para dimensionar el entrenamiento, no para prescribir), volumen y frecuencia, progresión de carga en déficit, periodización macro/meso/micro, cardio concurrente, coordinación con diet breaks/refeeds. Referencias: Barakat et al. 2020; Murphy & Koehler 2022; Roth et al. 2023; Schoenfeld et al. 2016/2017; Grgic et al. 2017; Morton et al. 2018; Garthe et al.; editorial Frontiers in Physiology 2024.
+- **Nuevo módulo general:** `modulos/periodizacion-por-calendario.md` — formaliza como módulo independiente la estructura macro/meso/micro que hasta ahora solo vivía como tabla narrativa en `docs/roadmap.md`.
+- **Conflictos anotados** en `fuerza-maxima-potencia.md`, `progresion-carga.md` y `gestion-fatiga-deload.md` para reflejar su interacción con el módulo nuevo (Paso 4 del proceso de mantenimiento).
+
+## v0.1.0 — 2026-09-14
+
+Importación inicial. Se parte del agente original (v1.0, 2026-09-07), especializado en fuerza/pliometría para corredores de media maratón — que a su vez era la reescritura completa de un agente anterior de hipertrofia/pérdida de grasa (ya no conservado).
+
+Se descompone el contenido en:
+
+- `system-prompt.md` — marco fijo generalizado: rol, alcance, protocolo de redirección y protocolo de intake, sin asumir ningún deporte u objetivo concreto.
+- `modulos/fuerza-maxima-potencia.md` — general (de la sección 3.2 y 3.8 del original)
+- `modulos/pliometria-rigidez-tendinosa.md` — general (sección 3.3)
+- `modulos/progresion-carga.md` — general (sección 3.5)
+- `modulos/seleccion-ejercicios-sustitucion-lesion.md` — general (principios de la sección 3.4)
+- `modulos/gestion-fatiga-deload.md` — general (sección 3.6)
+- `modulos/periodizacion-orientada-evento.md` — general, condicional a fecha de evento (sección 3.7, generalizada de "carrera" a "evento")
+- `modulos/running-economia-carrera.md` — específico (sección 3.1, prioridades de la 3.4, y las notas de casos frecuentes de running)
+
+Motivo del cambio de arquitectura: el agente original se reescribía por completo cada vez que cambiaba el tipo de cliente (un solo documento activo). Eso no escala a atender simultáneamente objetivos distintos (recomposición, rendimiento deportivo, patología). La base de conocimiento modular permite que el Productor combine varios módulos por cliente sin encasillarlo en una categoría fija.
+
+**Pendiente:**
+- Módulo de Hipertrofia y recomposición corporal (no existe versión previa — se escribe de cero).
+- Revisar si parte de las "prioridades de selección de ejercicios" de `running-economia-carrera.md` debería extraerse a un módulo general de demandas de tren inferior en deportes de impacto/cambio de dirección.
+- Automatizar la checklist "verificable mecánicamente" de cada módulo como validador determinista real (hoy es una lista que se lee a ojo).

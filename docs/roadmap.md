@@ -1,0 +1,83 @@
+# Roadmap del sistema de agentes
+
+> Resumen versionado del diseño. La versión completa y navegable vive en el documento de diseño compartido (Artifact) — este archivo existe para que el diseño no dependa de una sola copia.
+
+## Contexto de negocio
+
+- Servicio de asesoría de entrenamiento y nutrición online.
+- Hoy: servicio informal, atendido a amigos y familiares, sin apertura al mercado ni publicidad.
+- Objetivo: automatizar progresivamente mediante agentes de IA, empezando por el agente que más tiempo consume hoy.
+
+## Principio de progresión
+
+Como en un programa de entrenamiento real: no se sube de fase por calendario, se sube cuando el criterio de progresión del ciclo anterior está cumplido.
+
+## Los tres mesociclos
+
+| Mesociclo | Contexto | Se automatiza | Control | Infraestructura |
+|---|---|---|---|---|
+| **M0 (actual)** | Amigos y familia, sin apertura al mercado | 1 agente operativo (borradores) | Revisión humana al 100% | Ninguna — prompt guardado a mano, sin n8n |
+| **M1** | Servicio abierto, <1.000€/mes | 2-3 agentes operativos | Revisión humana por muestreo | n8n + Google Sheets como log |
+| **M2** | Ingresos recurrentes estables | 13 operativos + 6 controles + director | Un agente de control por área | n8n/Make + Airtable + Notion |
+
+**Criterios de progresión:**
+- M0 → M1: el servicio se abre al mercado con clientes de pago *y* el agente lleva varios ciclos seguidos sin correcciones mayores en revisión.
+- M1 → M2: ingresos recurrentes sostenidos varios meses (~500-1.000€/mes) *y* los agentes operativos funcionan con supervisión por muestreo, no total.
+
+## Arquitectura del Asistente de Programación de Entrenamiento (M0)
+
+No es un agente monolítico ni un router que encasilla al cliente en una categoría fija. Es un marco fijo que combina módulos de conocimiento relevantes al caso, en una cadena de 6 pasos:
+
+0. **Selección de módulos** (Knowledge Retrieval / Agentic RAG) — ¿qué módulos de `agentes/programacion-entrenamiento/modulos/` aplican a este cliente?
+1. **Validación de entrada** (Exception Handling) — ¿faltan datos críticos? Si sí, se piden, no se asumen.
+2. **Productor** (Planning + Prompt Chaining) — sintetiza un borrador combinando los módulos activos, según la jerarquía universal de conflictos.
+3. **Validador determinista** (Tool Use) — código, no el LLM, comprueba mecánicamente lo verificable (checklist mecánica de cada módulo).
+4. **Crítico** (Reflection — patrón Productor-Crítico) — segunda pasada de LLM que revisa lo que requiere juicio.
+5. **Revisión humana** (Human-in-the-Loop) — en M0, el 100% de los borradores.
+
+### Jerarquía universal de conflictos
+
+1. Seguridad y ausencia de dolor
+2. Carga total combinada y recuperación real observada
+3. No comprometer el estímulo prioritario declarado por el cliente
+4. Adherencia sostenible
+5. Volumen/intensidad "óptimos" según evidencia de cada módulo
+6. Preferencias del cliente
+
+### Memoria (Memory Management)
+
+| Tipo | Contenido | Por qué importa |
+|---|---|---|
+| Semántica | `perfil_cliente`: objetivo(s), deporte/actividad, restricciones — varias etiquetas | Decide qué módulos se activan |
+| Procedimental | La base de conocimiento modular completa + `reglas_programa` | Sostiene el conocimiento científico y las personalizaciones del cliente |
+| Episódica | `historial_ciclos`: adherencia y resultado real de cada ciclo | El ciclo N+1 depende de cómo fue realmente el ciclo N, no de una suposición |
+
+### Periodización: dos anclajes posibles
+
+- **Por evento**: existe `fecha_evento` en el perfil (carrera, competición, examen físico...). Fases contadas hacia atrás desde la fecha (módulo `periodizacion-orientada-evento.md`).
+- **Por calendario**: sin fecha objetivo. Macrociclo de 6 meses en bloques de 3, mes a mes, semana a semana (módulo `periodizacion-por-calendario.md`).
+
+### Índice de módulos (estado actual)
+
+| Módulo | Tipo | Se activa cuando |
+|---|---|---|
+| `contraindicaciones-medicas.md` | General — capa de seguridad | Siempre, primero — antes del Paso 0 |
+| `calentamiento-activacion.md` | General | Siempre — cada sesión |
+| `monitorizacion-fatiga-bienestar.md` | General | Siempre — cada sesión y cada día |
+| `fuerza-maxima-potencia.md` | General | Objetivo prioriza fuerza relativa/potencia sobre tamaño muscular |
+| `pliometria-rigidez-tendinosa.md` | General | Objetivo con salto, sprint, cambio de dirección |
+| `progresion-carga.md` | General | Cualquier módulo de fuerza/pliometría activo |
+| `seleccion-ejercicios-sustitucion-lesion.md` | General | Restricción física declarada, o limitación de material |
+| `gestion-fatiga-deload.md` | General | Siempre — módulo de fondo |
+| `periodizacion-orientada-evento.md` | General, condicional | Existe `fecha_evento` |
+| `periodizacion-por-calendario.md` | General, condicional | No existe `fecha_evento` |
+| `biomecanica-programacion-hipertrofia.md` | General | Objetivo incluye ganancia de tamaño muscular (se activa junto con cualquier módulo de hipertrofia) |
+| `hipertrofia-recomposicion-corporal.md` | Específico | Objetivo de reducir grasa manteniendo/ganando masa muscular |
+| `running-economia-carrera.md` | Específico | Cliente corre/compite en fondo o medio fondo |
+
+## Backlog abierto
+
+- Automatizar la checklist "verificable mecánicamente" de cada módulo como validador determinista real (hoy es prosa que se lee a ojo).
+- Definir el esquema real de `perfil_cliente` con datos reales de clientes actuales.
+- Módulos de población/deporte específicos: solo cuando exista un cliente real que lo necesite (fútbol, embarazo, patología concreta) — explícitamente pospuestos, no se escriben por completitud especulativa.
+- Decidir el segundo agente candidato para cuando se cierre el criterio de progresión M0 → M1.

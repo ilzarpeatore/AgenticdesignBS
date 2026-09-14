@@ -1,4 +1,27 @@
-# Agentic Design Patterns
+# AgenticdesignBS
+
+Este repositorio tiene dos partes:
+
+1. **`agentes/`** — el sistema de agentes de IA para el servicio de asesoría de entrenamiento y nutrición: prompts, módulos de conocimiento y esquemas de datos, versionados. Es la fuente de verdad operativa — ver `docs/roadmap.md` para el diseño general (mesociclos, arquitectura, criterios de progresión) y `CONTRIBUTING.md` para el proceso de mantenimiento (cómo alimentar de conocimiento nuevo a los agentes).
+2. **El resto del repositorio** — el texto completo del libro *Agentic Design Patterns* (Gulli & Sauco), usado como referencia de patrones (Reflection, Routing, Knowledge Retrieval/RAG, Guardrails, Human-in-the-Loop, etc.) en los que se apoya el diseño de `agentes/`. Cada módulo cita explícitamente los patrones del libro en los que se basa.
+
+## Sistema de agentes — estructura
+
+```
+agentes/
+  programacion-entrenamiento/
+    system-prompt.md      ← marco fijo: rol, alcance, protocolo de intake
+    CHANGELOG.md
+    modulos/               ← un archivo por tema de conocimiento (13 módulos)
+    esquemas/               ← JSON Schema de los datos que maneja el agente
+docs/
+  roadmap.md               ← diseño general del sistema completo
+CONTRIBUTING.md            ← cómo alimentar de conocimiento nuevo a los agentes
+```
+
+---
+
+## Referencia: el libro "Agentic Design Patterns"
 
 This repository contains the full text of the book "Agentic Design Patterns" by Antonio Gulli and Mauro Sauco. The content has been compiled and organized by Tom Mathews  for easy access and reference for the community.
 

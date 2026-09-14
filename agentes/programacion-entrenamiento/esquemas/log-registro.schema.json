@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Registro de generación — memoria episódica",
+  "description": "Una entrada por borrador generado. Es la memoria episódica del agente: sin ella, cada ciclo se generaría como si el anterior no hubiera pasado. También alimenta el criterio de progresión M0 -> M1.",
+  "type": "object",
+  "required": ["fecha", "cliente_id", "modulos_activos", "confianza", "requiere_revision"],
+  "properties": {
+    "fecha": { "type": "string", "format": "date-time" },
+    "cliente_id": { "type": "string" },
+    "bloque": { "type": ["integer", "null"] },
+    "mes": { "type": ["integer", "null"] },
+    "semana": { "type": ["integer", "null"] },
+    "modulos_activos": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Qué módulos decidió el Paso 0 que aplicaban a este cliente en esta generación."
+    },
+    "adherencia_real": {
+      "type": ["string", "null"],
+      "description": "Lo que de verdad pasó en el ciclo anterior — alimenta el historial_ciclos de la siguiente generación. Nunca se inventa; si falta, el Productor debe pedirlo o generar en modo conservador."
+    },
+    "rpe_sesion": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 10,
+      "description": "RPE de sesión (método Foster), recogido 10-30 min después de terminar. Ver monitorizacion-fatiga-bienestar.md."
+    },
+    "carga_sesion": {
+      "type": ["number", "null"],
+      "description": "rpe_sesion x duración de la sesión en minutos. Se compara con el volumen programado (biomecanica-programacion-hipertrofia.md, sección 9) para calibrar el MRV real del cliente."
+    },
+    "bienestar_diario": {
+      "type": ["object", "null"],
+      "description": "Cuestionario basado en Hooper-Mackinnon, recogido antes de la sesión. Escala 1-7 (1=muy bien/muy bajo, 7=muy mal/muy alto).",
+      "properties": {
+        "sueno": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "fatiga": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "dolor_muscular": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "estres": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "animo": { "type": ["integer", "null"], "minimum": 1, "maximum": 7 }
+      }
+    },
+    "aprobado_validador": {
+      "type": "boolean",
+      "description": "Resultado del Paso 3 (validador determinista) — checklist mecánica de los módulos activos."
+    },
+    "aprobado_critico": {
+      "type": "boolean",
+      "description": "Resultado del Paso 4 (crítico) — checklist de juicio de los módulos activos."
+    },
+    "confianza": {
+      "type": "string",
+      "enum": ["alta", "media", "baja"]
+    },
+    "riesgo_detectado": {
+      "type": ["string", "null"]
+    },
+    "requiere_revision": {
+      "type": "boolean"
+    },
+    "correccion_manual": {
+      "type": ["string", "null"],
+      "description": "Qué corrigió el humano a mano en el Paso 5. Es la señal del criterio de progresión M0 -> M1: cuando este campo queda vacío de forma consistente durante varios ciclos, el criterio está cumplido."
+    }
+  }
+}

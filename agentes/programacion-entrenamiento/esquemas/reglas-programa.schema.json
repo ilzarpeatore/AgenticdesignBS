@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Reglas de programa — configuración por cliente",
+  "description": "Reglas de estructura que el Productor debe seguir literalmente, no interpretar. Se mantienen fuera del system-prompt porque un prompt no las sostiene de forma fiable durante meses de generación.",
+  "type": "object",
+  "required": ["ejercicios_basicos_fijos", "regla_accesorios"],
+  "properties": {
+    "ejercicios_basicos_fijos": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ejercicios que no cambian de nombre ni de patrón entre semanas."
+    },
+    "regla_accesorios": {
+      "type": "string",
+      "description": "Ej. 'rotar_cada_semana', 'fijo_por_bloque'."
+    },
+    "frecuencia_deload": {
+      "type": "string",
+      "description": "Ej. 'cada_4_semanas'. Por defecto sigue gestion-fatiga-deload.md (cada 3-5 semanas)."
+    },
+    "reglas_personalizadas": {
+      "type": "array",
+      "description": "Lista abierta para cualquier individualización no cubierta por los campos anteriores: disponibilidad, instalaciones, preferencias de estructura, etc. No requiere cambiar este esquema para añadir un tipo nuevo.",
+      "items": {
+        "type": "object",
+        "required": ["id", "aplica_a", "tipo", "descripcion"],
+        "properties": {
+          "id": { "type": "string" },
+          "aplica_a": {
+            "type": "string",
+            "description": "Ej. 'viernes', 'todos los días', 'bloque 2'."
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Ej. 'rotacion_semanal', 'restriccion_material', 'plantilla_fija'."
+          },
+          "opciones": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Solo si tipo es una rotación entre variantes."
+          },
+          "descripcion": {
+            "type": "string",
+            "description": "Descripción en lenguaje natural de la regla, literal — el Productor no la reinterpreta."
+          }
+        }
+      }
+    }
+  }
+}
