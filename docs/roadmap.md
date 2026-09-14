@@ -16,13 +16,22 @@ Como en un programa de entrenamiento real: no se sube de fase por calendario, se
 
 | Mesociclo | Contexto | Se automatiza | Control | Infraestructura |
 |---|---|---|---|---|
-| **M0 (actual)** | Amigos y familia, sin apertura al mercado | 1 agente operativo (borradores) | Revisión humana al 100% | Ninguna — prompt guardado a mano, sin n8n |
+| **M0 (actual)** | Amigos y familia, sin apertura al mercado | 2 agentes operativos (borradores + import) | Revisión humana al 100% | Ninguna — prompt guardado a mano, sin n8n |
 | **M1** | Servicio abierto, <1.000€/mes | 2-3 agentes operativos | Revisión humana por muestreo | n8n + Google Sheets como log |
 | **M2** | Ingresos recurrentes estables | 13 operativos + 6 controles + director | Un agente de control por área | n8n/Make + Airtable + Notion |
 
 **Criterios de progresión:**
 - M0 → M1: el servicio se abre al mercado con clientes de pago *y* el agente lleva varios ciclos seguidos sin correcciones mayores en revisión.
 - M1 → M2: ingresos recurrentes sostenidos varios meses (~500-1.000€/mes) *y* los agentes operativos funcionan con supervisión por muestreo, no total.
+
+## Agentes existentes
+
+| Agente | Rol | Repo que opera | Documento |
+|---|---|---|---|
+| Asistente de Programación de Entrenamiento | Genera el borrador de programa (síntesis multi-módulo) | — (produce el `.xlsx` que consume Bckbs) | `agentes/programacion-entrenamiento/system-prompt.md` |
+| Agente Importador de Programas | Lleva el `.xlsx` ya generado hasta la base de datos real (validar, importar, asignar, verificar) — no genera contenido ni decide programación | `ilzarpeatore/Bckbs` (Laravel, VPS `bestronger-vps`) | `agentes/importador-programas/system-prompt.md` |
+
+Son agentes de cadena, no independientes: el importador empieza exactamente donde termina el productor (recibe un `.xlsx` ya escrito).
 
 ## Arquitectura del Asistente de Programación de Entrenamiento (M0)
 
@@ -79,4 +88,4 @@ No es un agente monolítico ni un router que encasilla al cliente en una categor
 
 - Definir el esquema real de `perfil_cliente` con datos reales de clientes actuales.
 - Módulos de población/deporte específicos: solo cuando exista un cliente real que lo necesite (fútbol, embarazo, patología concreta) — explícitamente pospuestos, no se escriben por completitud especulativa.
-- Decidir el segundo agente candidato para cuando se cierre el criterio de progresión M0 → M1.
+- Agente Importador de Programas: falta el endpoint HTTP (opera hoy vía CLI+SSH), el comando de asignación a cliente, y `check-integrity` automático tras cada import real — ver `docs/AGENTE_IMPORTADOR.md` en `ilzarpeatore/Bckbs`, sección 7.
