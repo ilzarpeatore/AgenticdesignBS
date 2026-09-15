@@ -1,0 +1,74 @@
+# Tareas pendientes — sistema de agentes (consolidado)
+
+> Único documento de tareas del proyecto. Antes esto vivía repartido entre `docs/roadmap.md` (sección "Backlog abierto"), `AGENTE_IMPORTADOR.md` en Bckbs y un encargo aparte (`BRIEF_registro_alergias_intolerancias.md`) — se consolida aquí para no mantener la misma tarea descrita en varios sitios a la vez. `roadmap.md` sigue siendo el documento de arquitectura/diseño; este es el documento de seguimiento de trabajo pendiente.
+>
+> **Última actualización:** 2026-09-15
+
+## Cómo leer esta tabla
+
+| Columna | Significado |
+|---|---|
+| Estado | 🔒 Bloqueada (no se puede avanzar desde esta sesión) · 🟡 Requiere el usuario (dato/decisión que solo puede dar él) · ⏸️ Pospuesta a propósito (no se escribe por completitud especulativa) · 🟢 Mejora opcional (no bloqueante) |
+| Bloqueador | Qué hace falta exactamente para desbloquearla |
+
+---
+
+## 1. Bloqueadas por acceso a BD/VPS real (`bestronger-vps`)
+
+Ninguna de estas tres se puede ejecutar desde esta sesión — no hay red hacia el VPS de producción (confirmado con un test de conectividad real, no solo asumido). Requieren una sesión de Claude Code con acceso al VPS, o que el usuario las ejecute/facilite el acceso.
+
+| # | Tarea | Estado | Bloqueador | Detalle completo |
+|---|---|---|---|---|
+| 1.1 | Verificar contra BD real todo lo mergeado a `main` de Bckbs el 2026-09-15 (`--json`, `programs:assign-client`, `POST program-import`, hotfix `fail()`→`reportFailure()`) | 🔒 | Acceso a datos del VPS `bestronger-vps` | `Bckbs/docs/AGENTE_IMPORTADOR.md`, sección "Tarea pendiente (2026-09-15)" |
+| 1.2 | Construir el registro estructurado de severidad de alergias/intolerancias en Bckbs (`client_limitations`: columna `severity`, ampliar `type`, validación 422 si `type=allergy` sin `severity`, tests) | 🔒 | Acceso al repo Bckbs **y** a su BD (migración) | Encargo autocontenido ya escrito y entregado al usuario: `BRIEF_registro_alergias_intolerancias.md` (no vive en ningún repo todavía — es para dárselo a la próxima sesión con acceso) |
+| 1.3 | Etiquetado de alérgenos por ingrediente/receta en Bckbs (`ingredients`/`recipes` no tienen columna tipo `contiene_gluten`) | 🔒 | Depende de 1.2 (no tiene sentido etiquetar ingredientes si todavía no hay severidad estructurada que consultar) | `agentes/programacion-nutricion/formato-salida/entrega-bckbs.md`, sección 4 (limitación documentada); `BRIEF_registro_alergias_intolerancias.md`, sección 6 ("fuera de alcance") |
+
+---
+
+## 2. Bloqueadas por datos o decisión del usuario (no técnicas)
+
+| # | Tarea | Estado | Bloqueador | Detalle completo |
+|---|---|---|---|---|
+| 2.1 | Definir `perfil-cliente.schema.json` con datos reales de clientes actuales, no solo la estructura teórica | 🟡 | El usuario tiene que aportar perfiles reales (anonimizados si hace falta) | `agentes/programacion-entrenamiento/esquemas/perfil-cliente.schema.json` |
+| 2.2 | Caso real de cliente de principio a fin para el Asistente de Nutrición (equivalente al caso de Toni en entrenamiento) | 🟡 | El usuario tiene que aportar uno de los recetarios por cliente que ya construye a mano | `agentes/programacion-nutricion/validador/README.md` (fixtures hoy sintéticos, sin caso real) |
+| 2.3 | Migrar a `client_limitations` las alergias que hoy solo existen como texto libre en `nutrition_questionnaire_answers.allergies_intolerances` | 🟡 (tras 1.2) | Es tarea humana a propósito — un parseo automático de texto libre no puede inferir severidad de forma fiable, así que no se automatiza | `BRIEF_registro_alergias_intolerancias.md`, sección 5 |
+
+---
+
+## 3. Pospuestas a propósito (no se escriben por completitud especulativa)
+
+Mismo criterio en los dos agentes: un módulo de población/deporte específico solo se escribe cuando existe un cliente real que lo necesita, nunca por anticipado.
+
+| # | Tarea | Agente | Estado |
+|---|---|---|---|
+| 3.1 | Módulos de población/deporte específicos (fútbol, otros deportes de equipo) | Entrenamiento | ⏸️ |
+| 3.2 | Módulo de poblaciones específicas (embarazo, patologías concretas) | Entrenamiento | ⏸️ |
+| 3.3 | Módulo de poblaciones específicas (embarazo, patologías concretas) | Nutrición | ⏸️ |
+
+---
+
+## 4. Mejoras opcionales no bloqueantes
+
+Anotadas para no perderlas, pero ninguna es un hueco crítico hoy — el diseño actual (Human-in-the-Loop) ya cubre el riesgo que resolverían.
+
+| # | Tarea | Estado | Nota |
+|---|---|---|---|
+| 4.1 | `programs:check-integrity` inmediato tras cada import real, no solo cron semanal | 🟢 | `Bckbs/docs/AGENTE_IMPORTADOR.md`, sección 7, punto 4 |
+| 4.2 | Umbral de revisión humana configurable por nivel de confianza (hoy `review_required` ya separa A/B de C/D/E, pero la pausa la impone el LLM siguiendo el system-prompt, no la CLI) | 🟢 | `Bckbs/docs/AGENTE_IMPORTADOR.md`, sección 7, punto 5 |
+| 4.3 | Comando/endpoint de importación de planes de nutrición a Bckbs (análogo a `programs:import`) | 🟢 (depende de 1.2) | `BRIEF_registro_alergias_intolerancias.md`, sección 6 ("fuera de alcance") — no hace falta hoy porque el Productor de nutrición ya escribe directo vía la API existente (`formato-salida/entrega-bckbs.md`) |
+
+---
+
+## Ya resuelto (referencia, no acción)
+
+- Los cinco bloqueantes originales del Agente Importador de Programas (`--json`, endpoint HTTP, `programs:assign-client`, `check-integrity` en cron, `review_required`).
+- Formato de salida y recetario real del Asistente de Nutrición — la API de Bckbs (`meal_plan_templates`/`daily_plan_recipes`, `recipe-filter-list`) ya existía, no hizo falta construir nada nuevo.
+- Deep search de contenido científico del Asistente de Nutrición: necesidades energéticas/macros, timing, recomposición corporal, superávit de ganancia muscular, rendimiento deportivo/resistencia, y evidencia clínica de alergias/intolerancias.
+
+---
+
+## Mantenimiento de este documento
+
+- Cuando una tarea se resuelva, muévela a "Ya resuelto" con la fecha, no la borres — mismo criterio que los changelogs de cada agente.
+- Si aparece una tarea nueva, añádela aquí primero — no crear un nuevo documento de pendientes suelto en otro sitio del repo.
+- `docs/roadmap.md` y los `CHANGELOG.md` de cada agente siguen siendo la fuente de verdad de arquitectura e historial de cambios respectivamente; este documento es solo el estado actual de qué queda por hacer.
