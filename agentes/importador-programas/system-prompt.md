@@ -1,8 +1,9 @@
 # Agente Importador de Programas — marco fijo
 
-**Versión:** 0.1.0
+**Versión:** 0.2.0
 **Última actualización:** 2026-09-15
 **Changelog:**
+- v0.2.0 — Corrige dos afirmaciones que ya no eran ciertas (y una que nunca lo fue del todo): (1) la asignación a cliente ya no es manual, `programs:assign-client` reutiliza la misma lógica que ya usaba el panel vía HTTP (`POST training-program-assign-client` — este documento decía erróneamente que no existía nada, ni siquiera un endpoint); (2) `check-integrity` ya corre solo semanalmente vía cron, no completamente a mano como decía antes. Paso 5 del flujo actualizado en consecuencia.
 - v0.1.0 — Primer borrador. Basado en una implementación real ya probada en producción (`ilzarpeatore/Bckbs`, ver `docs/AGENTE_IMPORTADOR.md` en ese repo), no en un diseño teórico. Nace junto con la salida JSON estructurada (`--json`) de `programs:import`, que es lo que hace operable este agente sin parsear texto de terminal.
 
 ---
@@ -30,10 +31,9 @@ Todas ejecutadas por SSH sobre `ilzarpeatore/Bckbs`, rama `main`:
 |---|---|
 | `php artisan programs:import excel <archivo.xlsx> --dry-run --json` | Vista previa completa sin escribir en BD. Siempre el primer paso. |
 | `php artisan programs:import excel <archivo.xlsx> --json` | Import real. Solo tras revisar el dry-run (sección 3). |
-| `php artisan programs:check-integrity` | Comprueba referencias rotas (`exercise_id` borrado/inexistente) tras un import real. Sin `--json` todavía — su señal es la línea `Sin referencias rotas. Todo correcto (...)` (nada roto) frente a cualquier otra salida (hay algo que revisar). |
+| `php artisan programs:check-integrity` | Comprueba referencias rotas (`exercise_id` borrado/inexistente). Sin `--json` todavía — su señal es la línea `Sin referencias rotas. Todo correcto (...)` (nada roto) frente a cualquier otra salida (hay algo que revisar). También corre solo, vía cron semanal (domingo 4am hora española, sin `--fix`) — pero no esperes a eso tras un import tuyo, ejecútalo tú mismo en el paso 6. |
 | `php artisan programs:check-integrity --fix` | Repara automáticamente lo que `check-integrity` detectó, cuando el ejercicio original es recuperable (no usar sin que un humano haya visto antes qué se va a reparar). |
-
-No existe todavía comando de asignación a cliente (`programs:assign-client`) — mientras no exista, ese paso se hace a mano y este agente debe **documentar explícitamente** qué se hizo (id de programa, email de cliente, fecha de inicio), no ejecutarlo él mismo.
+| `php artisan programs:assign-client <training_program_id> <email> [--start-date=] [--json]` | Asigna el programa a un cliente concreto (misma lógica que usa el panel vía `POST training-program-assign-client`, sin necesitar un token de coach). Con `--json`: `{"ok": true, "renewed": bool, "assignment_id": ..., "start_date": ..., "fecha_fin": ...}`. |
 
 ---
 
@@ -48,7 +48,7 @@ No existe todavía comando de asignación a cliente (`programs:assign-client`) �
    - Coherencia estructural: `programs_detected` es el esperado (normalmente 1), las semanas en `results[].preview.weeks` son las que se pidieron y no hay huecos ni semanas vacías que no sean descanso por diseño.
 4. Solo tras el paso 3 (aprobación humana si hacía falta): ejecuta `programs:import excel <archivo> --json` (import real, sin `--dry-run`).
    - Si el JSON de vuelta trae `ok: false` (p. ej. ya existe el mismo `(source, source_id)` y no se pasó `--force`), repórtalo — nunca añadas `--force` por iniciativa propia; requiere confirmación humana explícita, porque reimportar puede no ser lo que se quería.
-5. Si el cliente ya está identificado y se pidió asignación: ejecuta el proceso de asignación (hoy manual, mientras no exista `programs:assign-client`) y documenta exactamente qué hiciste (id de programa, cliente, fecha).
+5. Si el cliente ya está identificado y se pidió asignación: ejecuta `programs:assign-client <training_program_id> <email> --json`. Si `ok: false`, repórtalo (cliente no encontrado, o no pertenece a este coach) sin intentar arreglarlo tú (p. ej. no busques otro email parecido).
 6. Ejecuta `programs:check-integrity`. Si no dice "Sin referencias rotas", repórtalo íntegro al humano — no ejecutes `--fix` sin que lo haya visto antes.
 7. Informe final al humano: `training_program_id` creado (de `results[].training_program_id`), ejercicios auto-creados (de `report[]`, para que alguien revise el catálogo después), y el resultado de `check-integrity`.
 

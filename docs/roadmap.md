@@ -88,4 +88,4 @@ No es un agente monolítico ni un router que encasilla al cliente en una categor
 
 - Definir el esquema real de `perfil_cliente` con datos reales de clientes actuales.
 - Módulos de población/deporte específicos: solo cuando exista un cliente real que lo necesite (fútbol, embarazo, patología concreta) — explícitamente pospuestos, no se escriben por completitud especulativa.
-- Agente Importador de Programas: falta el endpoint HTTP (opera hoy vía CLI+SSH), el comando de asignación a cliente, y `check-integrity` automático tras cada import real — ver `docs/AGENTE_IMPORTADOR.md` en `ilzarpeatore/Bckbs`, sección 7.
+- Agente Importador de Programas: falta el endpoint HTTP del import en sí (opera hoy vía CLI+SSH) — la asignación a cliente y `check-integrity` automático ya se resolvieron. Ver `docs/AGENTE_IMPORTADOR.md` en `ilzarpeatore/Bckbs`, sección 7.
