@@ -125,8 +125,30 @@
     },
     "restricciones_dieteticas": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "Alergias o restricciones religiosas/éticas — competencia del Agente Nutricional, se registran aquí solo para coherencia entre agentes."
+      "description": "Alergias, intolerancias, aversiones o restricciones religiosas/éticas. Campo compartido: lo gestiona el Agente de Programación de Nutrición (agentes/programacion-nutricion/), se registra aquí para que ambos agentes lean el mismo dato sin duplicar el intake — igual que restricciones_salud es la fuente única para este agente.",
+      "items": {
+        "type": "object",
+        "required": ["descripcion", "tipo"],
+        "properties": {
+          "descripcion": { "type": "string" },
+          "tipo": {
+            "type": "string",
+            "enum": ["alergia", "intolerancia", "aversion", "preferencia_etica_religiosa"],
+            "description": "alergia -> riesgo de reacción física, puede ser grave. intolerancia -> malestar digestivo, no pone en riesgo la vida. aversion -> no le gusta, sin motivo médico ni ético. preferencia_etica_religiosa -> ej. vegetariano, halal."
+          },
+          "severidad": {
+            "type": "string",
+            "enum": ["leve", "moderada", "grave_anafilaxia"],
+            "description": "Obligatorio si tipo es 'alergia'. 'grave_anafilaxia' exige exclusión total y verificación cruzada de trazas/contaminación, no solo evitar el ingrediente principal — ver modulos/alergias-intolerancias.md del Agente de Programación de Nutrición."
+          }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "tipo": { "const": "alergia" } }, "required": ["tipo"] },
+            "then": { "required": ["severidad"] }
+          }
+        ]
+      }
     },
     "disponibilidad": {
       "type": "object",

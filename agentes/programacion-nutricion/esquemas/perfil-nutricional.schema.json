@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Perfil nutricional — Asistente de Programación de Nutrición",
+  "description": "Datos específicos de nutrición que NO viven en agentes/programacion-entrenamiento/esquemas/perfil-cliente.schema.json. No dupliques cliente_id, restricciones_dieteticas, disponibilidad de entrenamiento ni actividad_principal — se leen del esquema compartido (ver system-prompt.md, Paso 1, apartados 0 y 1).",
+  "type": "object",
+  "required": ["cliente_id", "objetivos_nutricionales", "gustos_y_aversiones", "disponibilidad_cocina"],
+  "properties": {
+    "cliente_id": {
+      "type": "string",
+      "description": "Debe coincidir con el cliente_id del perfil de entrenamiento — es la clave para cruzar ambos esquemas, no un identificador nuevo."
+    },
+    "objetivos_nutricionales": {
+      "type": "array",
+      "description": "Uno o más objetivos. No tienen por qué coincidir 1:1 con los objetivos de entrenamiento (ej. entrenamiento de fuerza + objetivo de pérdida de grasa).",
+      "items": {
+        "type": "object",
+        "required": ["categoria"],
+        "properties": {
+          "categoria": {
+            "type": "string",
+            "description": "Ej. perdida_grasa, ganancia_muscular, recomposicion, mantenimiento, rendimiento_deportivo, salud_general."
+          },
+          "detalle": {
+            "type": "string",
+            "description": "Matiz en texto libre (ej. 'priorizar saciedad sobre velocidad de pérdida')."
+          }
+        }
+      }
+    },
+    "gustos_y_aversiones": {
+      "type": "object",
+      "description": "Preferencias que no son de seguridad (eso vive en restricciones_dieteticas del esquema compartido, tipo alergia/intolerancia).",
+      "properties": {
+        "alimentos_favoritos": { "type": "array", "items": { "type": "string" } },
+        "alimentos_a_evitar": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Por preferencia (aversión), no por alergia/intolerancia — esos ya están en restricciones_dieteticas."
+        },
+        "estilo_culinario": {
+          "type": "string",
+          "description": "Ej. 'mediterráneo', 'asiático', 'comida rápida casera' — para orientar la búsqueda en el recetario (Paso 2, Tool Use)."
+        }
+      }
+    },
+    "disponibilidad_cocina": {
+      "type": "object",
+      "required": ["minutos_por_comida", "nivel_habilidad"],
+      "properties": {
+        "minutos_por_comida": { "type": "integer", "description": "Tiempo real disponible para cocinar cada comida, no un ideal aspiracional." },
+        "nivel_habilidad": {
+          "type": "string",
+          "enum": ["principiante", "intermedio", "avanzado"],
+          "description": "Independiente del nivel de fuerza del cliente en el otro agente."
+        },
+        "cocina_para_mas_personas": { "type": "boolean" }
+      }
+    },
+    "presupuesto": {
+      "type": "string",
+      "description": "Texto libre si el cliente lo declara como limitación (ej. 'ajustado', 'sin límite particular'). Opcional — su ausencia no bloquea la generación."
+    },
+    "numero_comidas_preferido": {
+      "type": "integer",
+      "description": "Nº de comidas/día que el cliente prefiere. Opcional — si falta, el Productor debe preguntarlo antes de fijar el reparto, no asumir un valor por defecto."
+    },
+    "referencias_actuales": {
+      "type": "object",
+      "description": "Peso, medidas o ingesta actual aproximada, si existen. Opcional — su ausencia limita la precisión de las cantidades pero no bloquea la generación (a diferencia del cribado de alergias, que sí bloquea).",
+      "additionalProperties": true
+    }
+  }
+}

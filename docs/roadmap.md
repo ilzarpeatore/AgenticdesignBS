@@ -16,7 +16,7 @@ Como en un programa de entrenamiento real: no se sube de fase por calendario, se
 
 | Mesociclo | Contexto | Se automatiza | Control | Infraestructura |
 |---|---|---|---|---|
-| **M0 (actual)** | Amigos y familia, sin apertura al mercado | 2 agentes operativos (borradores + import) | Revisión humana al 100% | Ninguna — prompt guardado a mano, sin n8n |
+| **M0 (actual)** | Amigos y familia, sin apertura al mercado | 3 agentes operativos (entrenamiento + import + nutrición) | Revisión humana al 100% | Ninguna — prompt guardado a mano, sin n8n |
 | **M1** | Servicio abierto, <1.000€/mes | 2-3 agentes operativos | Revisión humana por muestreo | n8n + Google Sheets como log |
 | **M2** | Ingresos recurrentes estables | 13 operativos + 6 controles + director | Un agente de control por área | n8n/Make + Airtable + Notion |
 
@@ -30,8 +30,9 @@ Como en un programa de entrenamiento real: no se sube de fase por calendario, se
 |---|---|---|---|
 | Asistente de Programación de Entrenamiento | Genera el borrador de programa (síntesis multi-módulo) | — (produce el `.xlsx` que consume Bckbs) | `agentes/programacion-entrenamiento/system-prompt.md` |
 | Agente Importador de Programas | Lleva el `.xlsx` ya generado hasta la base de datos real (validar, importar, asignar, verificar) — no genera contenido ni decide programación | `ilzarpeatore/Bckbs` (Laravel, VPS `bestronger-vps`) | `agentes/importador-programas/system-prompt.md` |
+| Asistente de Programación de Nutrición | Genera el plan nutricional/recetas individualizado, coordinado con el entrenamiento real del cliente — no diseña entrenamiento ni diagnostica | — (sin destino de producción todavía) | `agentes/programacion-nutricion/system-prompt.md` |
 
-Son agentes de cadena, no independientes: el importador empieza exactamente donde termina el productor (recibe un `.xlsx` ya escrito).
+Son agentes de cadena, no independientes. El importador empieza exactamente donde termina el productor de entrenamiento (recibe un `.xlsx` ya escrito). El de nutrición es distinto: no es una cadena estrictamente secuencial de un solo sentido, sino un **sequential handoff** (Multi-Agent Collaboration, cap. 7) — lee el `perfil-cliente.schema.json` y el razonamiento del Productor de entrenamiento como entrada de contexto (qué días y qué tipo de sesión hay), sin regenerar ni cuestionar el entrenamiento en sí. `restricciones_dieteticas` vive en el esquema del agente de entrenamiento pero la gestiona por completo el de nutrición — es el primer campo genuinamente compartido entre dos agentes de este proyecto.
 
 ## Arquitectura del Asistente de Programación de Entrenamiento (M0)
 
@@ -90,3 +91,4 @@ No es un agente monolítico ni un router que encasilla al cliente en una categor
 - Módulos de población/deporte específicos: solo cuando exista un cliente real que lo necesite (fútbol, embarazo, patología concreta) — explícitamente pospuestos, no se escriben por completitud especulativa.
 - Agente Importador de Programas: los cinco bloqueantes originales de `docs/AGENTE_IMPORTADOR.md` (Bckbs) están ya resueltos o parcialmente cubiertos — sin ítem abierto real pendiente de este lado por ahora.
 - **(2026-09-15) Verificar contra BD real** todo lo mergeado hoy a `main` de Bckbs (`--json`, `programs:assign-client`, `POST program-import`, hotfix `fail()`→`reportFailure()`): solo se comprobó sin base de datos (lint, `route:list` de las 1024 rutas de la app, `artisan list`, 15 tests unitarios puros). Falta un ciclo completo `--dry-run` → import real → `assign-client` → `check-integrity` contra el catálogo real, como el que se hizo con Toni el 2026-09-14. Requiere acceso a datos del VPS `bestronger-vps` — ver `docs/AGENTE_IMPORTADOR.md` en Bckbs, sección 6.
+- **(2026-09-15) Asistente de Programación de Nutrición — recién empezado**, solo capa de seguridad (`alergias-intolerancias.md`, sin deep-search clínico todavía) y el esqueleto del `system-prompt.md`. Pendiente, en orden probable: deep-search de módulos de contenido reales (macros por objetivo, timing alrededor del entrenamiento, recomposición nutricional — mismo proceso que se siguió con hipertrofia/recomposición en el agente de entrenamiento), definir el recetario real contra el que buscar (Paso 2, Tool Use), validador determinista (Paso 3), y un caso real de principio a fin como el de Toni antes de dar por maduro el diseño.

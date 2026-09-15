@@ -1,8 +1,9 @@
 # Asistente de Programación de Entrenamiento — marco fijo
 
-**Versión:** 0.8.0
-**Última actualización:** 2026-09-14
+**Versión:** 0.9.0
+**Última actualización:** 2026-09-15
 **Changelog:**
+- v0.9.0 — `restricciones_dieteticas` en `esquemas/perfil-cliente.schema.json` deja de ser una lista de texto libre: ahora distingue `tipo` (alergia/intolerancia/aversión/preferencia ética-religiosa) y exige `severidad` cuando `tipo: alergia` (mismo patrón de bloqueo duro que `restricciones_salud`/`lesion_localizada`, aplicado esta vez a un dato que gestiona el nuevo Agente de Programación de Nutrición, no este agente — se cambia aquí porque el campo vive en este esquema compartido).
 - v0.8.0 — El razonamiento explícito del Paso 2 (módulos activos, conflictos, resolución, consulta del catálogo) deja de vivir solo en la conversación de generación: se persiste en el nuevo campo obligatorio `razonamiento` de `esquemas/log-registro.schema.json`, quedando auditable después del hecho.
 - v0.7.0 — La consulta del catálogo de ejercicios (`formato-salida/catalogo-ejercicios.xlsx`) se formaliza como paso explícito de búsqueda (Tool Use, cap. 5) dentro del razonamiento del Productor (Paso 2, nuevo punto 4), en vez de tratarse como referencia pasiva de fondo — refleja cómo se usó realmente en el caso de Toni (búsqueda activa + sustitución cuando el nombre ideal no existía en el catálogo).
 - v0.6.0 — El intake de lesiones (Paso 1, apartado 5) pasa de recomendación a bloqueo duro: no se genera ni un borrador preliminar si una `lesion_localizada` no tiene `gesto_doloroso`, `fase` y `empeora_con_actividad_o_impacto` (y `autorizacion_profesional` si `fase: aguda`) — campos ahora obligatorios en `esquemas/perfil-cliente.schema.json`. Cierra la ambigüedad expuesta por un caso real (lesión de manguito rotador declarada sin especificidad, que forzó una decisión de juicio en tensión con el guardrail de `seleccion-ejercicios-sustitucion-lesion.md`).

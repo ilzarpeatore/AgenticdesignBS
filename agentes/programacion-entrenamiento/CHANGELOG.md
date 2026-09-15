@@ -1,5 +1,11 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.13.0 — 2026-09-15
+
+Preparación para el nuevo Agente de Programación de Nutrición (`agentes/programacion-nutricion/`), que lee `restricciones_dieteticas` de este mismo esquema en vez de duplicar el intake.
+
+- **`esquemas/perfil-cliente.schema.json`:** `restricciones_dieteticas` pasa de `string[]` a objetos estructurados con `tipo` (alergia/intolerancia/aversión/preferencia ética-religiosa) y `severidad` obligatoria cuando `tipo: alergia` — mismo patrón de bloqueo duro que ya tiene `restricciones_salud`/`lesion_localizada`, para no repetir con alergias el mismo error de ambigüedad que expuso el caso de Toni con lesiones.
+
 ## v0.12.0 — 2026-09-14
 
 Cuarta y última fase de las mejoras identificadas tras el caso real de Toni: el razonamiento del Paso 2 pasa de narración efímera en el chat a dato persistido y auditable.
