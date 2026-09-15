@@ -2,13 +2,13 @@
 
 **Tipo:** General
 **Se activa cuando:** siempre — es la base sobre la que se apoya cualquier otro módulo de este agente (timing, recomposición, rendimiento). Sin esto no hay forma de dimensionar ningún plan.
-**Versión:** 0.1.0 · **Última actualización:** 2026-09-15
-**Procedencia:** deep search de posicionamientos de sociedades científicas (ISSN, ACSM) y meta-análisis recientes — ver referencias al final.
+**Versión:** 0.2.0 · **Última actualización:** 2026-09-15
+**Procedencia:** deep search de posicionamientos de sociedades científicas (ISSN, ACSM) y meta-análisis recientes — ver referencias al final. v0.2.0: confirmado que coincide con la implementación real de Bckbs (`app/Traits/DailyPlanTrait.php::calculateDailyPlan()`), no es una elección teórica sin conexión con el sistema de producción — ver `formato-salida/entrega-bckbs.md`.
 
 ## 1. Estimación del gasto energético total (GET/TDEE)
 
-- **Metabolismo basal (BMR):** ecuación de Mifflin-St Jeor — `(10 × peso_kg) + (6.25 × altura_cm) − (5 × edad) + 5` (hombres) o `−161` (mujeres en vez de `+5`). Es la ecuación con menor margen de error de las disponibles sin calorimetría (~5%, frente a 10-15% de ecuaciones más antiguas como Harris-Benedict) — úsala como estimación por defecto, no como valor exacto.
-- **Factor de actividad:** multiplica el BMR por 1.2 (sedentario) a 1.9 (extremadamente activo) según la actividad fuera del entrenamiento programado, no solo las sesiones — un cliente con trabajo físico exigente necesita un factor mayor que uno con trabajo de oficina, aunque entrenen lo mismo.
+- **Metabolismo basal (BMR):** ecuación de Mifflin-St Jeor — `(10 × peso_kg) + (6.25 × altura_cm) − (5 × edad) + 5` (hombres) o `−161` (mujeres en vez de `+5`). Es la ecuación con menor margen de error de las disponibles sin calorimetría (~5%, frente a 10-15% de ecuaciones más antiguas como Harris-Benedict) — úsala como estimación por defecto, no como valor exacto. **Es literalmente la que ya usa Bckbs en producción** (`DailyPlanTrait::calculateDailyPlan()`, comentario `// BMR (Mifflin-St Jeor)`).
+- **Factor de actividad:** multiplica el BMR por 1.2 (sedentario) a 1.9 (extremadamente activo) según la actividad fuera del entrenamiento programado, no solo las sesiones — un cliente con trabajo físico exigente necesita un factor mayor que uno con trabajo de oficina, aunque entrenen lo mismo. Coincide exactamente con `config('macro-nutrient.ACTIVITY_LEVEL')` en Bckbs — usa esas claves (`sedentary`, `lightly_active`, `moderate`, `very_active`, `athlete`) al fijar el perfil del cliente, no una escala inventada.
 - **Esto es un punto de partida, no una prescripción cerrada:** ajusta según la respuesta real del cliente (peso/composición corporal a lo largo de 2-3 semanas), no persigas el número teórico si los datos reales dicen otra cosa.
 
 *(Mifflin, M.D., et al., 1990; comparativas de precisión de ecuaciones de metabolismo basal)*
@@ -37,6 +37,8 @@ Rango general para adultos que entrenan (ISSN Position Stand): **1.4-2.0 g/kg/d�
 - Para contexto de resistencia/endurance de intensidad moderada-alta: 6-10 g/kg/día como referencia de sociedades deportivas — **esta cifra es para deportistas de resistencia, no la apliques por defecto a un cliente de gimnasio que hace fuerza sin volumen de resistencia relevante** (ver `running-economia-carrera.md` del agente de entrenamiento si el cliente sí corre/compite en fondo).
 
 *(Gatorade Sports Science Institute, revisión sobre carbohidrato en atletas de resistencia; guías de periodización de carbohidrato)*
+
+**Traducción a los presets reales de Bckbs (`config('macro-nutrient.MACRO_RATIO')`):** una vez fijados los gramos de proteína (sección 2) y grasa (sección 3), conviértelos a % de calorías totales y compara con los presets ya disponibles (`balanced` 40/30/30 carbs/proteína/grasa, `low_fat` 40/40/20, `high_protein` 20/50/30, `high_carb` 55/25/20, `keto` 5/25/70) — usa el que más se acerque, o `macro_type: custom` con `protein_pct`/`carbs_pct`/`fat_pct` exactos si ninguno encaja bien. No inventes un sexto preset ni lo dejes en gramos sueltos sin traducir a lo que el sistema real espera.
 
 ## 5. Umbral de seguridad: disponibilidad energética (Low Energy Availability / RED-S)
 

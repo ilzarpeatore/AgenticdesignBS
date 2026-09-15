@@ -1,5 +1,15 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.3.0 — 2026-09-15
+
+Trabajo que se podía hacer sin acceso a BD/VPS, mientras se resuelve por otra vía el registro estructurado de alergias (ver `BRIEF_registro_alergias_intolerancias.md`, entregado al usuario).
+
+- **`formato-salida/entrega-bckbs.md` (nuevo):** al revisar Bckbs (solo lectura) se encontró que la API real de nutrición ya existe completa y en producción — `recipes`/`ingredients` (catálogo, con `Recipe::scopeRecipeFilter` filtrando por macros/categoría/tiempo de preparación), `meal_plan_templates`/`meal_plan_template_items` (plantilla reutilizable, análogo de `workout_templates`), `daily_plans`/`daily_plan_recipes` (asignación real al calendario del cliente, análogo de `program_day_assignments`), todo vía endpoints HTTP ya wireados (`recipe-filter-list`, `recipe-detail/{id}`, `meal-plan-templates`, `.../items`, `.../import-to-calendar`). No hizo falta construir nada nuevo del lado del backend — a diferencia del agente de entrenamiento, aquí el "formato de salida real" ya estaba resuelto sin saberlo.
+- **`necesidades-energeticas-macronutrientes.md` (v0.2.0) y `recomposicion-corporal-nutricion.md` (v0.2.0):** reconciliados con la implementación real de Bckbs (`app/Traits/DailyPlanTrait.php`) — Mifflin-St Jeor confirmado como lo que ya usa producción, y el déficit/superávit es un % del TDEE (`FITNESS_GOAL`), no kcal fijas como se había escrito inicialmente. El guardrail de "nunca >500 kcal/día" ahora se comprueba sobre el resultado en kcal absolutas del preset elegido, no sobre el porcentaje.
+- **`esquemas/log-nutricion.schema.json` (nuevo):** memoria episódica, mismo patrón que `log-registro.schema.json` del agente de entrenamiento (incluido el campo `razonamiento` obligatorio desde el primer día, sin repetir el hueco que ese agente tuvo que cerrar después).
+- **`validador/validar_plan.py` (nuevo, Paso 3):** código real, no prosa. Comprueba severidad obligatoria en alergias, cribado de alérgenos por ingrediente (limitación documentada: solo coincidencia de texto, Bckbs no etiqueta alérgenos todavía), estructura de items, y tolerancia de macros diarios (±10%, la misma banda que ya usa `DailyPlanTrait::calculateDailyPlan()`). 16 tests — con fixtures sintéticos, declarado explícitamente que no hay todavía un caso real de cliente como el de Toni para este agente.
+- **`system-prompt.md` (v0.3.0):** Paso 2 punto 4, Paso 6 y Paso 7 actualizados con los endpoints reales; sección 9 ya no lista el recetario ni el formato de salida como pendientes.
+
 ## v0.2.0 — 2026-09-15
 
 Deep search basado en ciencia para las tres piezas de contenido más básicas, siguiendo el proceso de `CONTRIBUTING.md` (evidencia convertida a regla operativa, no cita narrativa).

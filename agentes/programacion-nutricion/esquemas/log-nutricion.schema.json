@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Registro de generación — memoria episódica (nutrición)",
+  "description": "Una entrada por plan/borrador generado. Memoria episódica del Asistente de Programación de Nutrición — mismo rol que esquemas/log-registro.schema.json del agente de entrenamiento, adaptado a nutrición. Sin esto, cada ciclo se generaría como si el anterior no hubiera pasado, y el razonamiento del Paso 2 solo viviría en la conversación donde se generó.",
+  "type": "object",
+  "required": ["fecha", "cliente_id", "modulos_activos", "razonamiento", "confianza", "requiere_revision"],
+  "properties": {
+    "fecha": { "type": "string", "format": "date-time" },
+    "cliente_id": {
+      "type": "string",
+      "description": "Debe coincidir con el cliente_id de perfil-cliente.schema.json (entrenamiento) y perfil-nutricional.schema.json — es la clave que cruza los tres esquemas."
+    },
+    "modulos_activos": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Qué módulos decidió el Paso 0 que aplicaban a este cliente en esta generación."
+    },
+    "razonamiento": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Traza completa del razonamiento explícito del Paso 2 (Chain-of-Thought, system-prompt.md sección 4): módulos activos y por qué, conflictos detectados (incluidos los que vienen de la carga de entrenamiento real), cómo se resolvió cada uno, y la consulta del recetario (qué se buscó en recipe-filter-list, qué se encontró, qué sustitución se hizo y por qué). Obligatorio: nunca se genera un borrador sin rellenarlo — mismo criterio que el agente de entrenamiento."
+    },
+    "entrenamiento_referenciado": {
+      "type": ["object", "null"],
+      "description": "Qué información del Asistente de Programación de Entrenamiento se leyó para este ciclo (Paso 1, apartado 1) — deja constancia de la coordinación entre agentes (Multi-Agent Collaboration, cap. 7), no la duplica.",
+      "properties": {
+        "fecha_generacion_entrenamiento": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Fecha del ciclo de entrenamiento leído, si existe."
+        },
+        "sin_entrenamiento_disponible": {
+          "type": "boolean",
+          "description": "true si no había entrenamiento del ciclo actual que leer y el plan nutricional se generó señalando esa ausencia (ver system-prompt.md, Paso 1, apartado 1)."
+        }
+      }
+    },
+    "macros_objetivo": {
+      "type": ["object", "null"],
+      "description": "Objetivo diario fijado en esta generación (kcal, proteína/carbohidrato/grasa en gramos) — para poder comparar con lo que el cliente registre realmente.",
+      "properties": {
+        "kcal": { "type": "number" },
+        "proteina_g": { "type": "number" },
+        "carbohidrato_g": { "type": "number" },
+        "grasa_g": { "type": "number" }
+      }
+    },
+    "adherencia_real": {
+      "type": ["string", "null"],
+      "description": "Lo que de verdad pasó en el ciclo anterior (adherencia al plan, ajustes que el cliente hizo por su cuenta) — alimenta la siguiente generación. Nunca se inventa; si falta, el Productor debe pedirlo o generar en modo conservador, igual que en entrenamiento."
+    },
+    "aprobado_validador": {
+      "type": "boolean",
+      "description": "Resultado del Paso 3 (validador determinista, validador/validar_plan.py)."
+    },
+    "aprobado_critico": {
+      "type": "boolean",
+      "description": "Resultado del Paso 4 (Crítico) — checklist de juicio de los módulos activos."
+    },
+    "confianza": {
+      "type": "string",
+      "enum": ["alta", "media", "baja"]
+    },
+    "riesgo_detectado": {
+      "type": ["string", "null"],
+      "description": "Ej. alergia con severidad grave_anafilaxia presente en el caso, disponibilidad energética en banda de riesgo, contradicción de objetivos sin resolver."
+    },
+    "requiere_revision": {
+      "type": "boolean"
+    },
+    "correccion_manual": {
+      "type": ["string", "null"],
+      "description": "Qué corrigió el humano a mano en el Paso 5. Igual que en entrenamiento: cuando este campo queda vacío de forma consistente durante varios ciclos, es señal de que el agente está listo para menos supervisión."
+    }
+  }
+}

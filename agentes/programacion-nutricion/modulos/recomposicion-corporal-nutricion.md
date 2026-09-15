@@ -2,16 +2,19 @@
 
 **Tipo:** Específico
 **Se activa cuando:** el objetivo del cliente incluye reducir grasa manteniendo/ganando masa muscular, o pérdida de grasa con entrenamiento de fuerza activo. **Se activa siempre junto con `necesidades-energeticas-macronutrientes.md`** — este módulo aplica el déficit/superávit sobre la base que calcula aquel, no repite el cálculo.
-**Versión:** 0.1.0 · **Última actualización:** 2026-09-15
-**Procedencia:** deep search de guías prácticas de diet breaks/refeeds y consenso ISSN sobre proteína en déficit. Complementa, sin duplicar, `hipertrofia-recomposicion-corporal.md` del Asistente de Programación de Entrenamiento.
+**Versión:** 0.2.0 · **Última actualización:** 2026-09-15
+**Procedencia:** deep search de guías prácticas de diet breaks/refeeds y consenso ISSN sobre proteína en déficit. Complementa, sin duplicar, `hipertrofia-recomposicion-corporal.md` del Asistente de Programación de Entrenamiento. v0.2.0: reconciliado con el cálculo real de déficit de Bckbs (`FITNESS_GOAL` es un % del TDEE, no kcal fijas) tras revisar `app/Traits/DailyPlanTrait.php` — ver `formato-salida/entrega-bckbs.md`.
 
 > Este módulo es la contraparte nutricional de `agentes/programacion-entrenamiento/modulos/hipertrofia-recomposicion-corporal.md`. Ese módulo ya fija, del lado de entrenamiento: viabilidad por nivel, tamaño de déficit seguro (no >500 kcal/día), ritmo de pérdida de peso (0.5-0.7%/semana), rango de proteína de referencia (hasta ~2.5 g/kg/día) y volumen de entrenamiento en déficit. **No repitas esas cifras aquí como si fueran un descubrimiento nuevo** — este módulo se ocupa de cómo se implementa el lado nutricional: cuánto déficit fijar en la práctica, cómo estructurar diet breaks/refeeds, y el guardrail de disponibilidad energética.
 
 ## 1. Tamaño del déficit/superávit — implementación práctica
 
+**La app calcula el déficit/superávit como porcentaje del TDEE, no como kcal fijas** (`FITNESS_GOAL`: mantenimiento 0%, pérdida -10/-20/-40%, ganancia +10/+20/+40% — ver `formato-salida/entrega-bckbs.md`, sección 5). El procedimiento correcto:
+
 1. Calcula el TDEE con `necesidades-energeticas-macronutrientes.md`, sección 1.
-2. Aplica un déficit de **300-500 kcal/día** (nunca mayor sin motivo clínico explícito) para pérdida de grasa, o un superávit de **~250 kcal/día** si el objetivo prioritario es ganancia muscular en un cliente avanzado (ver nivel de viabilidad en `hipertrofia-recomposicion-corporal.md`, sección 1, del agente de entrenamiento).
-3. Verifica que el resultado no baje la disponibilidad energética estimada de la banda segura (`necesidades-energeticas-macronutrientes.md`, sección 5) — si el déficit calculado por porcentaje de peso corporal (0.5-0.7%/semana) ya se traduce en más de 500 kcal/día por sí solo (frecuente en clientes con poca masa corporal), prioriza el límite de 500 kcal/día sobre el porcentaje, y ajusta el ritmo esperado de pérdida a la baja en la comunicación al cliente.
+2. Elige el preset de `FITNESS_GOAL` más cercano al ritmo de cambio deseado (pérdida de peso 0.5-0.7%/semana, o superávit pequeño si el objetivo prioritario es ganancia muscular en un cliente avanzado — ver nivel de viabilidad en `hipertrofia-recomposicion-corporal.md`, sección 1, del agente de entrenamiento) y calcula a cuántas **kcal absolutas** se traduce ese porcentaje para el TDEE real de este cliente concreto.
+3. **Comprueba el límite absoluto de seguridad (nunca >500 kcal/día de déficit, sin motivo clínico explícito) sobre esa cifra ya calculada, no sobre el porcentaje.** El mismo -20% puede quedarse en 400 kcal para un cliente sedentario y superar 700 kcal para uno muy activo — si el preset más cercano al ritmo deseado se pasa del límite, usa `macro_type: custom` (o el mecanismo equivalente) para fijar un porcentaje que sí lo respete, en vez de forzar el preset.
+4. Verifica además que el resultado no baje la disponibilidad energética estimada de la banda segura (`necesidades-energeticas-macronutrientes.md`, sección 5).
 
 ## 2. Proteína en déficit
 
