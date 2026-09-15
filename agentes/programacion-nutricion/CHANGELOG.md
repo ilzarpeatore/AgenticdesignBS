@@ -1,5 +1,15 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.4.0 — 2026-09-15
+
+Cierra dos de los pendientes que la sección 9 del `system-prompt.md` dejaba explícitos: contenido de rendimiento/superávit y deep-search clínico de alergias.
+
+- **Nuevo módulo específico `rendimiento-deportivo-resistencia.md`:** carga de carbohidrato antes de eventos >90 min (8-12 g/kg/día, 1-3 días, coordinado con el taper de `periodizacion-orientada-evento.md` del agente de entrenamiento), fueling pre-evento (1-4 g/kg, 1-4h antes) y durante el evento (30-60 g/h desde los 60-90 min, mezclas glucosa+fructosa para tasas altas), expectativa realista de mejora (2-3%). Cross-referencia explícita con `running-economia-carrera.md` (agente de entrenamiento) y `timing-nutricional-entrenamiento.md` para no duplicar hidratación/electrolitos.
+- **Nuevo módulo específico `ganancia-muscular-superavit.md`:** hasta ahora la ganancia de peso/superávit solo tenía una mención breve dentro de `recomposicion-corporal-nutricion.md` — este módulo le da lógica propia porque el dimensionamiento es inverso al de un déficit: superávit mayor para principiantes (hasta ~500 kcal/día) y menor para avanzados (200-300 kcal/día), ritmo objetivo de ganancia de peso 0.25-0.5%/semana como indicador real (no solo las kcal teóricas), proteína 1.6-2.2 g/kg y grasa 0.6-1.0 g/kg. Declarado explícitamente mutuamente excluyente con `recomposicion-corporal-nutricion.md` para un mismo bloque.
+- **`alergias-intolerancias.md` (v0.2.0):** deja de estar pendiente el deep-search de evidencia clínica declarado en v0.1.0. Incorpora la lista de nueve alérgenos mayores FDA/NIAID (incluido sésamo desde 2023), reglas prácticas de contaminación cruzada para severidad grave (utensilios, orden de preparación, almacenamiento), síndrome de alergia oral/reactividad cruzada polen-alimento (abedul↔manzana/fruta de hueso, ambrosía↔plátano/melón/calabacín/pepino) y fuentes ocultas de alérgenos (lecitina de soja, derivados de trigo en salsas/rebozados).
+- **"Poblaciones específicas" sigue pospuesto** (embarazo, patologías) — mismo criterio de no escribir por completitud especulativa que ya se aplicó en el agente de entrenamiento; se retoma solo si aparece un cliente real que lo necesite.
+- **`system-prompt.md` (v0.4.0)** y `docs/roadmap.md`: índice de módulos e histórico actualizados.
+
 ## v0.3.0 — 2026-09-15
 
 Trabajo que se podía hacer sin acceso a BD/VPS, mientras se resuelve por otra vía el registro estructurado de alergias (ver `BRIEF_registro_alergias_intolerancias.md`, entregado al usuario).
