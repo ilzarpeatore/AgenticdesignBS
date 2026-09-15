@@ -85,10 +85,23 @@ No es un agente monolítico ni un router que encasilla al cliente en una categor
 | `hipertrofia-recomposicion-corporal.md` | Específico | Objetivo de reducir grasa manteniendo/ganando masa muscular |
 | `running-economia-carrera.md` | Específico | Cliente corre/compite en fondo o medio fondo |
 
+## Arquitectura del Asistente de Programación de Nutrición (M0)
+
+Mismo marco que el de entrenamiento: base de conocimiento modular, no una dieta de plantilla. Coordina con el entrenamiento real vía un *sequential handoff* (Multi-Agent Collaboration, cap. 7) — lee `perfil-cliente.schema.json` y el razonamiento del Productor de entrenamiento en vez de regenerarlo. Detalle completo en `agentes/programacion-nutricion/system-prompt.md`.
+
+### Índice de módulos (estado actual)
+
+| Módulo | Tipo | Se activa cuando |
+|---|---|---|
+| `alergias-intolerancias.md` | General — capa de seguridad | Siempre, primero — antes del Paso 0 |
+| `necesidades-energeticas-macronutrientes.md` | General | Siempre — base de TDEE/macros para cualquier otro módulo |
+| `timing-nutricional-entrenamiento.md` | General | Siempre — distribución en el tiempo de los totales diarios, coordinada con el entrenamiento real |
+| `recomposicion-corporal-nutricion.md` | Específico | Objetivo de reducir grasa manteniendo/ganando masa muscular (contraparte nutricional de `hipertrofia-recomposicion-corporal.md`) |
+
 ## Backlog abierto
 
 - Definir el esquema real de `perfil_cliente` con datos reales de clientes actuales.
 - Módulos de población/deporte específicos: solo cuando exista un cliente real que lo necesite (fútbol, embarazo, patología concreta) — explícitamente pospuestos, no se escriben por completitud especulativa.
 - Agente Importador de Programas: los cinco bloqueantes originales de `docs/AGENTE_IMPORTADOR.md` (Bckbs) están ya resueltos o parcialmente cubiertos — sin ítem abierto real pendiente de este lado por ahora.
 - **(2026-09-15) Verificar contra BD real** todo lo mergeado hoy a `main` de Bckbs (`--json`, `programs:assign-client`, `POST program-import`, hotfix `fail()`→`reportFailure()`): solo se comprobó sin base de datos (lint, `route:list` de las 1024 rutas de la app, `artisan list`, 15 tests unitarios puros). Falta un ciclo completo `--dry-run` → import real → `assign-client` → `check-integrity` contra el catálogo real, como el que se hizo con Toni el 2026-09-14. Requiere acceso a datos del VPS `bestronger-vps` — ver `docs/AGENTE_IMPORTADOR.md` en Bckbs, sección 6.
-- **(2026-09-15) Asistente de Programación de Nutrición — recién empezado**, solo capa de seguridad (`alergias-intolerancias.md`, sin deep-search clínico todavía) y el esqueleto del `system-prompt.md`. Pendiente, en orden probable: deep-search de módulos de contenido reales (macros por objetivo, timing alrededor del entrenamiento, recomposición nutricional — mismo proceso que se siguió con hipertrofia/recomposición en el agente de entrenamiento), definir el recetario real contra el que buscar (Paso 2, Tool Use), validador determinista (Paso 3), y un caso real de principio a fin como el de Toni antes de dar por maduro el diseño.
+- **(2026-09-15) Asistente de Programación de Nutrición** — ya tiene capa de seguridad (`alergias-intolerancias.md`, sin deep-search *clínico* de alergias todavía, solo el patrón de bloqueo duro) y tres módulos de contenido con deep search real (necesidades energéticas/macros, timing, recomposición). Pendiente: definir el recetario real contra el que buscar (Paso 2, Tool Use — hoy no existe ningún catálogo), formato de salida real, validador determinista (Paso 3), rendimiento deportivo/resistencia específico si aparece un cliente que lo necesite, y un caso real de principio a fin (como el de Toni) antes de dar por maduro el diseño.

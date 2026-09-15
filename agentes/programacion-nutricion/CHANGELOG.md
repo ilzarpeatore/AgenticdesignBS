@@ -1,5 +1,14 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.2.0 — 2026-09-15
+
+Deep search basado en ciencia para las tres piezas de contenido más básicas, siguiendo el proceso de `CONTRIBUTING.md` (evidencia convertida a regla operativa, no cita narrativa).
+
+- **Nuevo módulo general `necesidades-energeticas-macronutrientes.md`:** estimación de TDEE (Mifflin-St Jeor + factor de actividad), rangos de proteína por contexto (ISSN Position Stand: 1.4-2.0 g/kg general, 1.6-2.0 fuerza, 1.0-1.6 resistencia, 2.3-3.1 en déficit), mínimo de grasa por salud hormonal (0.5-1 g/kg, ≥20% calorías), carbohidrato por diferencia, y el umbral de seguridad de disponibilidad energética (RED-S: <30 kcal/kg de masa libre de grasa/día = baja disponibilidad) como guardrail duro para cualquier déficit. Nota breve sobre micronutrientes de riesgo (hierro, vitamina D, calcio, fibra) como señal de alerta, no diagnóstico.
+- **Nuevo módulo general `timing-nutricional-entrenamiento.md`:** desmonta el mito de la "ventana anabólica" estrecha (Aragon & Schoenfeld 2013: ventana real de 4-6h, el total diario de proteína domina sobre el timing exacto), distribución de proteína por toma (~0.4 g/kg, mínimo ~0.25 g/kg para estímulo relevante), periodización simple de carbohidrato por tipo de día (entrenamiento vs. descanso, coordinado con lo que el agente de entrenamiento indique para esa semana), e hidratación (ACSM: pre/durante/electrolitos).
+- **Nuevo módulo específico `recomposicion-corporal-nutricion.md`:** implementación numérica de lo que `hipertrofia-recomposicion-corporal.md` (agente de entrenamiento) ya usa como referencia — tamaño de déficit (300-500 kcal/día), proteína en déficit (2.3-3.1 g/kg), estructura práctica de diet breaks (1-2 semanas a mantenimiento recalculado al peso actual, cada 4-10 semanas) y refeeds (1-3 días, +carbohidrato, cada 7-14 días), coordinados con el deload de entrenamiento. Cross-referencia explícita en vez de duplicar cifras ya fijadas del lado de entrenamiento.
+- **`system-prompt.md` (v0.2.0):** sección 9 actualizada para reflejar el estado real de contenido — ya no dice "solo existe la capa de seguridad".
+
 ## v0.1.0 — 2026-09-15
 
 Primer borrador. Mismo marco arquitectónico que `agentes/programacion-entrenamiento/` (base de conocimiento modular, sin encasillar al cliente en una dieta fija), adaptado a nutrición y coordinado con el entrenamiento real del cliente.

@@ -1,8 +1,9 @@
 # Asistente de Programación de Nutrición — marco fijo
 
-**Versión:** 0.1.0
+**Versión:** 0.2.0
 **Última actualización:** 2026-09-15
 **Changelog:**
+- v0.2.0 — Deep search de las tres piezas de contenido más básicas: necesidades energéticas/macronutrientes, timing nutricional alrededor del entrenamiento, e implementación nutricional de la recomposición corporal. El agente deja de tener solo la capa de seguridad — ver sección 9 actualizada.
 - v0.1.0 — Primer borrador. Mismo marco arquitectónico que `agentes/programacion-entrenamiento/` (base de conocimiento modular, no un router que encasilla al cliente en una dieta fija), adaptado a nutrición. Empieza por lo único que no puede esperar a más adelante: el cribado de alergias/intolerancias, siguiendo la misma lección de bloqueo duro que costó aprender con las lesiones del otro agente (ver `modulos/alergias-intolerancias.md`).
 
 ---
@@ -115,6 +116,7 @@ Mismo patrón que el agente de entrenamiento (sección 6 de ese `system-prompt.m
 
 ## 9. Pendiente / notas de mantenimiento
 
+- **Contenido de módulos — estado real (2026-09-15):** existen ya `alergias-intolerancias.md` (seguridad), `necesidades-energeticas-macronutrientes.md`, `timing-nutricional-entrenamiento.md` y `recomposicion-corporal-nutricion.md`. Cubren lo básico de un cliente de fuerza/gimnasio con o sin objetivo de recomposición. **No cubren todavía:** rendimiento deportivo/resistencia específico (más allá de la nota de no aplicar por defecto las cifras de carbohidrato de endurance), ganancia de peso/superávit dedicado con detalle propio (hoy solo una mención breve dentro de recomposición), ni ninguna población específica (embarazo, patologías) — mismo criterio que el agente de entrenamiento: no se escriben por completitud especulativa, solo cuando haya un cliente real que lo necesite.
 - **Recetario real:** no existe todavía un catálogo de recetas equivalente a `formato-salida/catalogo-ejercicios.xlsx` del agente de entrenamiento. El Paso 2 punto 4 asume que existirá — hasta entonces, el Productor debe declarar explícitamente que no pudo verificar una receta contra un catálogo real, no fingir que lo hizo.
 - **Formato de salida real:** no existe todavía destino de producción (equivalente a BeFit/Bckbs para entrenamiento). Se define cuando haya un caso real que lo necesite, no por completitud especulativa — mismo criterio que se ha seguido todo este proyecto.
 - **`esquemas/perfil-nutricional.schema.json`:** cubre solo lo que no vive ya en `perfil-cliente.schema.json` (objetivo nutricional, gustos/aversiones no relacionados con alergia, disponibilidad para cocinar, presupuesto, nº de comidas). No dupliques `cliente_id`, `restricciones_dieteticas`, `disponibilidad` de entrenamiento ni `actividad_principal` — léelos del esquema compartido.
