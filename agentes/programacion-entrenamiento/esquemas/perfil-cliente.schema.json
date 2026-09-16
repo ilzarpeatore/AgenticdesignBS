@@ -3,7 +3,7 @@
   "title": "Perfil de cliente — Asistente de Programación de Entrenamiento",
   "description": "Conjunto de etiquetas del cliente que decide qué módulos de conocimiento se activan (Paso 0). No es una categoría única: un cliente puede activar varios módulos a la vez.",
   "type": "object",
-  "required": ["cliente_id", "cribado_medico", "objetivos", "restricciones_salud", "nivel_fuerza", "disponibilidad"],
+  "required": ["cliente_id", "cribado_medico", "objetivos", "restricciones_salud", "experiencia_entrenamiento", "disponibilidad"],
   "properties": {
     "cliente_id": {
       "type": "string",
@@ -11,22 +11,26 @@
     },
     "cribado_medico": {
       "type": "object",
-      "description": "Respuestas al cribado obligatorio del módulo contraindicaciones-medicas.md (estilo PAR-Q+). Debe completarse antes de generar cualquier borrador, incluso el primero.",
-      "required": ["dolor_toracico", "perdida_conciencia", "diagnostico_conocido", "cirugia_o_lesion_reciente", "embarazo_o_posibilidad", "alteracion_menstrual_o_fractura_estres", "trastorno_alimentario"],
+      "description": "Respuestas al cribado obligatorio del módulo contraindicaciones-medicas.md. Nombres de campo alineados 1:1 con la tabla real `par_q_answers` de Bckbs (onboarding etapa 2) -- no son un PAR-Q+ teórico, son los mismos nombres que ya usa la app. Debe completarse antes de generar cualquier borrador, incluso el primero. Las tres últimas (parq_pregnant_or_possible/parq_menstrual_change_or_stress_fracture/parq_eating_disorder_history) se añadieron al onboarding real el 2026-09-16 -- clientes que completaron el onboarding antes de esa fecha las tienen a NULL; trátalo igual que una respuesta ambigua (pregunta antes de continuar, ver system-prompt.md Paso 1).",
+      "required": ["parq_heart_condition", "parq_chest_pain_activity", "parq_chest_pain_rest_last_month", "parq_dizziness_balance", "parq_bone_joint_problem", "parq_bp_or_heart_medication", "parq_reason_not_to_exercise", "parq_pregnant_or_possible", "parq_menstrual_change_or_stress_fracture", "parq_eating_disorder_history"],
       "properties": {
-        "dolor_toracico": { "type": "boolean" },
-        "perdida_conciencia": { "type": "boolean" },
-        "diagnostico_conocido": {
-          "type": ["string", "null"],
-          "description": "Diagnóstico cardíaco, pulmonar o metabólico conocido, si existe. Incluye medicación relevante."
-        },
-        "cirugia_o_lesion_reciente": { "type": "boolean" },
-        "embarazo_o_posibilidad": { "type": "boolean" },
-        "alteracion_menstrual_o_fractura_estres": {
+        "parq_heart_condition": { "type": "boolean" },
+        "parq_chest_pain_activity": { "type": "boolean" },
+        "parq_chest_pain_rest_last_month": { "type": "boolean" },
+        "parq_dizziness_balance": { "type": "boolean" },
+        "parq_bone_joint_problem": { "type": "boolean" },
+        "parq_bp_or_heart_medication": { "type": "boolean" },
+        "parq_reason_not_to_exercise": { "type": "boolean" },
+        "parq_pregnant_or_possible": { "type": "boolean" },
+        "parq_menstrual_change_or_stress_fracture": {
           "type": "boolean",
           "description": "Cribado básico de RED-S / baja disponibilidad energética."
         },
-        "trastorno_alimentario": { "type": "boolean" },
+        "parq_eating_disorder_history": { "type": "boolean" },
+        "parq_medical_history": {
+          "type": ["string", "null"],
+          "description": "Texto libre del onboarding real -- puede contener diagnóstico cardíaco/pulmonar/metabólico o medicación relevante, pero no está estructurado. Léelo, no lo ignores, pero no lo trates como un booleano fiable: si algo ahí sugiere una de las contraindicaciones de contraindicaciones-medicas.md, pregunta para confirmar en vez de decidir solo con el texto libre."
+        },
         "resultado": {
           "type": "string",
           "enum": ["limpio", "contraindicacion_relativa", "contraindicacion_absoluta"],
@@ -68,10 +72,27 @@
         }
       }
     },
-    "nivel_fuerza": {
-      "type": "string",
-      "enum": ["principiante", "intermedio", "avanzado"],
-      "description": "Nivel de experiencia con entrenamiento de fuerza — independiente del nivel en la actividad principal."
+    "experiencia_entrenamiento": {
+      "type": "object",
+      "description": "Reemplaza al antiguo campo nivel_fuerza (enum fijo) -- ese campo nunca existió en el onboarding real. Bckbs guarda dos datos numéricos (TrainingQuestionnaireAnswer): meses de experiencia autoevaluados y técnica autoevaluada 1-10, cada uno con una columna `_coach` opcional que un coach puede usar para corregir la autoevaluación del cliente (motor de reglas de autorregulación, Plan de Optimización Ronda 7 -- ver TrainingQuestionnaireAnswer::effectiveExperienceMonths()/effectiveTechniqueLevel(), que ya priorizan el valor del coach si existe).",
+      "required": ["experiencia_meses", "tecnica_autoevaluada"],
+      "properties": {
+        "experiencia_meses": {
+          "type": "integer",
+          "description": "training_experience_months (o training_experience_months_coach si el coach lo corrigió -- usa siempre el valor 'efectivo', no el autoevaluado en bruto, si ambos existen)."
+        },
+        "tecnica_autoevaluada": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "technique_level (o technique_level_coach si el coach lo corrigió). Autoevaluación 1-10, no una medición objetiva -- trátala como una señal más, no como verdad absoluta."
+        },
+        "nivel_fuerza": {
+          "type": "string",
+          "enum": ["principiante", "intermedio", "avanzado"],
+          "description": "DERIVADO por el Productor a partir de experiencia_meses y tecnica_autoevaluada, no un dato de entrada -- no preguntes esto al cliente, ni existe como campo separado en Bckbs. Regla de partida (propuesta 2026-09-16, pendiente de que el usuario la confirme o ajuste con casos reales, ver docs/TAREAS_PENDIENTES.md): avanzado si experiencia_meses >= 36 Y tecnica_autoevaluada >= 7; principiante si experiencia_meses < 12 O tecnica_autoevaluada <= 3; intermedio en cualquier otro caso (incluye los casos discordantes, ej. mucha experiencia con técnica autoevaluada baja -- ahí trata al cliente como intermedio, no como avanzado, hasta observación directa). Los módulos que hablan de 'principiante'/'avanzado' en prosa (fuerza-maxima-potencia.md, hipertrofia-recomposicion-corporal.md...) se refieren a este valor derivado."
+        }
+      }
     },
     "restricciones_salud": {
       "type": "array",
@@ -152,10 +173,20 @@
     },
     "disponibilidad": {
       "type": "object",
-      "required": ["dias_entrenamiento", "minutos_por_sesion"],
+      "description": "Reconciliado 2026-09-16 con TrainingQuestionnaireAnswer: el onboarding real no pregunta días concretos de la semana ni minutos exactos, solo un conteo y una franja preestablecida. Qué días concretos caen las sesiones (lunes/miércoles/viernes, etc.) lo decide el Productor al programar, no el cliente -- no inventes una preferencia de días que no existe. Editable después del onboarding vía POST v1/onboarding/training-availability-update (Bckbs) -- si cambia entre ciclos, es una reprogramación parcial (ver 'Casos límite' del system-prompt.md), no una regeneración completa.",
+      "required": ["dias_por_semana", "duracion_sesion_preferida"],
       "properties": {
-        "dias_entrenamiento": { "type": "array", "items": { "type": "string" } },
-        "minutos_por_sesion": { "type": "integer" }
+        "dias_por_semana": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7,
+          "description": "training_days_per_week -- un conteo, no una lista de días concretos."
+        },
+        "duracion_sesion_preferida": {
+          "type": "string",
+          "enum": ["30", "45", "60", "90", "90_plus"],
+          "description": "session_duration_preference -- franja preestablecida de Bckbs, no minutos exactos libres."
+        }
       }
     },
     "material_disponible": {

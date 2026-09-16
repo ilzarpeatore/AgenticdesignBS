@@ -38,7 +38,7 @@ Cada ejercicio tiene una curva de fuerza distinta a lo largo de su rango de movi
 
 - En personas entrenadas, descansos más largos (≥2 min) igualan o superan ligeramente a los descansos cortos para hipertrofia — probablemente porque permiten mantener el volumen/carga de la siguiente serie.
 - En principiantes, la duración del descanso tiene un efecto mínimo sobre hipertrofia en general (con una posible excepción en cuádriceps, donde descansos más largos muestran un beneficio leve).
-- **Recomendación práctica:** por defecto, 2-3 min en ejercicios estructurales/pesados; 60-90s es aceptable en ejercicios de aislamiento o cuando la disponibilidad de tiempo del cliente (`disponibilidad.minutos_por_sesion`) lo exige.
+- **Recomendación práctica:** por defecto, 2-3 min en ejercicios estructurales/pesados; 60-90s es aceptable en ejercicios de aislamiento o cuando la disponibilidad de tiempo del cliente (`disponibilidad.duracion_sesion_preferida`, franja "30"/"45") lo exige.
 
 ## 6. Orden de ejercicios
 

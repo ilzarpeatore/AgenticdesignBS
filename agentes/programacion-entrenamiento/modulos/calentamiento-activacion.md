@@ -14,7 +14,7 @@ Estructura en 4 fases secuenciales (Jeffreys, 2007), adaptable en duración seg�
 3. **Mobilize (movilizar):** trabajo de movilidad articular específico de los patrones que se van a entrenar ese día (ej. movilidad de cadera antes de sentadilla/bisagra) — 2-3 min.
 4. **Potentiate (potenciar):** preparación para el esfuerzo de mayor intensidad de la sesión mediante movimientos progresivamente más explosivos o series de aproximación — obligatorio si la sesión incluye pliometría o cargas cercanas al máximo; opcional/breve si la sesión es de intensidad moderada.
 
-**Duración total orientativa:** 10-15 min en una sesión completa; se puede comprimir a 5-8 min combinando Raise+Activate cuando `disponibilidad.minutos_por_sesion` es ajustada — nunca eliminar por completo la fase Potentiate si el día incluye pliometría o cargas máximas.
+**Duración total orientativa:** 10-15 min en una sesión completa; se puede comprimir a 5-8 min combinando Raise+Activate cuando `disponibilidad.duracion_sesion_preferida` es "30" o "45" — nunca eliminar por completo la fase Potentiate si el día incluye pliometría o cargas máximas.
 
 ## 2. Series de aproximación antes de las series de trabajo (fuerza)
 
@@ -30,13 +30,13 @@ Estructura en 4 fases secuenciales (Jeffreys, 2007), adaptable en duración seg�
 
 ## 4. Calentamiento en contextos con tiempo limitado
 
-Cuando `disponibilidad.minutos_por_sesion` es baja, prioriza en este orden: Raise breve → Activate de los patrones clave del día → series de aproximación del primer ejercicio (que ya hacen de Potentiate para fuerza). Solo mantén una fase Potentiate explícita separada si el día incluye pliometría de intensidad media/alta (ver `pliometria-rigidez-tendinosa.md`) — ahí no es negociable.
+Cuando `disponibilidad.duracion_sesion_preferida` es baja ("30" o "45"), prioriza en este orden: Raise breve → Activate de los patrones clave del día → series de aproximación del primer ejercicio (que ya hacen de Potentiate para fuerza). Solo mantén una fase Potentiate explícita separada si el día incluye pliometría de intensidad media/alta (ver `pliometria-rigidez-tendinosa.md`) — ahí no es negociable.
 
 ## Conflictos conocidos con otros módulos
 
 - **Con `pliometria-rigidez-tendinosa.md`:** ningún trabajo pliométrico de intensidad media o alta empieza sin haber completado la fase Potentiate — no se entra "en frío" a saltos unilaterales ni drop jumps.
 - **Con `contraindicaciones-medicas.md`:** en contraindicaciones relativas cardiovasculares (ej. hipertensión no controlada con autorización), la fase Raise debe ser más gradual, sin picos bruscos de intensidad.
-- **Con la disponibilidad del cliente (`perfil_cliente.disponibilidad`):** el tiempo de calentamiento cuenta dentro de `minutos_por_sesion` — no se planifica el resto de la sesión ignorando este tiempo.
+- **Con la disponibilidad del cliente (`perfil_cliente.disponibilidad`):** el tiempo de calentamiento cuenta dentro de la franja de `duracion_sesion_preferida` — no se planifica el resto de la sesión ignorando este tiempo.
 
 ## Referencias
 

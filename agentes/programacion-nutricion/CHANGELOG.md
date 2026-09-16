@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.5.0 — 2026-09-16
+
+Primera reconciliación de `perfil-nutricional.schema.json` contra el onboarding real de Bckbs, posible porque el usuario confirmó que el onboarding de la app queda registrado en BD — se pudo comparar el esquema contra las columnas reales sin necesitar datos de ningún cliente.
+
+- **`disponibilidad_cocina` (nuevo en Bckbs):** el campo era requerido por este esquema desde v0.1.0, pero `NutritionQuestionnaireAnswer` nunca lo preguntaba — sin datos de tiempo/habilidad de cocina, el Productor no podía saber si una receta de 45 minutos era viable. Añadidas `cooking_minutes_per_meal`/`cooking_skill_level`/`cooks_for_others` a Bckbs (migración + validación + tests).
+- **`gustos_y_aversiones` reestructurado:** la app recoge gustos por categoría (`favorite_meats`/`favorite_fish`/`favorite_fruits_vegetables`/`favorite_combined_dishes`), no una lista genérica como asumía el esquema. Se añade también `descripcion_dia_tipo` (contexto cualitativo real, antes no capturado) y `numero_comidas_actual` junto al ya existente `numero_comidas_preferido`.
+- **`system-prompt.md` (v0.5.0), Paso 2 punto 4:** se aclara explícitamente que los gustos favoritos son semillas para orientar la búsqueda del recetario, no una lista cerrada — el Productor debe aportar variedad real más allá de lo que el cliente listó de memoria en el onboarding, mientras que `alimentos_a_evitar` sigue siendo exclusión dura.
+
 ## v0.4.0 — 2026-09-15
 
 Cierra dos de los pendientes que la sección 9 del `system-prompt.md` dejaba explícitos: contenido de rendimiento/superávit y deep-search clínico de alergias.

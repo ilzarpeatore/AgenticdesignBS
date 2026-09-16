@@ -2,7 +2,7 @@
 
 > Único documento de tareas del proyecto. Antes esto vivía repartido entre `docs/roadmap.md` (sección "Backlog abierto"), `AGENTE_IMPORTADOR.md` en Bckbs y un encargo aparte (`BRIEF_registro_alergias_intolerancias.md`) — se consolida aquí para no mantener la misma tarea descrita en varios sitios a la vez. `roadmap.md` sigue siendo el documento de arquitectura/diseño; este es el documento de seguimiento de trabajo pendiente.
 >
-> **Última actualización:** 2026-09-16 (fusión a `main` de 1.2, 4.1 y 4.2)
+> **Última actualización:** 2026-09-16 (reconciliación de los esquemas contra el onboarding real de Bckbs)
 
 ## Cómo leer esta tabla
 
@@ -29,9 +29,11 @@ Ninguna de estas tres se puede ejecutar desde esta sesión — no hay red hacia 
 
 | # | Tarea | Estado | Bloqueador | Detalle completo |
 |---|---|---|---|---|
-| 2.1 | Definir `perfil-cliente.schema.json` con datos reales de clientes actuales, no solo la estructura teórica | 🟡 | El usuario tiene que aportar perfiles reales (anonimizados si hace falta) | `agentes/programacion-entrenamiento/esquemas/perfil-cliente.schema.json` |
+| 2.1 | Definir `perfil-cliente.schema.json`/`perfil-nutricional.schema.json` con datos reales de clientes actuales | 🟡 (parcial) | **(2026-09-16) La estructura ya se reconcilió** contra las columnas reales del onboarding (`par_q_answers`/`training_questionnaire_answers`/`nutrition_questionnaire_answers`) sin necesitar datos de ningún cliente — el usuario confirmó que el onboarding real queda en BD, así que se comparó el esquema contra el schema de esas tablas directamente. Queda pendiente contrastar con VALORES reales (no solo la forma) de 2-3 clientes actuales, para detectar patrones que la estructura por sí sola no revela | `agentes/programacion-entrenamiento/esquemas/perfil-cliente.schema.json`, `agentes/programacion-nutricion/esquemas/perfil-nutricional.schema.json` |
 | 2.2 | Caso real de cliente de principio a fin para el Asistente de Nutrición (equivalente al caso de Toni en entrenamiento) | 🟡 | El usuario tiene que aportar uno de los recetarios por cliente que ya construye a mano | `agentes/programacion-nutricion/validador/README.md` (fixtures hoy sintéticos, sin caso real) |
 | 2.3 | Migrar a `client_limitations` las alergias que hoy solo existen como texto libre en `nutrition_questionnaire_answers.allergies_intolerances` | 🟡 (tras 1.2) | Es tarea humana a propósito — un parseo automático de texto libre no puede inferir severidad de forma fiable, así que no se automatiza | `BRIEF_registro_alergias_intolerancias.md`, sección 5 |
+| 2.4 | Confirmar o ajustar la regla de derivación de `nivel_fuerza` (principiante/intermedio/avanzado) a partir de `experiencia_meses`/`tecnica_autoevaluada` | 🟡 | Es un criterio de coach, no algo que se pueda derivar solo de la estructura de datos — la regla propuesta (2026-09-16) es un punto de partida, no una decisión final | `agentes/programacion-entrenamiento/esquemas/perfil-cliente.schema.json`, campo `experiencia_entrenamiento.nivel_fuerza` |
+| 2.5 | Decidir qué hacer con clientes que completaron el onboarding antes del 2026-09-16 — se quedan con `parq_pregnant_or_possible`/`parq_menstrual_change_or_stress_fracture`/`parq_eating_disorder_history`/`disponibilidad_cocina` a `NULL` para siempre salvo que se les vuelva a preguntar | 🟡 | Decisión de producto (¿re-prompt en la app a los clientes existentes? ¿se asume el hueco hasta el próximo ciclo de cada uno?), no algo que el código pueda resolver solo | `Bckbs`, migraciones `2026_09_16_100000`/`2026_09_16_100001` |
 
 ---
 
@@ -64,6 +66,9 @@ Anotadas para no perderlas, pero ninguna es un hueco crítico hoy — el diseño
 - Los cinco bloqueantes originales del Agente Importador de Programas (`--json`, endpoint HTTP, `programs:assign-client`, `check-integrity` en cron, `review_required`).
 - Formato de salida y recetario real del Asistente de Nutrición — la API de Bckbs (`meal_plan_templates`/`daily_plan_recipes`, `recipe-filter-list`) ya existía, no hizo falta construir nada nuevo.
 - Deep search de contenido científico del Asistente de Nutrición: necesidades energéticas/macros, timing, recomposición corporal, superávit de ganancia muscular, rendimiento deportivo/resistencia, y evidencia clínica de alergias/intolerancias.
+- **(2026-09-16) Cribado de seguridad faltante en el onboarding real** — `par_q_answers` no preguntaba embarazo/posibilidad, alteración menstrual/fractura por estrés (RED-S) ni trastorno alimentario, pese a que `contraindicaciones-medicas.md` lo asumía desde el diseño. Añadido a Bckbs (migración + validación + flag de revisión + tests).
+- **(2026-09-16) `disponibilidad_cocina` en el onboarding de nutrición** — requerido por el esquema desde el primer borrador, nunca se preguntaba. Añadido a Bckbs.
+- **(2026-09-16) Disponibilidad de entrenamiento editable post-onboarding** — nuevo endpoint `POST training-availability-update`, sin repetir todo el cuestionario.
 
 ---
 

@@ -29,40 +29,67 @@
     },
     "gustos_y_aversiones": {
       "type": "object",
-      "description": "Preferencias que no son de seguridad (eso vive en restricciones_dieteticas del esquema compartido, tipo alergia/intolerancia).",
+      "description": "Reconciliado 2026-09-16 contra NutritionQuestionnaireAnswer (onboarding real, etapa 4): la app recoge gustos más granulares por categoría, no una lista genérica. Preferencias que no son de seguridad (eso vive en restricciones_dieteticas del esquema compartido, tipo alergia/intolerancia).",
       "properties": {
-        "alimentos_favoritos": { "type": "array", "items": { "type": "string" } },
+        "favoritos_por_categoria": {
+          "type": "object",
+          "description": "Texto libre por categoría, tal como lo escribe el cliente en el onboarding (favorite_meats/favorite_fish/favorite_fruits_vegetables/favorite_combined_dishes) — son SEMILLAS para orientar la búsqueda y aumentar adherencia, no una lista cerrada: ver system-prompt.md Paso 2, punto 4, sobre por qué el Productor debe buscar variedad más allá de lo aquí listado.",
+          "properties": {
+            "carnes": { "type": "string" },
+            "pescados": { "type": "string" },
+            "frutas_y_verduras": { "type": "string" },
+            "platos_combinados": { "type": "string" }
+          }
+        },
+        "alimentos_favoritos_general": {
+          "type": "string",
+          "description": "liked_foods del onboarding — texto libre sin categorizar, complementa a favoritos_por_categoria."
+        },
         "alimentos_a_evitar": {
-          "type": "array",
-          "items": { "type": "string" },
-          "description": "Por preferencia (aversión), no por alergia/intolerancia — esos ya están en restricciones_dieteticas."
+          "type": "string",
+          "description": "disliked_foods del onboarding — por preferencia (aversión), no por alergia/intolerancia (esas ya están en restricciones_dieteticas). A diferencia de los favoritos, esto SÍ es una exclusión dura del recetario, no una semilla."
+        },
+        "descripcion_dia_tipo": {
+          "type": "string",
+          "description": "typical_day_meals del onboarding — descripción libre de cómo come el cliente en un día normal. Da contexto cualitativo (horarios reales, estructura de comidas) que ningún campo estructurado captura."
         },
         "estilo_culinario": {
           "type": "string",
-          "description": "Ej. 'mediterráneo', 'asiático', 'comida rápida casera' — para orientar la búsqueda en el recetario (Paso 2, Tool Use)."
+          "description": "Ej. 'mediterráneo', 'asiático', 'comida rápida casera' — no se recoge en el onboarding real; solo si el cliente lo menciona espontáneamente o el coach lo añade."
         }
       }
     },
     "disponibilidad_cocina": {
       "type": "object",
+      "description": "Reconciliado 2026-09-16: no se preguntaba en el onboarding real (perfil-nutricional.schema.json lo requería desde el primer borrador del agente, pero nada en Bckbs lo recogía). Se añadió a NutritionQuestionnaireAnswer esta misma fecha.",
       "required": ["minutos_por_comida", "nivel_habilidad"],
       "properties": {
-        "minutos_por_comida": { "type": "integer", "description": "Tiempo real disponible para cocinar cada comida, no un ideal aspiracional." },
+        "minutos_por_comida": {
+          "type": "integer",
+          "description": "cooking_minutes_per_meal — tiempo real disponible para cocinar cada comida, no un ideal aspiracional."
+        },
         "nivel_habilidad": {
           "type": "string",
           "enum": ["principiante", "intermedio", "avanzado"],
-          "description": "Independiente del nivel de fuerza del cliente en el otro agente."
+          "description": "cooking_skill_level en Bckbs usa beginner/intermediate/advanced (inglés) — traduce al guardar/leer este campo, igual que ya se hace con severity/type de restricciones_dieteticas. Independiente del nivel de fuerza del cliente en el otro agente."
         },
-        "cocina_para_mas_personas": { "type": "boolean" }
+        "cocina_para_mas_personas": {
+          "type": "boolean",
+          "description": "cooks_for_others en Bckbs."
+        }
       }
     },
     "presupuesto": {
       "type": "string",
-      "description": "Texto libre si el cliente lo declara como limitación (ej. 'ajustado', 'sin límite particular'). Opcional — su ausencia no bloquea la generación."
+      "description": "Texto libre si el cliente lo declara como limitación (ej. 'ajustado', 'sin límite particular'). Opcional — su ausencia no bloquea la generación. No se recoge en el onboarding real; solo si el cliente lo menciona espontáneamente."
     },
     "numero_comidas_preferido": {
       "type": "integer",
-      "description": "Nº de comidas/día que el cliente prefiere. Opcional — si falta, el Productor debe preguntarlo antes de fijar el reparto, no asumir un valor por defecto."
+      "description": "desired_meals_per_day del onboarding real."
+    },
+    "numero_comidas_actual": {
+      "type": "integer",
+      "description": "current_meals_per_day del onboarding real — cuántas comidas hace hoy, útil como referencia de transición si difiere mucho de numero_comidas_preferido (un salto de 2 a 6 comidas/día no debería ser instantáneo)."
     },
     "referencias_actuales": {
       "type": "object",

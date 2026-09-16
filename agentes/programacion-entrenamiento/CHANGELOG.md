@@ -1,5 +1,14 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.14.0 — 2026-09-16
+
+Primera reconciliación real de `perfil-cliente.schema.json` contra el onboarding de Bckbs (antes nunca se había contrastado contra las tablas reales, solo diseñado por lógica). El usuario confirmó que el onboarding real de la app queda registrado en BD, lo que permitió comparar el esquema contra las columnas reales sin necesitar datos de ningún cliente.
+
+- **`cribado_medico`:** cambia a los nombres de campo reales de `par_q_answers`. Se encontró que tres preguntas que el diseño ya asumía (embarazo/posibilidad, alteración menstrual/fractura por estrés, trastorno alimentario) nunca se preguntaban en el onboarding real — se añadieron a Bckbs esta misma fecha (`par_q_answers`, migración + validación + tests), y ahora también marcan `flagged_for_review`. Ver `modulos/contraindicaciones-medicas.md` v0.2.0 para el mapeo completo campo a campo.
+- **`nivel_fuerza` → `experiencia_entrenamiento`:** el enum fijo (principiante/intermedio/avanzado) no existía como tal en la app — Bckbs guarda `training_experience_months`/`technique_level` (autoevaluados, con override de coach ya implementado y consumido por el motor de autorregulación vía `ConditionVariable::NIVEL_EXPERIENCIA`). El esquema ahora pide esos dos datos reales y deriva `nivel_fuerza` con una regla explícita — propuesta, pendiente de confirmar/ajustar con casos reales.
+- **`disponibilidad`:** de días de la semana + minutos exactos (que el onboarding nunca preguntó así) a un conteo de días/semana + franja preestablecida de duración (`training_days_per_week`/`session_duration_preference`, los campos reales). Ahora también editable por el cliente sin repetir el onboarding completo — nuevo endpoint `POST training-availability-update` en Bckbs.
+- **`system-prompt.md` (v0.10.0):** Paso 1, puntos 4 y 6, actualizados con los campos reales y la aclaración de que los días concretos de la semana los decide el Productor, no el cliente.
+
 ## v0.13.0 — 2026-09-15
 
 Preparación para el nuevo Agente de Programación de Nutrición (`agentes/programacion-nutricion/`), que lee `restricciones_dieteticas` de este mismo esquema en vez de duplicar el intake.

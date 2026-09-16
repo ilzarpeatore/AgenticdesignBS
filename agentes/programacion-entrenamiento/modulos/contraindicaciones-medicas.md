@@ -2,8 +2,8 @@
 
 **Tipo:** General — capa de seguridad transversal, no un módulo de contenido de entrenamiento
 **Se activa cuando:** siempre. Se consulta **antes que cualquier otro módulo**, como parte obligatoria del Paso 1 (validación de entrada). Si detecta una contraindicación absoluta, el pipeline se detiene ahí: no se selecciona ningún módulo de contenido (Paso 0), no se genera ningún borrador.
-**Versión:** 0.1.0 · **Última actualización:** 2026-09-14
-**Procedencia:** ACSM (contraindicaciones a la prueba de esfuerzo y al ejercicio), PAR-Q+ (cribado estándar internacional), ACOG (contraindicaciones al ejercicio en el embarazo), guías de RED-S/trastornos de conducta alimentaria.
+**Versión:** 0.2.0 · **Última actualización:** 2026-09-16
+**Procedencia:** ACSM (contraindicaciones a la prueba de esfuerzo y al ejercicio), PAR-Q+ (cribado estándar internacional), ACOG (contraindicaciones al ejercicio en el embarazo), guías de RED-S/trastornos de conducta alimentaria. v0.2.0: el cribado de la sección 1 estaba escrito en teoría desde v0.1.0 sin contrastar contra el onboarding real de Bckbs — al hacerlo (2026-09-16) se encontró que las preguntas 6-8 (embarazo, RED-S, trastorno alimentario) nunca se preguntaban en producción. Se añadieron a `par_q_answers` (Bckbs) esa misma fecha; ver mapeo de campos reales al final de la sección 1.
 
 > Este módulo es más estricto que `seleccion-ejercicios-sustitucion-lesion.md`: aquel adapta el ejercicio ante una limitación física manejable (sustituir manteniendo patrón y vector). Este módulo cubre condiciones donde **no se programa nada** hasta que exista autorización médica explícita, o donde se deriva directamente sin programar.
 
@@ -21,6 +21,21 @@ Antes de generar cualquier borrador para un cliente nuevo, o ante cualquier camb
 8. ¿Tienes o has tenido un trastorno de la conducta alimentaria?
 
 Cualquier "sí" activa la contraindicación correspondiente de las secciones 2 o 3 — no se decide con una respuesta vaga; si la respuesta no es clara, se pide especificidad antes de continuar (mismo principio que `seleccion-ejercicios-sustitucion-lesion.md`).
+
+### Mapeo con el onboarding real (`par_q_answers` en Bckbs)
+
+| Pregunta de arriba | Campo real | Nota |
+|---|---|---|
+| 1. Dolor en el pecho | `parq_chest_pain_activity` + `parq_chest_pain_rest_last_month` | Dos campos reales para una pregunta del módulo — cualquiera de los dos en `true` activa la contraindicación. |
+| 2. Pérdida de conocimiento o equilibrio | `parq_dizziness_balance` | El campo real es más estrecho (mareo/equilibrio) — no pregunta explícitamente por pérdida de conocimiento. Trátalo como proxy razonable, no como equivalente exacto. |
+| 3. Diagnóstico cardíaco/pulmonar/metabólico | `parq_heart_condition` + `parq_medical_history` (texto libre) | No hay un campo booleano de "diagnóstico pulmonar/metabólico" — puede estar mencionado en el texto libre. Léelo, no lo ignores, pero si sugiere algo relevante, confirma con el cliente en vez de decidir solo con el texto libre (ver `esquemas/perfil-cliente.schema.json`). |
+| 4. Medicación regular | `parq_bp_or_heart_medication` + `parq_medical_history` | El campo booleano solo cubre medicación de tensión/corazón — otra medicación relevante, si existe, vive en el texto libre. |
+| 5. Cirugía/fractura/lesión reciente | `parq_bone_joint_problem` | El campo real no acota a "últimos 3 meses" — pregunta si hace falta precisar la fecha. |
+| 6. Embarazo o posibilidad | `parq_pregnant_or_possible` | Añadido a Bckbs el 2026-09-16 — antes de esa fecha, `null` para cualquier cliente que ya hubiera completado el onboarding (trátalo como "sin responder", no como "no"). |
+| 7. Alteración menstrual / fractura por estrés (RED-S) | `parq_menstrual_change_or_stress_fracture` | Mismo caso: añadido el 2026-09-16, `null` en onboardings previos. |
+| 8. Trastorno de conducta alimentaria | `parq_eating_disorder_history` | Mismo caso: añadido el 2026-09-16, `null` en onboardings previos. |
+
+Las preguntas 6-8 ya activan `flagged_for_review` automáticamente en Bckbs si la respuesta es `true` (mismo mecanismo que las de riesgo cardíaco) — pero eso marca al cliente para revisión de un coach en el panel, no sustituye este cribado ni el bloqueo de las secciones 2-3 de este módulo.
 
 ## 2. Contraindicaciones absolutas — no se programa, se deriva
 
