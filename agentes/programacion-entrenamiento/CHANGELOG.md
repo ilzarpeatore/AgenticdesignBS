@@ -1,5 +1,9 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.14.1 — 2026-09-16
+
+- **Embarazo/RED-S solo para perfil mujer:** decisión de producto del usuario tras v0.14.0 — `parq_pregnant_or_possible`/`parq_menstrual_change_or_stress_fracture` dejan de ser obligatorias para hombre/otro (Bckbs las guarda `null`, no `false`, para no confundir "no aplica" con "se preguntó y dijo que no"). Nuevo campo `genero` en `esquemas/perfil-cliente.schema.json`, validación condicional (`allOf`/`if`/`then`) en vez de `required` fijo. `contraindicaciones-medicas.md` sube a v0.3.0. Ocultar el campo en el formulario de la app para perfiles no-mujer queda fuera de Bckbs (frontend).
+
 ## v0.14.0 — 2026-09-16
 
 Primera reconciliación real de `perfil-cliente.schema.json` contra el onboarding de Bckbs (antes nunca se había contrastado contra las tablas reales, solo diseñado por lógica). El usuario confirmó que el onboarding real de la app queda registrado en BD, lo que permitió comparar el esquema contra las columnas reales sin necesitar datos de ningún cliente.

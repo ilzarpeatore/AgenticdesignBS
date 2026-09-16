@@ -2,8 +2,8 @@
 
 **Tipo:** General — capa de seguridad transversal, no un módulo de contenido de entrenamiento
 **Se activa cuando:** siempre. Se consulta **antes que cualquier otro módulo**, como parte obligatoria del Paso 1 (validación de entrada). Si detecta una contraindicación absoluta, el pipeline se detiene ahí: no se selecciona ningún módulo de contenido (Paso 0), no se genera ningún borrador.
-**Versión:** 0.2.0 · **Última actualización:** 2026-09-16
-**Procedencia:** ACSM (contraindicaciones a la prueba de esfuerzo y al ejercicio), PAR-Q+ (cribado estándar internacional), ACOG (contraindicaciones al ejercicio en el embarazo), guías de RED-S/trastornos de conducta alimentaria. v0.2.0: el cribado de la sección 1 estaba escrito en teoría desde v0.1.0 sin contrastar contra el onboarding real de Bckbs — al hacerlo (2026-09-16) se encontró que las preguntas 6-8 (embarazo, RED-S, trastorno alimentario) nunca se preguntaban en producción. Se añadieron a `par_q_answers` (Bckbs) esa misma fecha; ver mapeo de campos reales al final de la sección 1.
+**Versión:** 0.3.0 · **Última actualización:** 2026-09-16
+**Procedencia:** ACSM (contraindicaciones a la prueba de esfuerzo y al ejercicio), PAR-Q+ (cribado estándar internacional), ACOG (contraindicaciones al ejercicio en el embarazo), guías de RED-S/trastornos de conducta alimentaria. v0.2.0: el cribado de la sección 1 estaba escrito en teoría desde v0.1.0 sin contrastar contra el onboarding real de Bckbs — al hacerlo se encontró que las preguntas 6-8 (embarazo, RED-S, trastorno alimentario) nunca se preguntaban en producción; se añadieron a `par_q_answers` (Bckbs) esa misma fecha. v0.3.0 (mismo día): decisión de producto del usuario — embarazo/RED-S solo se preguntan a perfil `mujer`, no a hombre/otro; ver `esquemas/perfil-cliente.schema.json` (nuevo campo `genero`) y la tabla de mapeo actualizada.
 
 > Este módulo es más estricto que `seleccion-ejercicios-sustitucion-lesion.md`: aquel adapta el ejercicio ante una limitación física manejable (sustituir manteniendo patrón y vector). Este módulo cubre condiciones donde **no se programa nada** hasta que exista autorización médica explícita, o donde se deriva directamente sin programar.
 
@@ -31,11 +31,11 @@ Cualquier "sí" activa la contraindicación correspondiente de las secciones 2 o
 | 3. Diagnóstico cardíaco/pulmonar/metabólico | `parq_heart_condition` + `parq_medical_history` (texto libre) | No hay un campo booleano de "diagnóstico pulmonar/metabólico" — puede estar mencionado en el texto libre. Léelo, no lo ignores, pero si sugiere algo relevante, confirma con el cliente en vez de decidir solo con el texto libre (ver `esquemas/perfil-cliente.schema.json`). |
 | 4. Medicación regular | `parq_bp_or_heart_medication` + `parq_medical_history` | El campo booleano solo cubre medicación de tensión/corazón — otra medicación relevante, si existe, vive en el texto libre. |
 | 5. Cirugía/fractura/lesión reciente | `parq_bone_joint_problem` | El campo real no acota a "últimos 3 meses" — pregunta si hace falta precisar la fecha. |
-| 6. Embarazo o posibilidad | `parq_pregnant_or_possible` | Añadido a Bckbs el 2026-09-16 — antes de esa fecha, `null` para cualquier cliente que ya hubiera completado el onboarding (trátalo como "sin responder", no como "no"). |
-| 7. Alteración menstrual / fractura por estrés (RED-S) | `parq_menstrual_change_or_stress_fracture` | Mismo caso: añadido el 2026-09-16, `null` en onboardings previos. |
-| 8. Trastorno de conducta alimentaria | `parq_eating_disorder_history` | Mismo caso: añadido el 2026-09-16, `null` en onboardings previos. |
+| 6. Embarazo o posibilidad | `parq_pregnant_or_possible` | Añadido a Bckbs el 2026-09-16. **Solo se pregunta a perfil `mujer`** (`perfil_cliente.genero`) — en `hombre`/`otro` es `null` porque no aplica, no lo trates como pendiente ni lo preguntes. En una clienta mujer que completó el onboarding antes del 2026-09-16, `null` sí es "sin responder" — ahí sí pregúntalo. |
+| 7. Alteración menstrual / fractura por estrés (RED-S) | `parq_menstrual_change_or_stress_fracture` | Mismo criterio de género y de fecha que la anterior. |
+| 8. Trastorno de conducta alimentaria | `parq_eating_disorder_history` | Aplica a **cualquier género**, siempre obligatoria. `null` solo puede significar "onboarding anterior al 2026-09-16, sin responder" — en ese caso sí pregúntalo. |
 
-Las preguntas 6-8 ya activan `flagged_for_review` automáticamente en Bckbs si la respuesta es `true` (mismo mecanismo que las de riesgo cardíaco) — pero eso marca al cliente para revisión de un coach en el panel, no sustituye este cribado ni el bloqueo de las secciones 2-3 de este módulo.
+Las preguntas 6-8 ya activan `flagged_for_review` automáticamente en Bckbs si la respuesta es `true` (mismo mecanismo que las de riesgo cardíaco) — pero eso marca al cliente para revisión de un coach en el panel, no sustituye este cribado ni el bloqueo de las secciones 2-3 de este módulo. Ocultar las preguntas 6-7 en el formulario para perfiles no-mujer es responsabilidad del frontend de la app — este módulo y Bckbs ya no las exigen ni las guardan para esos géneros, pero la app decide qué muestra.
 
 ## 2. Contraindicaciones absolutas — no se programa, se deriva
 

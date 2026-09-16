@@ -3,16 +3,27 @@
   "title": "Perfil de cliente — Asistente de Programación de Entrenamiento",
   "description": "Conjunto de etiquetas del cliente que decide qué módulos de conocimiento se activan (Paso 0). No es una categoría única: un cliente puede activar varios módulos a la vez.",
   "type": "object",
-  "required": ["cliente_id", "cribado_medico", "objetivos", "restricciones_salud", "experiencia_entrenamiento", "disponibilidad"],
+  "required": ["cliente_id", "genero", "cribado_medico", "objetivos", "restricciones_salud", "experiencia_entrenamiento", "disponibilidad"],
   "properties": {
     "cliente_id": {
       "type": "string",
       "description": "Identificador estable del cliente."
     },
+    "genero": {
+      "type": ["string", "null"],
+      "enum": ["hombre", "mujer", "otro", null],
+      "description": "users.gender en Bckbs (male/female/other, traducido aquí) -- se recoge en la etapa 1 del onboarding (datos personales), antes del cribado médico. Necesario para interpretar correctamente parq_pregnant_or_possible/parq_menstrual_change_or_stress_fracture en cribado_medico (ver esa descripción)."
+    },
     "cribado_medico": {
       "type": "object",
-      "description": "Respuestas al cribado obligatorio del módulo contraindicaciones-medicas.md. Nombres de campo alineados 1:1 con la tabla real `par_q_answers` de Bckbs (onboarding etapa 2) -- no son un PAR-Q+ teórico, son los mismos nombres que ya usa la app. Debe completarse antes de generar cualquier borrador, incluso el primero. Las tres últimas (parq_pregnant_or_possible/parq_menstrual_change_or_stress_fracture/parq_eating_disorder_history) se añadieron al onboarding real el 2026-09-16 -- clientes que completaron el onboarding antes de esa fecha las tienen a NULL; trátalo igual que una respuesta ambigua (pregunta antes de continuar, ver system-prompt.md Paso 1).",
-      "required": ["parq_heart_condition", "parq_chest_pain_activity", "parq_chest_pain_rest_last_month", "parq_dizziness_balance", "parq_bone_joint_problem", "parq_bp_or_heart_medication", "parq_reason_not_to_exercise", "parq_pregnant_or_possible", "parq_menstrual_change_or_stress_fracture", "parq_eating_disorder_history"],
+      "description": "Respuestas al cribado obligatorio del módulo contraindicaciones-medicas.md. Nombres de campo alineados 1:1 con la tabla real `par_q_answers` de Bckbs (onboarding etapa 2) -- no son un PAR-Q+ teórico, son los mismos nombres que ya usa la app. Debe completarse antes de generar cualquier borrador, incluso el primero. parq_pregnant_or_possible/parq_menstrual_change_or_stress_fracture/parq_eating_disorder_history se añadieron al onboarding real el 2026-09-16. Dos formas distintas de `null`, no las confundas: (a) en `hombre`/`otro`, parq_pregnant_or_possible/parq_menstrual_change_or_stress_fracture son `null` porque NO APLICA -- no preguntes, no lo trates como ambiguo; (b) en un cliente de cualquier género que completó el onboarding ANTES del 2026-09-16, cualquiera de las tres puede ser `null` porque NUNCA SE LE PREGUNTÓ -- eso sí es una respuesta pendiente, pregúntala antes de continuar (mismo criterio que cualquier dato crítico ausente, ver system-prompt.md Paso 1).",
+      "required": ["parq_heart_condition", "parq_chest_pain_activity", "parq_chest_pain_rest_last_month", "parq_dizziness_balance", "parq_bone_joint_problem", "parq_bp_or_heart_medication", "parq_reason_not_to_exercise", "parq_eating_disorder_history"],
+      "allOf": [
+        {
+          "if": { "properties": { "genero": { "const": "mujer" } }, "required": ["genero"] },
+          "then": { "required": ["parq_pregnant_or_possible", "parq_menstrual_change_or_stress_fracture"] }
+        }
+      ],
       "properties": {
         "parq_heart_condition": { "type": "boolean" },
         "parq_chest_pain_activity": { "type": "boolean" },
@@ -21,10 +32,13 @@
         "parq_bone_joint_problem": { "type": "boolean" },
         "parq_bp_or_heart_medication": { "type": "boolean" },
         "parq_reason_not_to_exercise": { "type": "boolean" },
-        "parq_pregnant_or_possible": { "type": "boolean" },
+        "parq_pregnant_or_possible": {
+          "type": ["boolean", "null"],
+          "description": "Obligatorio (no null) si genero es 'mujer'. Para 'hombre'/'otro', null es el valor correcto -- no preguntes ni trates como ambiguo."
+        },
         "parq_menstrual_change_or_stress_fracture": {
-          "type": "boolean",
-          "description": "Cribado básico de RED-S / baja disponibilidad energética."
+          "type": ["boolean", "null"],
+          "description": "Cribado básico de RED-S / baja disponibilidad energética. Mismo criterio de género que parq_pregnant_or_possible."
         },
         "parq_eating_disorder_history": { "type": "boolean" },
         "parq_medical_history": {
