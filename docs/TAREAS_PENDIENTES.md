@@ -2,7 +2,7 @@
 
 > Único documento de tareas del proyecto. Antes esto vivía repartido entre `docs/roadmap.md` (sección "Backlog abierto"), `AGENTE_IMPORTADOR.md` en Bckbs y un encargo aparte (`BRIEF_registro_alergias_intolerancias.md`) — se consolida aquí para no mantener la misma tarea descrita en varios sitios a la vez. `roadmap.md` sigue siendo el documento de arquitectura/diseño; este es el documento de seguimiento de trabajo pendiente.
 >
-> **Última actualización:** 2026-09-15
+> **Última actualización:** 2026-09-16
 
 ## Cómo leer esta tabla
 
@@ -20,7 +20,7 @@ Ninguna de estas tres se puede ejecutar desde esta sesión — no hay red hacia 
 | # | Tarea | Estado | Bloqueador | Detalle completo |
 |---|---|---|---|---|
 | 1.1 | Verificar contra BD real todo lo mergeado a `main` de Bckbs el 2026-09-15 (`--json`, `programs:assign-client`, `POST program-import`, hotfix `fail()`→`reportFailure()`) | 🔒 | Acceso a datos del VPS `bestronger-vps` | `Bckbs/docs/AGENTE_IMPORTADOR.md`, sección "Tarea pendiente (2026-09-15)" |
-| 1.2 | Construir el registro estructurado de severidad de alergias/intolerancias en Bckbs (`client_limitations`: columna `severity`, ampliar `type`, validación 422 si `type=allergy` sin `severity`, tests) | 🔒 | Acceso al repo Bckbs **y** a su BD (migración) | Encargo autocontenido ya escrito y entregado al usuario: `BRIEF_registro_alergias_intolerancias.md` (no vive en ningún repo todavía — es para dárselo a la próxima sesión con acceso) |
+| 1.2 | Construir el registro estructurado de severidad de alergias/intolerancias en Bckbs (`client_limitations`: columna `severity`, ampliar `type`, validación 422 si `type=allergy` sin `severity`, tests) | 🔒 (parcial — código listo) | **(2026-09-16) Código construido y probado** contra un esquema MySQL real local (migración + modelo + validación + 9 tests, rama `feature/client-limitation-severity` en Bckbs, pusheada, sin fusionar a `main`). Falta: fusionar, aplicar la migración en el VPS de producción, y la revisión humana de qué filas migrar a mano (sección 5 del BRIEF) — eso sigue requiriendo acceso al VPS | `BRIEF_registro_alergias_intolerancias.md` |
 | 1.3 | Etiquetado de alérgenos por ingrediente/receta en Bckbs (`ingredients`/`recipes` no tienen columna tipo `contiene_gluten`) | 🔒 | Depende de 1.2 (no tiene sentido etiquetar ingredientes si todavía no hay severidad estructurada que consultar) | `agentes/programacion-nutricion/formato-salida/entrega-bckbs.md`, sección 4 (limitación documentada); `BRIEF_registro_alergias_intolerancias.md`, sección 6 ("fuera de alcance") |
 
 ---
@@ -53,8 +53,8 @@ Anotadas para no perderlas, pero ninguna es un hueco crítico hoy — el diseño
 
 | # | Tarea | Estado | Nota |
 |---|---|---|---|
-| 4.1 | `programs:check-integrity` inmediato tras cada import real, no solo cron semanal | 🟢 | `Bckbs/docs/AGENTE_IMPORTADOR.md`, sección 7, punto 4 |
-| 4.2 | Umbral de revisión humana configurable por nivel de confianza (hoy `review_required` ya separa A/B de C/D/E, pero la pausa la impone el LLM siguiendo el system-prompt, no la CLI) | 🟢 | `Bckbs/docs/AGENTE_IMPORTADOR.md`, sección 7, punto 5 |
+| 4.1 | `programs:check-integrity` inmediato tras cada import real, no solo cron semanal | 🟢 (código listo) | **(2026-09-16)** `--check-integrity` (CLI) / `check_integrity` (HTTP), opcional y retrocompatible. Rama `feature/import-confidence-gate-check-integrity` en Bckbs, pusheada, sin fusionar. `Bckbs/docs/AGENTE_IMPORTADOR.md`, sección 7, punto 4 |
+| 4.2 | Umbral de revisión humana configurable por nivel de confianza (hoy `review_required` ya separa A/B de C/D/E, pero la pausa la impone el LLM siguiendo el system-prompt, no la CLI) | 🟢 (código listo) | **(2026-09-16)** `--confidence-gate` (CLI) / `confidence_gate` (HTTP): antes de un import real, corre un dry-run en memoria y aborta sin escribir si hay ejercicios sin revisar. Misma rama que 4.1, 10 tests contra MySQL real local. `Bckbs/docs/AGENTE_IMPORTADOR.md`, sección 7, punto 5 |
 | 4.3 | Comando/endpoint de importación de planes de nutrición a Bckbs (análogo a `programs:import`) | 🟢 (depende de 1.2) | `BRIEF_registro_alergias_intolerancias.md`, sección 6 ("fuera de alcance") — no hace falta hoy porque el Productor de nutrición ya escribe directo vía la API existente (`formato-salida/entrega-bckbs.md`) |
 
 ---
@@ -66,6 +66,10 @@ Anotadas para no perderlas, pero ninguna es un hueco crítico hoy — el diseño
 - Deep search de contenido científico del Asistente de Nutrición: necesidades energéticas/macros, timing, recomposición corporal, superávit de ganancia muscular, rendimiento deportivo/resistencia, y evidencia clínica de alergias/intolerancias.
 
 ---
+
+## Nota (2026-09-16): entorno de pruebas local real
+
+Esta sesión instaló MariaDB local (no Docker, no disponible en el sandbox) y corrió la suite completa de migraciones de Bckbs contra un esquema MySQL real — a diferencia de SQLite, que falla en una migración con sintaxis `ALTER TABLE ... MODIFY` específica de MySQL. Esto permite construir Y probar con tests de verdad cualquier cambio de código (migraciones, modelos, controladores) sin acceso al VPS, dejando solo "aplicarlo en producción" como el paso realmente bloqueado. Reclasifica lo que antes se marcaba como bloqueado del todo (1.2, 4.1, 4.2) en "código listo, falta aplicar/fusionar".
 
 ## Mantenimiento de este documento
 
