@@ -1,5 +1,19 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.7.0 — 2026-09-17
+
+Cierra el ítem 2.7 de `docs/TAREAS_PENDIENTES.md`. El usuario decidió construirlo ahora (caso real de Borja + práctica recurrente, no algo puntual) y que viviera en este agente, no en el de entrenamiento.
+
+- **Nuevo módulo general `modulos/habitos-prioritarios.md`:** formaliza la sección 6 del guideline de Borja ("Bloque de hábitos prioritarios") — 3-5 hábitos ordenados por impacto potencial, cada uno con "por qué importa" (causal, con números concretos del cliente) y "cómo implementarlo" (fricción mínima, anclado a un hábito ya existente). Cubre tanto hábitos estrictamente nutricionales (proteína mínima, ventanas horarias críticas, superávit) como de estilo de vida (regularidad del sueño, pasos/NEAT) siempre que conecten explícitamente con el objetivo nutricional declarado. Se activa siempre, tras fijar el plan — no es opcional.
+- **Nuevo campo `habitos_prioritarios` en `esquemas/log-nutricion.schema.json`:** persiste la lista generada cada ciclo (máx. 5 entradas, con `adherencia_ciclo_anterior` opcional) para que el ciclo siguiente valore qué se sostuvo antes de generar una lista nueva — no se repite ni se descarta a ciegas.
+- `system-prompt.md` sube a v0.7.0: Paso 2 (punto 6, síntesis de hábitos), Paso 1/memoria (leer `habitos_prioritarios` del ciclo anterior), índice de módulos y nota de mantenimiento actualizados.
+- No tiene equivalente en Bckbs — ninguna tabla admite esta forma de dato (no es una comida ni una receta); vive en el borrador que revisa el humano y en la memoria episódica, igual que `razonamiento`.
+- El agente de entrenamiento no recibe un módulo equivalente: de los 5 hábitos del caso real, 3 eran nutricionales y 2 de estilo de vida, ninguno de programación de ejercicio — mantener una sola lista de hábitos (aquí) evita duplicar lógica de síntesis similar en los dos agentes.
+
+## v0.6.1 — 2026-09-17
+
+Cierra el ítem 2.6 (mismo cambio que v0.15.1 del agente de entrenamiento — ver ese CHANGELOG para el detalle completo): la memoria real de cliente vive en el repo privado **`ilzarpeatore/bstronger-memoria-clientes`**, `clientes/<cliente_id>/log-nutricion.json` y `.../checkpoints-fisicos.json` (compartido). `system-prompt.md` (v0.6.1) actualizado con la ruta exacta.
+
 ## v0.6.0 — 2026-09-17
 
 Memoria persistente por cliente (mismo cambio que v0.15.0 del agente de entrenamiento, mismo caso real como origen — ver ese CHANGELOG para el detalle completo).

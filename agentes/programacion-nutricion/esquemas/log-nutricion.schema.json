@@ -49,6 +49,33 @@
       "type": ["string", "null"],
       "description": "Lo que de verdad pasó en el ciclo anterior (adherencia al plan, ajustes que el cliente hizo por su cuenta) — alimenta la siguiente generación. Nunca se inventa; si falta, el Productor debe pedirlo o generar en modo conservador, igual que en entrenamiento."
     },
+    "habitos_prioritarios": {
+      "type": "array",
+      "description": "Añadido 2026-09-17 (ítem 2.7, caso real de Borja) — salida del módulo modulos/habitos-prioritarios.md: 3-5 hábitos ordenados por impacto potencial, no una dieta alternativa. El siguiente ciclo debe leer esta lista (Paso 1, memoria del cliente) y valorar su adherencia antes de generar una nueva.",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["habito", "por_que_importa", "como_implementarlo"],
+        "properties": {
+          "habito": { "type": "string", "description": "Título corto, ej. 'Proteína mínima diaria — 150g'." },
+          "por_que_importa": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Explicación causal específica de este cliente, con sus propios números cuando existan — no una justificación genérica de manual."
+          },
+          "como_implementarlo": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Instrucción concreta de fricción mínima, preferiblemente anclada a un hábito que el cliente ya tiene."
+          },
+          "adherencia_ciclo_anterior": {
+            "type": ["string", "null"],
+            "enum": ["cumplido", "parcial", "no_cumplido", null],
+            "description": "Solo si este hábito ya apareció en el ciclo anterior — valoración de si se sostuvo. null si es un hábito nuevo en este ciclo."
+          }
+        }
+      }
+    },
     "aprobado_validador": {
       "type": "boolean",
       "description": "Resultado del Paso 3 (validador determinista, validador/validar_plan.py)."

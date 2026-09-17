@@ -60,7 +60,7 @@ No es un agente monolítico ni un router que encasilla al cliente en una categor
 |---|---|---|
 | Semántica | `perfil_cliente`: objetivo(s), deporte/actividad, restricciones — varias etiquetas | Decide qué módulos se activan |
 | Procedimental | La base de conocimiento modular completa + `reglas_programa` | Sostiene el conocimiento científico y las personalizaciones del cliente |
-| Episódica | `esquemas/log-registro.schema.json`/`log-nutricion.schema.json` (una entrada por ciclo generado: `razonamiento`, `adherencia_real`) + `esquemas/checkpoint-fisico.schema.json` (compartido, una entrada por reevaluación física periódica con métricas y `observaciones_coach`) | El ciclo N+1 depende de cómo fue realmente el ciclo N, no de una suposición. Hasta 2026-09-17 esto era memoria de solo escritura (se guardaba, nunca se releía); el Paso 1 de ambos agentes ahora exige leer las últimas entradas de este cliente antes de generar — diseñado a partir de un caso real (guideline de Borja) donde la explicación causal de por qué el progreso se estancaba solo vivía en la cabeza del coach, no en ningún dato estructurado |
+| Episódica | `esquemas/log-registro.schema.json`/`log-nutricion.schema.json` (una entrada por ciclo generado: `razonamiento`, `adherencia_real`) + `esquemas/checkpoint-fisico.schema.json` (compartido, una entrada por reevaluación física periódica con métricas y `observaciones_coach`) — el **dato real** de cada cliente vive en el repo privado `ilzarpeatore/bstronger-memoria-clientes` (`clientes/<cliente_id>/...`), no en este repositorio de diseño | El ciclo N+1 depende de cómo fue realmente el ciclo N, no de una suposición. Hasta 2026-09-17 esto era memoria de solo escritura (se guardaba, nunca se releía); el Paso 1 de ambos agentes ahora exige leer las últimas entradas de este cliente antes de generar — diseñado a partir de un caso real (guideline de Borja) donde la explicación causal de por qué el progreso se estancaba solo vivía en la cabeza del coach, no en ningún dato estructurado |
 
 ### Periodización: dos anclajes posibles
 
@@ -99,6 +99,7 @@ Mismo marco que el de entrenamiento: base de conocimiento modular, no una dieta 
 | `recomposicion-corporal-nutricion.md` | Específico | Objetivo de reducir grasa manteniendo/ganando masa muscular (contraparte nutricional de `hipertrofia-recomposicion-corporal.md`) |
 | `ganancia-muscular-superavit.md` | Específico | Objetivo prioritario de ganar masa muscular sin déficit simultáneo — mutuamente excluyente con `recomposicion-corporal-nutricion.md` para un mismo bloque |
 | `rendimiento-deportivo-resistencia.md` | Específico | Cliente entrena/compite en resistencia y el objetivo prioritario es el rendimiento en esa actividad (coordina con `running-economia-carrera.md`/`periodizacion-orientada-evento.md` del agente de entrenamiento) |
+| `habitos-prioritarios.md` | General — síntesis final | Siempre — tras fijar el plan (Paso 2): 3-5 hábitos de nutrición o estilo de vida ordenados por impacto, anclados a datos reales del cliente, no genéricos |
 
 ## Backlog abierto
 
