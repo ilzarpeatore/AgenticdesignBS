@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Checkpoint físico — historial de evolución del cliente",
+  "description": "Compartido entre los dos agentes (mismo patrón que restricciones_dieteticas: vive aquí, ninguno lo duplica). Una entrada por reevaluación física periódica (fin de mesociclo/fase, no cada sesión) -- es la pieza de memoria que faltaba entre 'log-registro.schema.json/log-nutricion.schema.json' (una entrada por ciclo GENERADO) y el perfil estático: cómo evolucionó de verdad el cliente entre checkpoints, y por qué, según el coach. Diseñado a partir de un caso real (guideline de Borja, Be Stronger, abril 2026), cuya sección 'Observaciones del entrenador' es exactamente esto en prosa: una tabla de métricas más una explicación de qué las está moviendo o bloqueando -- ahí se detectó que la mejora perceptual de Borja no se reflejaba en las métricas por una ingesta insuficiente, algo que ningún número por sí solo revela.",
+  "type": "object",
+  "required": ["cliente_id", "fecha", "observaciones_coach"],
+  "properties": {
+    "cliente_id": {
+      "type": "string",
+      "description": "Debe coincidir con el cliente_id de perfil-cliente.schema.json / perfil-nutricional.schema.json."
+    },
+    "fecha": { "type": "string", "format": "date" },
+    "metricas": {
+      "type": "object",
+      "description": "Snapshot en esta fecha. Cualquier campo puede faltar (no todas las reevaluaciones miden lo mismo) -- null o ausente no es un error, solo un dato no tomado esta vez.",
+      "properties": {
+        "peso_kg": { "type": ["number", "null"] },
+        "pct_grasa": { "type": ["number", "null"] },
+        "masa_muscular_kg": { "type": ["number", "null"] },
+        "cargas_clave": {
+          "type": "object",
+          "description": "Ejercicio ancla -> carga de referencia en esta fecha (ej. {\"press_banca\": 60, \"dominadas_lastre\": 20}). Solo los ejercicios que el Productor decidió trackear como referencia de ese cliente, no todos los del programa.",
+          "additionalProperties": { "type": "number" }
+        }
+      }
+    },
+    "observaciones_coach": {
+      "type": "string",
+      "minLength": 1,
+      "description": "La pieza más importante de este esquema, no un campo de relleno. Texto libre: qué cambió desde el checkpoint anterior, qué está funcionando, qué no, y la explicación causal -- no basta con registrar que las métricas se estancaron, hace falta la hipótesis de por qué (nutrición insuficiente, falta de sueño, técnica, etc.), igual que hizo el coach en el caso real de Borja."
+    },
+    "adherencia_percibida": {
+      "type": ["string", "null"],
+      "enum": ["alta", "media", "baja", null],
+      "description": "Valoración del coach de cuánto se está cumpliendo el plan (entrenamiento y/o nutrición) -- juicio cualitativo, no una métrica medida."
+    }
+  }
+}

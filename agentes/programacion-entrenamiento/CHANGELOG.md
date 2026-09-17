@@ -1,5 +1,14 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.15.0 — 2026-09-17
+
+Memoria persistente por cliente, diseñada a partir de un documento real que el usuario comparte con sus clientes (guideline de Borja, Be Stronger, abril 2026) — el primer ejemplo concreto del "perfil vivo" que hasta ahora solo existía como concepto en la tabla de memoria de `docs/roadmap.md`.
+
+- **Nuevo `contexto_vida` en `esquemas/perfil-cliente.schema.json`:** ocupación, horario laboral (texto libre — los horarios reales no caben en un enum), sueño (horas + regularidad), estrés percibido (1-10), coaching previo. El caso real mostró un horario nocturno de trabajo y estrés 7/10 como factores que condicionan directamente `gestion-fatiga-deload.md`/`monitorizacion-fatiga-bienestar.md`, no datos decorativos.
+- **Nuevo `esquemas/checkpoint-fisico.schema.json` (compartido con nutrición):** una entrada por reevaluación física periódica (peso, % grasa, masa muscular, cargas de referencia) más `observaciones_coach` en texto libre — el campo más importante del esquema. Cierra el hueco real que exponía el caso de Borja: la mejora perceptual no se reflejaba en las métricas, y la explicación (ingesta insuficiente) solo la tenía el coach en la cabeza, sin ningún sitio donde quedara escrita de forma estructurada para el siguiente ciclo.
+- **`system-prompt.md` (v0.11.0), Paso 1:** nueva sección "Memoria del cliente" — exige leer las últimas entradas de log y checkpoints de este cliente ANTES de generar. Hasta ahora la memoria episódica (`log-registro.schema.json`) era de solo escritura: se guardaba el razonamiento de cada ciclo, pero nada instruía a leerlo de vuelta. Se aclara explícitamente que los datos reales de cliente no viven en este repositorio de diseño.
+- **Pendiente, no resuelto en esta versión:** el caso real de Borja incluye una capa de "hábitos prioritarios" (nutrición/estilo de vida, ordenados por impacto, con implementación muy simple) que no tiene equivalente en ningún agente hoy — ni el de entrenamiento ni el de nutrición generan este tipo de contenido. Anotado como posible pieza nueva, no construida.
+
 ## v0.14.1 — 2026-09-16
 
 - **Embarazo/RED-S solo para perfil mujer:** decisión de producto del usuario tras v0.14.0 — `parq_pregnant_or_possible`/`parq_menstrual_change_or_stress_fracture` dejan de ser obligatorias para hombre/otro (Bckbs las guarda `null`, no `false`, para no confundir "no aplica" con "se preguntó y dijo que no"). Nuevo campo `genero` en `esquemas/perfil-cliente.schema.json`, validación condicional (`allOf`/`if`/`then`) en vez de `required` fijo. `contraindicaciones-medicas.md` sube a v0.3.0. Ocultar el campo en el formulario de la app para perfiles no-mujer queda fuera de Bckbs (frontend).

@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.6.0 — 2026-09-17
+
+Memoria persistente por cliente (mismo cambio que v0.15.0 del agente de entrenamiento, mismo caso real como origen — ver ese CHANGELOG para el detalle completo).
+
+- Intake (Paso 1, punto 7) lee `contexto_vida` del esquema compartido de entrenamiento — un horario laboral nocturno cambia directamente cuándo se reparten las comidas, no es un dato solo relevante para el otro agente.
+- Nueva sección "Memoria del cliente" en el Paso 1: lee `log-nutricion.schema.json` y el nuevo `checkpoint-fisico.schema.json` (compartido, vive en `agentes/programacion-entrenamiento/esquemas/`) antes de generar.
+- Pendiente explícito, igual que en entrenamiento: la capa de "hábitos prioritarios" del caso real no tiene equivalente aquí.
+
 ## v0.5.0 — 2026-09-16
 
 Primera reconciliación de `perfil-nutricional.schema.json` contra el onboarding real de Bckbs, posible porque el usuario confirmó que el onboarding de la app queda registrado en BD — se pudo comparar el esquema contra las columnas reales sin necesitar datos de ningún cliente.

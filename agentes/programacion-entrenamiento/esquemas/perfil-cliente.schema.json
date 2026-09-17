@@ -70,6 +70,42 @@
         }
       }
     },
+    "contexto_vida": {
+      "type": "object",
+      "description": "Añadido 2026-09-17 a partir de un caso real (guideline de Borja, Be Stronger, abril 2026) -- ese documento mostró que datos de contexto vital afectan directamente la programación (horario nocturno de trabajo, estrés alto) y no tenían ningún sitio en el esquema hasta ahora. Compartido entre los dos agentes: el horario/sueño/estrés condicionan tanto el timing de entrenamiento como el de comidas.",
+      "properties": {
+        "ocupacion": {
+          "type": "string",
+          "description": "Ej. 'Autónomo, regenta su pub'. Texto libre -- no hay una taxonomía de ocupaciones que valga la pena mantener."
+        },
+        "horario_laboral": {
+          "type": "string",
+          "description": "Texto libre, no una franja fija -- los horarios reales son demasiado variables para un enum (ej. 'Libre hasta las 20h, trabajo hasta 3-4 de la madrugada'). Condiciona cuándo puede entrenar y cuándo puede comer, no solo cuántos días/semana."
+        },
+        "sueno": {
+          "type": "object",
+          "properties": {
+            "horas_promedio": { "type": ["number", "null"] },
+            "regularidad": {
+              "type": "string",
+              "enum": ["regular", "irregular"],
+              "description": "Horas suficientes con horario muy desplazado/irregular (ej. acostarse a las 4-5am) sigue siendo un factor de riesgo para recuperación -- no asumas que 'suficientes horas' basta, pregunta también por regularidad."
+            },
+            "notas": { "type": "string" }
+          }
+        },
+        "estres_percibido": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Autoevaluación del cliente. Junto con sueno.regularidad, sube el riesgo de fatiga acumulada -- ver monitorizacion-fatiga-bienestar.md y gestion-fatiga-deload.md, que deben ser más conservadores si estres_percibido es alto (ej. >=7) combinado con sueno.regularidad='irregular'."
+        },
+        "historial_coaching_previo": {
+          "type": "string",
+          "description": "Ej. 'Tablas por otros entrenadores', 'ninguno', 'autoentrenado con apps'. Da contexto sobre por qué el cliente entrena como entrena hoy (rutinas copiadas, hábitos previos a corregir), más allá de nivel_fuerza/experiencia_entrenamiento."
+        }
+      }
+    },
     "actividad_principal": {
       "type": "object",
       "description": "Actividad concurrente que el cliente ya gestiona (running, fútbol, otro deporte) y que este agente no diseña, pero necesita conocer para gestionar la carga total.",
