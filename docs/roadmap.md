@@ -99,6 +99,7 @@ Mismo marco que el de entrenamiento: base de conocimiento modular, no una dieta 
 | `recomposicion-corporal-nutricion.md` | Específico | Objetivo de reducir grasa manteniendo/ganando masa muscular (contraparte nutricional de `hipertrofia-recomposicion-corporal.md`) |
 | `ganancia-muscular-superavit.md` | Específico | Objetivo prioritario de ganar masa muscular sin déficit simultáneo — mutuamente excluyente con `recomposicion-corporal-nutricion.md` para un mismo bloque |
 | `rendimiento-deportivo-resistencia.md` | Específico | Cliente entrena/compite en resistencia y el objetivo prioritario es el rendimiento en esa actividad (coordina con `running-economia-carrera.md`/`periodizacion-orientada-evento.md` del agente de entrenamiento) |
+| `habitos-prioritarios.md` | General — síntesis final | Siempre — tras fijar el plan (Paso 2): 3-5 hábitos de nutrición o estilo de vida ordenados por impacto, anclados a datos reales del cliente, no genéricos |
 
 ## Backlog abierto
 
