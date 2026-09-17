@@ -1,5 +1,15 @@
 # Changelog — Agente Importador de Programas
 
+## v0.4.0 — 2026-09-17
+
+Sincroniza con `docs/AGENTE_IMPORTADOR.md` (Bckbs, commit `ada8b1b`) tras verificación end-to-end real contra `bestronger-vps`: se generó un mesociclo real nuevo (`nerea-media-m1.xlsx`, 68 filas) para tener por fin un catálogo no importado antes, y `--confidence-gate` detectó correctamente un match nivel D (confianza 0.74, `Peso muerto rumano a una pierna con kettlebell` confundido con `Peso muerto rumano con barra` — unilateral/kettlebell vs. bilateral/barra) más 7 auto-creaciones.
+
+- **Cambio de norma, decisión explícita del usuario, sustituye el principio de diseño de v0.1.0:** el import (crear el `training_program` y los ejercicios de catálogo, incluidos auto-creados y matches ambiguos nivel C/D/E) se ejecuta automáticamente — ya no hay dry-run obligatorio ni pausa por `review_required` antes de escribir. El riesgo era menor de lo que asumía el diseño original: un ejercicio mal matcheado que solo existe en el catálogo, sin cliente asignado todavía, es bajo coste y reversible.
+- **La pausa humana no negociable se mueve a la asignación:** este agente nunca ejecuta `programs:assign-client`/`POST training-program-assign-client`, bajo ninguna circunstancia — es siempre una acción manual del humano en el panel admin, después de revisar el programa recién creado.
+- `--confidence-gate` sigue existiendo y siendo válido, pero deja de ser el flujo por defecto de este agente.
+- Import real ejecutado end-to-end sobre `nerea-media-m1.xlsx`: `training_program #55` creado, 27 ejercicios nuevos, 0 asignaciones a cliente, `check-integrity` limpio inmediatamente después.
+- `system-prompt.md` sube a v0.4.0: secciones 1 (NO debes), 2 (herramientas), 3 (flujo), 4 (principio no negociable) y 5 (excepciones) reescritas.
+
 ## v0.3.0 — 2026-09-15
 
 Cierra el último bloqueante real de `docs/AGENTE_IMPORTADOR.md` (Bckbs): el endpoint HTTP del import.
