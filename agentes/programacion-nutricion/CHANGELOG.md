@@ -1,5 +1,9 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.6.1 — 2026-09-17
+
+Cierra el ítem 2.6 (mismo cambio que v0.15.1 del agente de entrenamiento — ver ese CHANGELOG para el detalle completo): la memoria real de cliente vive en el repo privado **`ilzarpeatore/bstronger-memoria-clientes`**, `clientes/<cliente_id>/log-nutricion.json` y `.../checkpoints-fisicos.json` (compartido). `system-prompt.md` (v0.6.1) actualizado con la ruta exacta.
+
 ## v0.6.0 — 2026-09-17
 
 Memoria persistente por cliente (mismo cambio que v0.15.0 del agente de entrenamiento, mismo caso real como origen — ver ese CHANGELOG para el detalle completo).

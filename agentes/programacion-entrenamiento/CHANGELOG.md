@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.15.1 — 2026-09-17
+
+Cierra el ítem 2.6 de `docs/TAREAS_PENDIENTES.md` (dónde viven físicamente los archivos reales de memoria por cliente, dejado abierto en v0.15.0).
+
+- **Decisión:** repo privado de GitHub, **`ilzarpeatore/bstronger-memoria-clientes`** — no una tabla en Bckbs (esos campos, `observaciones_coach`/`razonamiento`, los escribe el coach a mano, igual que hoy escribe el guideline de Borja) ni Google Sheets (exigiría aplanar los esquemas anidados e integrar la API de Google, trabajo de M1 adelantado sin necesidad).
+- Estructura: `clientes/<cliente_id>/` con `perfil-cliente.json`, `perfil-nutricional.json`, `checkpoints-fisicos.json`, `log-registro.json`, `log-nutricion.json` — mismos nombres que los esquemas de `AgenticdesignBS`, sin duplicar su definición. Plantilla de partida en `_plantilla/` de ese repo.
+- `system-prompt.md` (v0.11.1), sección "Memoria del cliente": ahora nombra el repo y la ruta exacta en vez de dejarlo como decisión abierta.
+
 ## v0.15.0 — 2026-09-17
 
 Memoria persistente por cliente, diseñada a partir de un documento real que el usuario comparte con sus clientes (guideline de Borja, Be Stronger, abril 2026) — el primer ejemplo concreto del "perfil vivo" que hasta ahora solo existía como concepto en la tabla de memoria de `docs/roadmap.md`.
