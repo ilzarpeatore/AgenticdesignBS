@@ -12,7 +12,16 @@ Repo `ilzarpeatore/AgenticdesignBS`, rama `main`, commit `2d4afaa` ya en remoto.
 - **2.7 — capa de "hábitos prioritarios":** nuevo módulo `agentes/programacion-nutricion/modulos/habitos-prioritarios.md` (solo en nutrición) + campo `habitos_prioritarios` en `esquemas/log-nutricion.schema.json`. `system-prompt.md` de nutrición en v0.7.0.
 - **1.2 — severidad de alergias en Bckbs:** confirmada ya aplicada en producción (migración `Ran`, columna `severity`, validación 422 funcionando).
 
-**Quedan exactamente dos tareas técnicas abiertas, ambas necesitan tu acceso VPS real:**
+## Orden de trabajo: primero volcar perfiles, luego generar
+
+El usuario decidió (2026-09-17) volcar primero la memoria real de **todos** los clientes con onboarding completo antes de generar ninguna rutina o plan de nutrición — así la primera generación de cada cliente ya parte de contexto real, no de una plantilla vacía. Dos partes, en este orden:
+
+1. **Volcado automático desde la BD real (tú, ahora):** sigue `VOLCAR_PERFILES_ONBOARDING.md` (raíz de este repo) — mapeo completo y verificado contra el código real de Bckbs (`par_q_answers`, `training_questionnaire_answers`, `nutrition_questionnaire_answers`, `client_limitations`) hacia `clientes/<cliente_id>/perfil-cliente.json`/`perfil-nutricional.json` en `bstronger-memoria-clientes`. Es de solo lectura contra Bckbs — no escribe nada en producción.
+2. **Info extra manual (el usuario, después):** el usuario le pasará a una sesión de Claude Code, cliente por cliente, un archivo con información adicional (como el guideline de Borja) para completar `contexto_vida`, `actividad_principal`, `restricciones_salud` granular, etc. — los campos que `VOLCAR_PERFILES_ONBOARDING.md` deja marcados como `_pendiente_manual`. Esa parte no necesita VPS, puede hacerse desde cualquier sesión con acceso a `bstronger-memoria-clientes`.
+
+Solo cuando ambas partes estén hechas para un cliente (o al menos la 1) se genera su primera rutina/plan.
+
+**Además, quedan exactamente dos tareas técnicas sueltas, ambas necesitan tu acceso VPS real:**
 
 ### 1.1 — Cerrar la verificación de `programs:import`/`--confidence-gate` contra BD real
 
