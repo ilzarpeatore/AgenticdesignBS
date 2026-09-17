@@ -2,7 +2,7 @@
 
 > Único documento de tareas del proyecto. Antes esto vivía repartido entre `docs/roadmap.md` (sección "Backlog abierto"), `AGENTE_IMPORTADOR.md` en Bckbs y un encargo aparte (`BRIEF_registro_alergias_intolerancias.md`) — se consolida aquí para no mantener la misma tarea descrita en varios sitios a la vez. `roadmap.md` sigue siendo el documento de arquitectura/diseño; este es el documento de seguimiento de trabajo pendiente.
 >
-> **Última actualización:** 2026-09-17 (sesión con acceso real a `bestronger-vps`: 1.2 confirmada ya aplicada en producción, no bloqueada como decía esta tabla; 1.1 parcialmente verificada contra BD real)
+> **Última actualización:** 2026-09-17 (sesión con acceso real a `bestronger-vps`: 1.2 confirmada ya aplicada en producción, 1.1 parcialmente verificada contra BD real; más el diseño de memoria persistente por cliente, sección 2.6/2.7)
 
 ## Cómo leer esta tabla
 
