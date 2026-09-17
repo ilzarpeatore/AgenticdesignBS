@@ -2,7 +2,7 @@
 
 > Único documento de tareas del proyecto. Antes esto vivía repartido entre `docs/roadmap.md` (sección "Backlog abierto"), `AGENTE_IMPORTADOR.md` en Bckbs y un encargo aparte (`BRIEF_registro_alergias_intolerancias.md`) — se consolida aquí para no mantener la misma tarea descrita en varios sitios a la vez. `roadmap.md` sigue siendo el documento de arquitectura/diseño; este es el documento de seguimiento de trabajo pendiente.
 >
-> **Última actualización:** 2026-09-16 (reconciliación de los esquemas contra el onboarding real de Bckbs)
+> **Última actualización:** 2026-09-17 (integración en la app confirmada; PR de onboarding fusionada a `main`)
 
 ## Cómo leer esta tabla
 
@@ -34,7 +34,6 @@ Ninguna de estas tres se puede ejecutar desde esta sesión — no hay red hacia 
 | 2.3 | Migrar a `client_limitations` las alergias que hoy solo existen como texto libre en `nutrition_questionnaire_answers.allergies_intolerances` | 🟡 (tras 1.2) | Es tarea humana a propósito — un parseo automático de texto libre no puede inferir severidad de forma fiable, así que no se automatiza | `BRIEF_registro_alergias_intolerancias.md`, sección 5 |
 | 2.4 | Confirmar o ajustar la regla de derivación de `nivel_fuerza` (principiante/intermedio/avanzado) a partir de `experiencia_meses`/`tecnica_autoevaluada` | 🟡 | Es un criterio de coach, no algo que se pueda derivar solo de la estructura de datos — la regla propuesta (2026-09-16) es un punto de partida, no una decisión final | `agentes/programacion-entrenamiento/esquemas/perfil-cliente.schema.json`, campo `experiencia_entrenamiento.nivel_fuerza` |
 | 2.5 | Decidir qué hacer con clientes que completaron el onboarding antes del 2026-09-16 — se quedan con `parq_pregnant_or_possible`/`parq_menstrual_change_or_stress_fracture`/`parq_eating_disorder_history`/`disponibilidad_cocina` a `NULL` para siempre salvo que se les vuelva a preguntar | 🟡 | Decisión de producto (¿re-prompt en la app a los clientes existentes? ¿se asume el hueco hasta el próximo ciclo de cada uno?), no algo que el código pueda resolver solo | `Bckbs`, migraciones `2026_09_16_100000`/`2026_09_16_100001` |
-| 2.6 | Ocultar en el formulario de onboarding de la app las preguntas de embarazo/RED-S cuando el perfil no es mujer (backend ya lo hace opcional — falta la parte de UI) | 🟡 | El backend (Bckbs) ya no las exige para hombre/otro; falta el cambio en el frontend/app del onboarding, que no es ninguno de los repos de esta sesión — decir qué repo es para poder tocarlo | Bckbs `OnboardingController::parq()` (ya hecho, 2026-09-16) |
 
 ---
 
@@ -70,6 +69,7 @@ Anotadas para no perderlas, pero ninguna es un hueco crítico hoy — el diseño
 - **(2026-09-16) Cribado de seguridad faltante en el onboarding real** — `par_q_answers` no preguntaba embarazo/posibilidad, alteración menstrual/fractura por estrés (RED-S) ni trastorno alimentario, pese a que `contraindicaciones-medicas.md` lo asumía desde el diseño. Añadido a Bckbs (migración + validación + flag de revisión + tests).
 - **(2026-09-16) `disponibilidad_cocina` en el onboarding de nutrición** — requerido por el esquema desde el primer borrador, nunca se preguntaba. Añadido a Bckbs.
 - **(2026-09-16) Disponibilidad de entrenamiento editable post-onboarding** — nuevo endpoint `POST training-availability-update`, sin repetir todo el cuestionario.
+- **(2026-09-17) Integración en la app de los tres cambios de onboarding** — el usuario confirmó que ya está integrado: las preguntas de embarazo/RED-S se muestran solo a perfil mujer, disponibilidad de cocina añadida a la etapa 4, y la pantalla de disponibilidad de entrenamiento editable. La PR `feature/onboarding-safety-and-preferences` de Bckbs está fusionada a `main` (verificado: 59 tests relevantes en verde, sin conflicto con el trabajo de otras sesiones — Panel de Tareas, readiness-scores).
 
 ---
 
