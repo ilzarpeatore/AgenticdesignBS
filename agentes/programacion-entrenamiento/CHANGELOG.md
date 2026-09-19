@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.15.3 — 2026-09-19
+
+Cierra el ítem 2.4 de `docs/TAREAS_PENDIENTES.md` con datos reales de 6 clientes.
+
+- El coach confirmó `nivel_fuerza` real para Hamsa, Toni, Borja, Ayoub, Osas y Alberto. Contrastado contra la regla de derivación (2026-09-16, `experiencia_meses`/`tecnica_autoevaluada`): coincidió en 3/6 (Hamsa avanzado, Toni intermedio, Borja avanzado) y falló en 3/6 (Ayoub: la regla decía principiante por su técnica autoevaluada de 1/10, el coach lo clasifica avanzado; Osas: la regla decía avanzado, el coach dice intermedio; Alberto: la regla decía intermedio, el coach dice principiante).
+- Conclusión práctica: la técnica autoevaluada por el propio cliente no es un predictor fiable por sí sola del nivel real. `nivel_fuerza` deja de derivarse siempre — ahora se lee directamente si el coach ya lo confirmó (caso normal a partir de ahora), y solo se deriva con la regla como estimación de baja confianza, marcada para confirmar, cuando un cliente nuevo todavía no tiene el dato.
+- `esquemas/perfil-cliente.schema.json` (descripción de `nivel_fuerza`) y `system-prompt.md` (v0.12.0, Paso 1 punto 4) actualizados.
+
 ## v0.15.2 — 2026-09-19
 
 Decisión del usuario: en `bstronger-memoria-clientes`, `perfil-nutricional.json` deja de ser un archivo aparte y pasa a vivir anidado bajo la clave `"nutricion"` dentro de `perfil-cliente.json` (ver CHANGELOG del agente de nutrición, v0.8.0, para el detalle completo). Sin impacto funcional en este agente — sigue leyendo un único archivo por cliente, igual que antes. `system-prompt.md` (v0.11.2), sección "Memoria del cliente", ya no cita `perfil-nutricional.json` como archivo independiente.
