@@ -1,14 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Perfil nutricional — Asistente de Programación de Nutrición",
-  "description": "Datos específicos de nutrición que NO viven en agentes/programacion-entrenamiento/esquemas/perfil-cliente.schema.json. No dupliques cliente_id, restricciones_dieteticas, disponibilidad de entrenamiento ni actividad_principal — se leen del esquema compartido (ver system-prompt.md, Paso 1, apartados 0 y 1).",
+  "description": "Datos específicos de nutrición que NO viven en agentes/programacion-entrenamiento/esquemas/perfil-cliente.schema.json. No dupliques cliente_id, restricciones_dieteticas, disponibilidad de entrenamiento ni actividad_principal — se leen del esquema compartido (ver system-prompt.md, Paso 1, apartados 0 y 1). Desde 2026-09-19 esta es la forma de la clave \"nutricion\" anidada dentro de perfil-cliente.json en bstronger-memoria-clientes -- ya no es un archivo perfil-nutricional.json independiente, por eso no lleva cliente_id propio (se hereda del documento padre).",
   "type": "object",
-  "required": ["cliente_id", "objetivos_nutricionales", "gustos_y_aversiones", "disponibilidad_cocina"],
+  "required": ["objetivos_nutricionales", "gustos_y_aversiones", "disponibilidad_cocina"],
   "properties": {
-    "cliente_id": {
-      "type": "string",
-      "description": "Debe coincidir con el cliente_id del perfil de entrenamiento — es la clave para cruzar ambos esquemas, no un identificador nuevo."
-    },
     "objetivos_nutricionales": {
       "type": "array",
       "description": "Uno o más objetivos. No tienen por qué coincidir 1:1 con los objetivos de entrenamiento (ej. entrenamiento de fuerza + objetivo de pérdida de grasa).",

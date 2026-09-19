@@ -251,6 +251,10 @@
       "type": "object",
       "description": "1RM o cargas de trabajo actuales, si existen. Opcional — su ausencia activa la 'semana de calibración' del system-prompt.",
       "additionalProperties": { "type": "number" }
+    },
+    "nutricion": {
+      "type": "object",
+      "description": "Añadido 2026-09-19: datos específicos del Asistente de Programación de Nutrición, anidados aquí en vez de en un perfil-nutricional.json aparte -- un único archivo por cliente en bstronger-memoria-clientes. Este agente (entrenamiento) no la lee ni la escribe. Forma exacta en agentes/programacion-nutricion/esquemas/perfil-nutricional.schema.json. Ausente si el cliente todavía no tiene ningún dato de nutrición real."
     }
   }
 }

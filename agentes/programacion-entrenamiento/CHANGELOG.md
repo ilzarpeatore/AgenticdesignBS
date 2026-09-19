@@ -1,5 +1,9 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.15.2 — 2026-09-19
+
+Decisión del usuario: en `bstronger-memoria-clientes`, `perfil-nutricional.json` deja de ser un archivo aparte y pasa a vivir anidado bajo la clave `"nutricion"` dentro de `perfil-cliente.json` (ver CHANGELOG del agente de nutrición, v0.8.0, para el detalle completo). Sin impacto funcional en este agente — sigue leyendo un único archivo por cliente, igual que antes. `system-prompt.md` (v0.11.2), sección "Memoria del cliente", ya no cita `perfil-nutricional.json` como archivo independiente.
+
 ## v0.15.1 — 2026-09-17
 
 Cierra el ítem 2.6 de `docs/TAREAS_PENDIENTES.md` (dónde viven físicamente los archivos reales de memoria por cliente, dejado abierto en v0.15.0).

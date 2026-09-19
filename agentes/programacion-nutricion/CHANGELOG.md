@@ -1,5 +1,14 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.8.0 — 2026-09-19
+
+Decisión del usuario: `perfil-cliente.json` y `perfil-nutricional.json` (en `bstronger-memoria-clientes`) eran dos archivos separados por cliente y pasan a ser uno solo, para que cualquier agente o el coach editando a mano solo tenga que abrir un sitio.
+
+- **`esquemas/perfil-nutricional.schema.json`:** deja de tener `cliente_id` propio — se hereda del documento padre. Describe ahora la forma de la clave `"nutricion"` anidada dentro de `perfil-cliente.json`, no un archivo independiente.
+- **`bstronger-memoria-clientes`:** migrados los 5 clientes que ya tenían perfil nutricional real (Hamsa, Toni, Hamza Elouafa, Borja, Ayoub) y la plantilla en `_plantilla/`. `restricciones_dieteticas`/`objetivos`/`disponibilidad`/etc. no se duplican — siguen al nivel raíz del documento, leídos por ambos agentes igual que antes.
+- `system-prompt.md` sube a v0.8.0: sección "Formato de salida" y nota de mantenimiento actualizadas para no citar un archivo que ya no existe.
+- Sin impacto en el agente de entrenamiento más allá de un archivo menos que gestionar — nunca leyó `perfil-nutricional.json`.
+
 ## v0.7.0 — 2026-09-17
 
 Cierra el ítem 2.7 de `docs/TAREAS_PENDIENTES.md`. El usuario decidió construirlo ahora (caso real de Borja + práctica recurrente, no algo puntual) y que viviera en este agente, no en el de entrenamiento.
