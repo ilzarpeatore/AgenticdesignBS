@@ -27,12 +27,23 @@
     "observaciones_coach": {
       "type": "string",
       "minLength": 1,
-      "description": "La pieza más importante de este esquema, no un campo de relleno. Texto libre: qué cambió desde el checkpoint anterior, qué está funcionando, qué no, y la explicación causal -- no basta con registrar que las métricas se estancaron, hace falta la hipótesis de por qué (nutrición insuficiente, falta de sueño, técnica, etc.), igual que hizo el coach en el caso real de Borja."
+      "description": "La pieza más importante de este esquema para una entrada `origen: coach_manual`, no un campo de relleno: qué cambió desde el checkpoint anterior, qué está funcionando, qué no, y la explicación causal -- no basta con registrar que las métricas se estancaron, hace falta la hipótesis de por qué (nutrición insuficiente, falta de sueño, técnica, etc.), igual que hizo el coach en el caso real de Borja. Para una entrada `origen: sync_automatico` (ver ese campo) es, a propósito, solo una nota de procedencia autogenerada -- nunca fabriques aquí una explicación causal que nadie ha dado; sigue siendo obligatorio no vacío (de ahí `minLength`) porque una entrada de checkpoint sin ningún texto no es válida, pero el texto real (el porqué) lo añade el coach después, si acaso, sobre esta misma entrada o en una nueva marcada `coach_manual`."
     },
     "adherencia_percibida": {
       "type": ["string", "null"],
       "enum": ["alta", "media", "baja", null],
       "description": "Valoración del coach de cuánto se está cumpliendo el plan (entrenamiento y/o nutrición) -- juicio cualitativo, no una métrica medida."
+    },
+    "origen": {
+      "type": "string",
+      "enum": ["coach_manual", "sync_automatico"],
+      "default": "coach_manual",
+      "description": "Añadido 2026-09-20. `coach_manual` (default, y el único valor posible antes de esta fecha) -- reevaluación periódica real del coach, con `observaciones_coach` como explicación causal genuina. `sync_automatico` -- generada sin intervención humana a partir de `Bckbs::client_body_metrics` (ver bstronger-memoria-clientes, script de sincronización) cada vez que el cliente o el coach registra un peso/medida nueva en la app o el panel admin; trae el número real pero NUNCA una explicación causal (`observaciones_coach` es solo procedencia, `requiere_revision` siempre `true`). No sustituye al checkpoint manual de fin de mesociclo, lo complementa con más puntos de la serie temporal de peso entre checkpoints manuales."
+    },
+    "requiere_revision": {
+      "type": "boolean",
+      "default": false,
+      "description": "`true` en toda entrada `origen: sync_automatico` -- señala que le falta la interpretación del coach (por qué cambió, si es la tendencia esperada). Un coach que la revisa puede dejarla tal cual (el número ya es válido) o añadir una entrada `coach_manual` aparte con su lectura -- no hace falta editar la entrada automática para 'resolverla'."
     }
   }
 }

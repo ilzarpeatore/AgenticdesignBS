@@ -239,6 +239,23 @@
         }
       }
     },
+    "datos_fisicos": {
+      "type": "object",
+      "description": "Peso, altura y edad reales del cliente. Viven en Bckbs en la tabla `user_profiles` (columnas `weight`/`height`/`age`, texto libre, nullable, rellenadas en la etapa 'datos personales' del registro vía `update-profile`) -- NO en `par_q_answers`/`training_questionnaire_answers`/`nutrition_questionnaire_answers` (onboarding v2), que nunca las capturan; no busques este dato ahí. Imprescindible para el cálculo de TDEE real (ecuación Mifflin-St Jeor, ver `agentes/programacion-nutricion/modulos/necesidades-energeticas-macronutrientes.md`) -- sin esto no hay forma de calcular calorías, solo de repartir macros sobre un total inventado. No confundir con `checkpoint-fisico.schema.json`: ese es un historial de reevaluaciones periódicas del coach a lo largo del tiempo (con `observaciones_coach`); esto es el snapshot de referencia más reciente conocido, siempre que exista -- por ser `nullable` en origen, puede faltar si el cliente nunca completó esa etapa concreta del registro (fallo de red documentado en `Bckbs::OnboardingController::complete()`, que no verifica esta etapa) o si su cuenta es anterior al 29-08-2026 (pantalla de registro antigua que no la pedía).",
+      "properties": {
+        "peso_kg": { "type": ["number", "null"] },
+        "altura_cm": { "type": ["number", "null"] },
+        "edad": {
+          "type": ["integer", "null"],
+          "description": "`user_profiles.age` en Bckbs es texto libre, no una fecha de nacimiento -- no existe `birth_date` en ningún sitio del sistema. Este valor no se actualiza solo con el tiempo; revisar `fecha_referencia` antes de asumirlo vigente."
+        },
+        "fecha_referencia": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Fecha en la que se confirmó este peso/altura/edad. El peso en particular cambia con el tiempo -- esta fecha indica cuán reciente es el dato, igual que `fecha` en un checkpoint."
+        }
+      }
+    },
     "material_disponible": {
       "type": "string",
       "description": "Ej. 'gimnasio completo', 'mancuernas hasta 24kg y bandas', etc."

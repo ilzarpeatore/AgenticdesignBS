@@ -35,6 +35,8 @@ Un usuario tiene onboarding completo para este propósito si existen filas en `p
 | `restricciones_salud` | `client_limitations` donde `client_id = user.id` y `type` en (`injury`,`limitation`,`medical_condition`) | El esquema pide campos granulares (`gesto_doloroso`, `fase`, `empeora_con_actividad_o_impacto`, `autorizacion_profesional`) que **no existen en `client_limitations`** — vuelca lo que haya (`title`/`description`) como `descripcion` y deja el resto para el archivo manual del coach. Añádelo a `_pendiente_revision_coach` si hay alguna fila aquí. |
 | `restricciones_dieteticas` | `client_limitations` donde `type` en (`allergy`,`intolerance`,`aversion`,`ethical_religious_preference`) | Si no hay fila estructurada pero `nutrition_questionnaire_answers.allergies_intolerances` tiene texto real (no "ninguna"), vuelca ese texto en `descripcion` con `tipo` sin decidir la severidad — márcalo en `_pendiente_revision_coach` (mismo caso que Toni/Borja, ítem 2.3). **Nunca inventes `severidad`.** |
 | `actividad_principal`, `contexto_vida`, `material_disponible`, `preferencias`, `referencias_carga` | Sin fuente en el onboarding real | Deja los valores por defecto de la plantilla (`_plantilla/perfil-cliente.json`) y añade `"_pendiente_manual": ["contexto_vida", "actividad_principal", ...]` — esto es justo lo que rellenará el archivo que el usuario va a entregar por cliente. |
+| `datos_fisicos.peso_kg` / `.altura_cm` / `.edad` | `user_profiles.weight` / `.height` / `.age` (join por `user_id`, **no** por `par_q_answers`/`training_questionnaire_answers`/`nutrition_questionnaire_answers` — ninguna de las tres tiene estos campos) | **Añadido 2026-09-20** tras un caso real: sin esto el agente de nutrición no puede calcular TDEE (Mifflin-St Jeor). `user_profiles` es `nullable` y puede no existir para un usuario con onboarding v2 completo (fallo de red en `Bckbs::OnboardingController::complete()`, que no verifica esta etapa) o si la cuenta es anterior al 29-08-2026 (pantalla de registro antigua sin este paso) — en ese caso deja los tres campos `null` y añádelo a `_pendiente_manual`, no lo bloquees ni lo inventes. |
+| `datos_fisicos.fecha_referencia` | `user_profiles.updated_at` (solo fecha, `YYYY-MM-DD`) | **No** uses la fecha en la que ejecutas el volcado — usa la fecha real de la fila. Si `user_profiles` no existe, deja `null` junto con los tres campos anteriores. |
 
 ## 2. Regla para `cribado_medico.resultado`
 
@@ -62,7 +64,7 @@ No es un cálculo mecánico simple — ver `agentes/programacion-entrenamiento/m
 
 ## 4. Proceso paso a paso
 
-1. Query de solo lectura contra la BD real: todos los `user_id` con fila en `par_q_answers` y `training_questionnaire_answers` (join, no dos queries sueltas que puedan desincronizarse).
+1. Query de solo lectura contra la BD real: todos los `user_id` con fila en `par_q_answers` y `training_questionnaire_answers` (join, no dos queries sueltas que puedan desincronizarse). Añade un LEFT JOIN a `user_profiles` en la misma query para `datos_fisicos` — es opcional (puede no existir, ver tabla de arriba), por eso LEFT JOIN y no INNER JOIN.
 2. Para cada uno, construye el JSON siguiendo las tablas de arriba, usando `_plantilla/perfil-cliente.json` y `_plantilla/perfil-nutricional.json` de `bstronger-memoria-clientes` como base de forma (no te saltes ningún campo requerido por el esquema).
 3. Escribe en `clientes/<cliente_id>/perfil-cliente.json` (y `perfil-nutricional.json` si aplica) del repo `bstronger-memoria-clientes`. Si la carpeta del cliente ya existe con datos reales, no la sobrescribas sin más — compara primero, esto es un volcado inicial, no debería haber conflicto salvo que alguien ya lo hiciera a mano.
 4. Repite para todos los clientes con onboarding completo.
@@ -77,6 +79,7 @@ Un archivo `clientes/_pendientes-volcado-<fecha>.md` (en `bstronger-memoria-clie
 - Lista de clientes con `resultado: requiere_revision_coach` — necesitan que el coach lea `parq_medical_history` y clasifique.
 - Lista de clientes con alergia/intolerancia en texto libre sin severidad estructurada (ítem 2.3 ampliado a todos los clientes, no solo Toni/Borja).
 - Lista de clientes con campos `_pendiente_manual` (contexto_vida, actividad_principal, etc.) — son los candidatos a recibir el archivo que el usuario va a entregar por cliente.
+- Lista de clientes sin `user_profiles` (o con `weight`/`height`/`age` a `null` ahí) — `datos_fisicos` queda incompleto y bloquea el cálculo de TDEE del agente de nutrición hasta que el cliente complete esa etapa del registro.
 
 Actualiza también `docs/TAREAS_PENDIENTES.md` en `AgenticdesignBS` con una nota de que el volcado inicial se hizo, la fecha, y cuántos clientes quedaron pendientes de revisión — commit y push a ese repo también.
 
