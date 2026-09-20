@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.16.0 — 2026-09-20
+
+Corrige una contradicción real en `modulos/periodizacion-por-calendario.md`, expuesta al revisar el macrociclo real de un cliente de hipertrofia (Be Stronger, entregado como Excel de 6 meses con detalle semana a semana completo: clasificación de ejercicios ancla/variable/nuevo, patrones de reps A/B/C, esquema de RIR por seguridad, regla de progresión +5%/mantén/baja, deload -30%, valores MEV/MRV por grupo muscular).
+
+- **`modulos/periodizacion-por-calendario.md` (v0.3.0):** la tabla de jerarquía fijaba cifras concretas (macrociclo = 6 meses, bloque/mesociclo = 3 meses × 2, mes = 1 × 3 por bloque) que contradecían el propio texto del módulo ("cada módulo de objetivo rellena este esqueleto con sus propios parámetros de duración"). Se corrige: el número de mesociclos y las semanas por mesociclo dependen del cliente (objetivo, nivel, disponibilidad) — nunca una cifra fija de plantilla. Se elimina el nivel "Mes" de la tabla (no aportaba nada que el nivel Mesociclo/Semana no cubra ya, y forzaba una cadencia calendario que no siempre aplica).
+- **Cadencia de generación:** el Productor deja de estar limitado a "solo esqueleto macro + detalle mes a mes" — puede generar el detalle semana a semana de todo el macrociclo en un único pase cuando el caso lo justifique (como en el caso real que motivó este cambio). Sigue siendo un borrador vivo: se revisa mesociclo a mesociclo con la adherencia real antes de entregarse, no se convierte en contrato fijo solo por estar ya detallado.
+- **Decisión explícita del usuario, sin cambios en ningún otro documento:** el contenido metodológico concreto del caso real (ancla/variable/nuevo, patrones de reps, esquema de RIR, regla de progresión, deload, MEV/MRV) es específico de ese cliente y no se generaliza a ningún módulo — es un servicio individualizado, cada cliente puede requerir indicaciones distintas. El propio Excel de ese cliente tampoco se sube a este repositorio.
+
 ## v0.15.3 — 2026-09-19
 
 Cierra el ítem 2.4 de `docs/TAREAS_PENDIENTES.md` con datos reales de 6 clientes.
