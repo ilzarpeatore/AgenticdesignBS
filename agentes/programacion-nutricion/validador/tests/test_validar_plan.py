@@ -85,6 +85,24 @@ class TestGuardrailAlergias(unittest.TestCase):
         self.assertFalse(informe.aprobado)
         self.assertTrue(any("leche" in e.lower() for e in informe.errores))
 
+    def test_fatsecret_con_exclusion_activa_avisa_cribado_poco_fiable(self):
+        # El texto en ingles de FatSecret no puede matchear una exclusion en
+        # espanol -- el validador no debe dejar pasar esto en silencio.
+        plan = plan_base()
+        del plan["items"][0]["recipe_id"]
+        plan["items"][0]["fatsecret_recipe_id"] = 987654
+        plan["items"][0]["ingredientes"] = ["oats", "milk", "peanuts"]  # "peanuts" no matchea "frutos secos"
+        informe = validar_plan(plan)
+        self.assertTrue(informe.aprobado)  # sin coincidencia de texto, no hay error -- ese es justo el riesgo
+        self.assertTrue(any("cribado de alérgenos poco fiable" in a for a in informe.advertencias))
+
+    def test_recipe_propia_con_exclusion_no_genera_aviso_de_fiabilidad_fatsecret(self):
+        # El aviso de "poco fiable" es especifico de origen FatSecret -- una
+        # receta propia (español-español) no lo necesita.
+        plan = plan_base()
+        informe = validar_plan(plan)
+        self.assertFalse(any("cribado de alérgenos poco fiable" in a for a in informe.advertencias))
+
     def test_aversion_no_bloquea_ni_avisa_como_seguridad(self):
         # aversion no es un TIPOS_EXCLUSION_DURA -- es adherencia, no seguridad.
         plan = plan_base(restricciones_dieteticas=[{"descripcion": "Coliflor", "tipo": "aversion"}])
@@ -114,6 +132,52 @@ class TestEstructuraDeItems(unittest.TestCase):
         informe = validar_plan(plan)
         self.assertFalse(informe.aprobado)
         self.assertTrue(any("recipe_id" in e for e in informe.errores))
+
+    def test_fatsecret_recipe_id_valido_aprueba(self):
+        # 2026-09-20: fatsecret_recipe_id es una alternativa valida a recipe_id
+        # (exactamente uno de los dos), ver formato-salida/entrega-bckbs.md.
+        plan = plan_base()
+        del plan["items"][0]["recipe_id"]
+        plan["items"][0]["fatsecret_recipe_id"] = 987654
+        informe = validar_plan(plan)
+        self.assertEqual(informe.errores, [])
+        self.assertTrue(informe.aprobado)
+
+    def test_recipe_id_y_fatsecret_recipe_id_juntos_falla(self):
+        # Mismo bloqueo que el 422 real de Bckbs: nunca los dos a la vez.
+        plan = plan_base()
+        plan["items"][0]["fatsecret_recipe_id"] = 987654
+        informe = validar_plan(plan)
+        self.assertFalse(informe.aprobado)
+        self.assertTrue(any("exactamente uno" in e for e in informe.errores))
+
+    def test_ni_recipe_id_ni_fatsecret_recipe_id_falla(self):
+        plan = plan_base()
+        del plan["items"][0]["recipe_id"]
+        informe = validar_plan(plan)
+        self.assertFalse(informe.aprobado)
+        self.assertTrue(any("falta 'recipe_id' o 'fatsecret_recipe_id'" in e for e in informe.errores))
+
+    def test_fatsecret_recipe_id_no_entero(self):
+        plan = plan_base()
+        del plan["items"][0]["recipe_id"]
+        plan["items"][0]["fatsecret_recipe_id"] = "no-es-un-entero"
+        informe = validar_plan(plan)
+        self.assertFalse(informe.aprobado)
+        self.assertTrue(any("fatsecret_recipe_id" in e for e in informe.errores))
+
+    def test_mismo_id_distinto_origen_no_se_confunde_con_duplicado(self):
+        # recipe_id=101 (propio) y fatsecret_recipe_id=101 (FatSecret) son recetas
+        # distintas, no la misma repetida -- ver comentario de "clave" en validar_plan.py.
+        plan = plan_base()
+        del plan["objetivo_diario"]  # aislar el aviso de duplicado, mismo criterio que el test de arriba
+        extra = dict(plan["items"][0])
+        del extra["recipe_id"]
+        extra["fatsecret_recipe_id"] = 101
+        plan["items"].append(extra)
+        informe = validar_plan(plan)
+        self.assertTrue(informe.aprobado)
+        self.assertFalse(any("repetida" in a for a in informe.advertencias))
 
     def test_day_key_invalido_para_weekday(self):
         plan = plan_base()

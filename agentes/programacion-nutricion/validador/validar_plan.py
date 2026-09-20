@@ -118,14 +118,34 @@ def validar_plan(
         day_key = item.get("day_key")
         meal_type = item.get("meal_type")
         recipe_id = item.get("recipe_id")
+        fatsecret_recipe_id = item.get("fatsecret_recipe_id")
 
-        # 3. Campos obligatorios (igual que exige meal-plan-templates/{id}/items en Bckbs).
+        # 3. Campos obligatorios (igual que exige meal-plan-templates/{id}/items en Bckbs,
+        #    2026-09-20: recipe_id ahora es nullable, exactamente uno de recipe_id/
+        #    fatsecret_recipe_id debe estar relleno -- ver formato-salida/entrega-bckbs.md).
         if _celda_vacia(day_key):
             informe.errores.append(f"Item {n}: falta 'day_key'.")
         if meal_type not in MEAL_TYPES_VALIDOS:
             informe.errores.append(f"Item {n}: 'meal_type' debe ser uno de {sorted(MEAL_TYPES_VALIDOS)} (valor: {meal_type!r}).")
-        if not isinstance(recipe_id, int):
+
+        recipe_id_presente = recipe_id is not None
+        fatsecret_id_presente = fatsecret_recipe_id is not None
+        if recipe_id_presente and fatsecret_id_presente:
+            informe.errores.append(f"Item {n}: tiene 'recipe_id' Y 'fatsecret_recipe_id' -- exactamente uno de los dos, nunca ambos (mismo bloqueo que Bckbs, 422).")
+        elif not recipe_id_presente and not fatsecret_id_presente:
+            informe.errores.append(f"Item {n}: falta 'recipe_id' o 'fatsecret_recipe_id' -- exactamente uno de los dos es obligatorio.")
+        elif recipe_id_presente and not isinstance(recipe_id, int):
             informe.errores.append(f"Item {n}: 'recipe_id' debe ser un entero (valor: {recipe_id!r}).")
+        elif fatsecret_id_presente and not isinstance(fatsecret_recipe_id, int):
+            informe.errores.append(f"Item {n}: 'fatsecret_recipe_id' debe ser un entero (valor: {fatsecret_recipe_id!r}).")
+
+        # Identificador para mensajes/duplicados, sea cual sea el origen de la receta.
+        if isinstance(recipe_id, int):
+            origen, id_receta = "recipe_id", recipe_id
+        elif isinstance(fatsecret_recipe_id, int):
+            origen, id_receta = "fatsecret_recipe_id", fatsecret_recipe_id
+        else:
+            origen, id_receta = "sin_id", None
 
         # 4. day_key coherente con el tipo de plantilla.
         if not _celda_vacia(day_key):
@@ -139,18 +159,22 @@ def validar_plan(
                     informe.errores.append(f"Item {n}: day_key {day_key!r} debe ser un entero >= 0 para type=sequential.")
 
         # 5. Duplicado exacto (mismo día, misma comida, misma receta) — probable error de generación.
-        clave = (str(day_key), str(meal_type), recipe_id if isinstance(recipe_id, int) else -1)
+        #    La clave incluye el origen (recipe_id vs fatsecret_recipe_id) -- un recipe_id=101
+        #    propio y un fatsecret_recipe_id=101 son recetas distintas, no la misma repetida.
+        clave = (str(day_key), str(meal_type), origen, id_receta)
         if clave in vistos:
-            informe.advertencias.append(f"Item {n}: receta {recipe_id!r} repetida en el mismo day_key/meal_type ({day_key!r}/{meal_type!r}).")
+            informe.advertencias.append(f"Item {n}: receta {origen}={id_receta!r} repetida en el mismo day_key/meal_type ({day_key!r}/{meal_type!r}).")
         vistos.add(clave)
 
         # 6. Cribado de alérgenos — solo por título de ingrediente (limitación real, ver
-        #    formato-salida/entrega-bckbs.md sección 4: Bckbs no etiqueta alérgenos por ingrediente).
+        #    formato-salida/entrega-bckbs.md sección 4: Bckbs no etiqueta alérgenos por ingrediente
+        #    -- y para fatsecret_recipe_id el margen de error es mayor todavía, catálogo externo en inglés).
         ingredientes = item.get("ingredientes") or []
         if not ingredientes:
+            endpoint_detalle = "GET recipe-detail/{id}" if origen == "recipe_id" else "GET admin/fatsecret/recipes/{id}"
             informe.advertencias.append(
-                f"Item {n} (recipe_id={recipe_id!r}): sin lista de ingredientes para cribar — no se pudo "
-                "verificar contra las exclusiones. Pide GET recipe-detail/{{id}} antes de fijar la receta."
+                f"Item {n} ({origen}={id_receta!r}): sin lista de ingredientes para cribar — no se pudo "
+                f"verificar contra las exclusiones. Pide {endpoint_detalle} antes de fijar la receta."
             )
         else:
             ingredientes_norm = [_normalizar(i) for i in ingredientes]
@@ -158,8 +182,21 @@ def validar_plan(
                 if any(descripcion_norm in ing or ing in descripcion_norm for ing in ingredientes_norm):
                     etiqueta = f"{tipo_r}" + (f" ({severidad})" if severidad else "")
                     informe.errores.append(
-                        f"Item {n} (recipe_id={recipe_id!r}): ingrediente coincide con exclusión de {etiqueta}: {descripcion_norm!r}."
+                        f"Item {n} ({origen}={id_receta!r}): ingrediente coincide con exclusión de {etiqueta}: {descripcion_norm!r}."
                     )
+            if origen == "fatsecret_recipe_id" and exclusiones:
+                # El cribado de arriba es coincidencia de texto literal (normalizado, sin
+                # acentos) -- contra ingredientes en INGLÉS (ver entrega-bckbs.md sección
+                # 2-bis) comparados contra exclusiones en español, la coincidencia de texto
+                # prácticamente nunca se produce aunque el alérgeno esté presente de verdad
+                # (ej. "frutos secos" no coincide con "peanuts"). Un plan puede APROBAR aquí
+                # sin que eso signifique que se cribó de verdad para este item.
+                informe.advertencias.append(
+                    f"Item {n} ({origen}={id_receta!r}): cribado de alérgenos poco fiable -- ingredientes en inglés "
+                    "(catálogo FatSecret) comparados contra exclusiones en español, la coincidencia de texto no detecta "
+                    "traducciones (ej. 'frutos secos' no coincide con 'peanuts'). Revisión humana obligatoria, no te fíes "
+                    "de que este plan haya 'aprobado' el cribado de alérgenos para este item."
+                )
 
         # Acumular macros del día para el punto 7.
         if not _celda_vacia(day_key):

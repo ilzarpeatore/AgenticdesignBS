@@ -52,6 +52,8 @@ No hace falta construir un comando artisan nuevo tipo `programs:import`: el fluj
 
 **Verificación de ingredientes/alergias para una receta de FatSecret:** `GET admin/fatsecret/recipes/{id}` devuelve `ingredients` (array de `{description, food_id, number_of_units, measurement_description}`) -- mismo tipo de revisión manual de texto que ya se hacía con `recipeIngredients` de una receta propia (ver sección 4), solo que la fuente del texto cambia. `food_id` ahí es el id de FatSecret, no tiene relación con `ingredients.id` de la tabla propia.
 
+**No busques comida por comida en un plan largo -- reutiliza `type: "weekday"` para no disparar cientos de llamadas.** Un plan de 1 mes con 4 comidas/día NO son 120 búsquedas (30 días × 4): con `meal_plan_templates.type: "weekday"`, la plantilla se construye como una sola semana modelo (7 `day_key` × 4 `meal_type` = como mucho 28 items) y `POST .../import-to-calendar` con `weeks: 4` repite esa misma semana el mes entero -- no crees 30 días sueltos con `type: "sequential"` salvo que el cliente realmente necesite un patrón que varíe semana a semana (ver sección 1). Dentro de esos ~28 items, si varias comidas del mismo `meal_type` comparten un rango de macros parecido (ej. varios desayunos ~500 kcal/35g proteína para dar variedad sin repetir receta), una sola búsqueda que devuelve hasta 50 candidatos ya alcanza para elegir varios de golpe y repartirlos entre esos días -- no repitas la búsqueda por cada día si el rango objetivo no cambia. Pide el detalle de ingredientes (`GET admin/fatsecret/recipes/{id}`) solo para las recetas que de verdad eliges, nunca para todos los candidatos que descartaste al filtrar por macros.
+
 ## 3. Flujo del Productor (Paso 2) usando estos endpoints
 
 1. Calcula el objetivo calórico/macros del cliente (`necesidades-energeticas-macronutrientes.md`) y decide `day_key`/`meal_type` por día según `timing-nutricional-entrenamiento.md`.
@@ -68,6 +70,8 @@ No hace falta construir un comando artisan nuevo tipo `programs:import`: el fluj
 - Para `grave_anafilaxia`: el borrador debe marcarse **siempre** para revisión humana explícita antes de asignar al calendario (ya lo exige el módulo de todos modos), y el humano debe verificar la receta por su cuenta, no confiar en que el Productor ya lo comprobó de forma fiable.
 
 Ver también el encargo `BRIEF_registro_alergias_intolerancias.md` (entregado aparte) para el registro estructurado de severidad — el etiquetado de alérgenos por ingrediente es un encargo distinto, todavía sin escribir, que depende de este primero.
+
+**Actualizado 2026-09-20:** el validador determinista (`validador/validar_plan.py`) ya emite una advertencia explícita cuando un item viene de `fatsecret_recipe_id` y el cliente tiene alguna exclusión activa — la coincidencia de texto no puede detectar un alérgeno si el ingrediente está en inglés (FatSecret) y la exclusión en español (ej. "peanuts" nunca coincide con "frutos secos"). El plan puede "aprobar" el validador sin que eso signifique que ese item concreto quedó cribado de verdad — la revisión humana es obligatoria ahí, no opcional, más todavía que con el recetario propio.
 
 ## 5. Alineación con el cálculo real de macros de la app
 

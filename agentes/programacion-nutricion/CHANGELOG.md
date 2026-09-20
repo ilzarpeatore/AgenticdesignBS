@@ -1,5 +1,14 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.9.0 — 2026-09-20
+
+Integración real con FatSecret Platform API en Bckbs (`recipes`/`ingredients` vaciadas por completo el 2026-09-19, se repueblan vía FatSecret en vez de importación manual — ver `Bckbs::docs/FATSECRET_INTEGRATION.md`).
+
+- **`formato-salida/entrega-bckbs.md`** (otra sesión, commit `f16b6a2`): documenta el flujo real mientras el recetario propio esté vacío — `GET admin/fatsecret/recipes/search`/`{id}` sustituye a `recipe-filter-list`/`recipe-detail`, sin filtro de rango de macros del lado servidor (FatSecret solo acepta texto libre — hay que filtrar candidatos en el propio razonamiento del Productor), y `fatsecret_recipe_id` como alternativa a `recipe_id` en `meal-plan-templates/{id}/items`. Aviso explícito de no traducir contenido de receta de FatSecret (el permiso obtenido cubre solo nombres de ingrediente suelto). Verificado por SSH real contra producción: columna `fatsecret_recipe_id` existe en `meal_plan_template_items`, `recipe_id` ahora nullable, validación cruzada `required_without` en ambos sentidos, fix real de un INSERT que rompía con `recipe_id` NULL.
+- **`validador/validar_plan.py` y `tests/test_validar_plan.py`**: acepta `fatsecret_recipe_id` como alternativa válida a `recipe_id` (exactamente uno de los dos, mismo bloqueo 422 que Bckbs) — 7 tests nuevos. Nueva advertencia cuando un item de FatSecret tiene una exclusión dietética activa: el cribado por coincidencia de texto no puede detectar un alérgeno si el ingrediente está en inglés y la exclusión en español (ej. "peanuts" no coincide con "frutos secos") — el plan puede "aprobar" sin que ese item concreto esté realmente cribado, la revisión humana pasa a ser obligatoria ahí. 23 tests en verde en total.
+- **`validador/README.md`** actualizado con el nuevo formato de entrada (ejemplo con ambos orígenes) y la limitación de cribado cross-idioma.
+- Sigue sin existir un caso real de cliente para el validador (ver `system-prompt.md`, sección 9, y `docs/TAREAS_PENDIENTES.md` ítem 2.2) — este cambio solo actualiza los fixtures sintéticos al shape real nuevo, no lo resuelve.
+
 ## v0.8.0 — 2026-09-19
 
 Decisión del usuario: `perfil-cliente.json` y `perfil-nutricional.json` (en `bstronger-memoria-clientes`) eran dos archivos separados por cliente y pasan a ser uno solo, para que cualquier agente o el coach editando a mano solo tenga que abrir un sitio.
