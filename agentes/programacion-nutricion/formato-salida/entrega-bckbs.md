@@ -34,7 +34,7 @@ daily_plans                  ← plan real de un cliente en una fecha concreta (
 |---|---|
 | `GET recipe-filter-list` | Buscar en el recetario **propio** — soporta `title`, `meal_type[]`, `recipe_category_ids[]`, `recipe_tag_ids[]`, `start_calories`/`end_calories`, `start_protein`/`end_protein`, `start_carbs`/`end_carbs`, `start_fats`/`end_fats`, `min_preparation_time`/`max_preparation_time`. **Hoy (2026-09-20) devuelve 0 resultados siempre** -- `recipes` está vacía. Sigue siendo el camino correcto en cuanto el recetario propio se repueble (filtrado por rango de macros real, no solo texto) -- no está deprecado, solo temporalmente sin datos. |
 | `GET recipe-detail/{id}` | Ficha completa de una receta **propia**: ingredientes (`recipeIngredients`, cada uno con `ingredient_id` y macros), pasos, categorías, tags. Mismo estado que la de arriba: correcta, sin datos por ahora. |
-| `GET admin/fatsecret/recipes/search?q=...&page=N` | **Nuevo (2026-09-20).** Busca en el catálogo de FatSecret -- ver sección 2-bis, es el sustituto real de `recipe-filter-list` mientras `recipes` esté vacía. |
+| `GET admin/fatsecret/recipes/search?q=...&page=N` | **Nuevo (2026-09-20).** Busca en el catálogo de FatSecret, con filtros opcionales de macros/tiempo/tipo -- ver sección 2-bis, es el sustituto real de `recipe-filter-list` mientras `recipes` esté vacía. |
 | `GET admin/fatsecret/recipes/{fatsecret_recipe_id}` | **Nuevo.** Detalle completo de una receta de FatSecret (pasos, ingredientes, nutrición) -- sustituto de `recipe-detail/{id}` para este origen. |
 | `POST meal-plan-templates` | Crear la plantilla del plan (`title`, `type`). Sin cambios. |
 | `POST meal-plan-templates/{id}/items` | Añadir una comida a un día (`day_key`, `meal_type`, y **exactamente uno** de `recipe_id` o `fatsecret_recipe_id`). Repetir por cada comida del plan. |
@@ -45,10 +45,21 @@ No hace falta construir un comando artisan nuevo tipo `programs:import`: el fluj
 
 ## 2-bis. FatSecret -- diferencias reales con `recipe-filter-list` que el Productor tiene que conocer
 
-`admin/fatsecret/recipes/search` **NO admite los filtros de rango de macros** que sí tenía `recipe-filter-list` (`start_calories`/`end_calories`, `start_protein`/`end_protein`, etc.) -- es una limitación real de la API de FatSecret, no algo que se pueda arreglar en Bckbs, su método `recipes.search` solo acepta un texto libre (`q`) + paginación. Esto cambia el paso 2 del flujo (sección 3):
+**CORREGIDO 2026-09-20 (esta sección decía algo incorrecto, ver `Bckbs::docs/FATSECRET_INTEGRATION.md` sección 13):** `admin/fatsecret/recipes/search` **SÍ admite filtros de rango de macros server-side**, verificado contra la documentación real de FatSecret y probado en producción -- no hay que filtrar los candidatos a mano en el razonamiento del Productor. Parámetros de query opcionales, todos disponibles en el plan Basic (commit `Bckbs@7353d00`):
 
-- Antes: "busca desayunos con 400-500 kcal y ≥30g proteína" era un filtro de servidor exacto.
-- Ahora: hay que buscar con un texto descriptivo razonable (ej. `q=high protein breakfast`, `q=grilled chicken salad`) y **filtrar los candidatos devueltos en el propio razonamiento del Productor**, comparando `calories`/`protein`/`fat`/`carbs` de cada resultado (ya vienen embebidos en la búsqueda, sin llamada aparte) contra el rango objetivo de esa comida. Si ningún resultado de la primera búsqueda encaja, prueba otro texto de búsqueda antes de relajar el rango objetivo.
+| Query param | Filtra por |
+|---|---|
+| `calories_from` / `calories_to` | Rango de calorías totales de la receta |
+| `protein_percentage_from` / `_to` | % de calorías de proteína |
+| `carb_percentage_from` / `_to` | % de calorías de carbohidratos |
+| `fat_percentage_from` / `_to` | % de calorías de grasa |
+| `prep_time_from` / `_to` | Tiempo de preparación (minutos) |
+| `recipe_types[]` | Tipo de receta (ej. `Main Dish`, `Breakfast`) |
+| `recipe_types_matchall` | `true` = debe cumplir TODOS los tipos, `false` = cualquiera |
+| `must_have_images` | `true` = solo recetas con foto (recomendado siempre, es justo lo que motivó usar FatSecret en vez del banco de imágenes viejo) |
+| `sort_by` | `newest`/`oldest`/`caloriesPerServingAscending`/`caloriesPerServingDescending` |
+
+Ejemplo real: "desayunos con 400-500 kcal y ≥30g proteína" ya no requiere adivinar un texto de búsqueda y filtrar después -- pide directamente `q=breakfast&calories_from=400&calories_to=500&must_have_images=true` (el % de proteína exacto en gramos no tiene filtro directo, pero `protein_percentage_from/to` acerca bastante el resultado; el Productor puede seguir revisando `protein` en gramos de los candidatos ya filtrados, sobre un conjunto mucho más pequeño y relevante que antes). Si la primera combinación de filtros no da resultados, relaja el rango antes de cambiar el texto de búsqueda.
 
 **ACTUALIZADO 2026-09-21: `admin/fatsecret/recipes/{id}` ya devuelve `name`/`directions`/`ingredients[].description` TRADUCIDOS al español** (DeepL, implementado y probado en real -- ver `Bckbs::docs/FATSECRET_INTEGRATION.md` sección 10). El Productor no tiene que hacer nada distinto para esto, llega ya en español en los mismos campos de siempre; el inglés original, si hiciera falta compararlo, está en `name_en`/`directions_en`/`ingredients_en` del mismo objeto. **`admin/fatsecret/recipes/search` (la búsqueda, no el detalle) sigue devolviendo `name`/`description` en inglés sin traducir** -- decisión deliberada de coste/latencia (hasta 50 resultados por búsqueda), documentar la elección de receta con el nombre en inglés de la búsqueda es normal, el nombre final que verá el cliente (vía el detalle) ya sale en español.
 
