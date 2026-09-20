@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.17.0 — 2026-09-20
+
+Caso real: al pedir un plan nutricional para Ayoub (102-ayoub-ghamari), no había forma de calcular TDEE porque peso/altura/edad no existían en ningún sitio de `bstronger-memoria-clientes` — el volcado inicial solo leyó `par_q_answers`/`training_questionnaire_answers`/`nutrition_questionnaire_answers`, que nunca capturan estos datos. Investigación de código (no solo documentación) confirmó que sí existen en Bckbs, en la tabla `user_profiles` (columnas `weight`/`height`/`age`, texto libre, nullable), rellenadas en una etapa de registro separada (`update-profile`) del resto del onboarding v2. El usuario confirmó que el flujo actual las pide a todos los usuarios nuevos, pero el propio backend documenta fallos de red reales (`OnboardingController::complete()` no verifica esa etapa concreta) que pueden dejarla sin guardar, y las cuentas anteriores al 29-08-2026 pasaron por una pantalla de registro que no las pedía en absoluto — de ahí que sea opcional, no un error de captura.
+
+- **Nuevo `datos_fisicos` en `esquemas/perfil-cliente.schema.json`:** objeto opcional con `peso_kg`, `altura_cm`, `edad` y `fecha_referencia`. Documentado como imprescindible para el cálculo real de TDEE (Mifflin-St Jeor, ver `agentes/programacion-nutricion/modulos/necesidades-energeticas-macronutrientes.md`) y explícitamente distinto de `checkpoint-fisico.schema.json` (historial de reevaluaciones periódicas del coach, no el snapshot de registro).
+- Poblado con datos reales confirmados por el coach para 8 clientes (98, 99, 100, 101, 102, 103, 104, 105) en `bstronger-memoria-clientes`, consultando `GET admin/users/{id}` del panel admin.
+- **Pendiente, no resuelto en esta versión:** `agentes/programacion-nutricion/modulos/necesidades-energeticas-macronutrientes.md` y `system-prompt.md` de ese agente (Paso 1, punto 6, "Referencias actuales") todavía no citan `datos_fisicos` explícitamente como la fuente de peso/altura/edad para el cálculo de TDEE — sigue redactado como si fuera parte de la lista de datos opcionales, cuando en realidad es bloqueante para un cálculo real (no inventado) de calorías. Corregir en la próxima revisión de ese agente.
+
 ## v0.16.0 — 2026-09-20
 
 Corrige una contradicción real en `modulos/periodizacion-por-calendario.md`, expuesta al revisar el macrociclo real de un cliente de hipertrofia (Be Stronger, entregado como Excel de 6 meses con detalle semana a semana completo: clasificación de ejercicios ancla/variable/nuevo, patrones de reps A/B/C, esquema de RIR por seguridad, regla de progresión +5%/mantén/baja, deload -30%, valores MEV/MRV por grupo muscular).
