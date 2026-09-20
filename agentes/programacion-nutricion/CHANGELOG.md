@@ -1,5 +1,11 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.9.1 — 2026-09-20
+
+Primer caso real de principio a fin ejecutado contra producción (aunque con un cliente de prueba, no personalizado clínicamente): plan de 1 semana, 4 comidas/día, 28 items buscados en FatSecret, filtrados por macros, validados (`validador/validar_plan.py` → aprobado) y asignados vía `POST meal-plan-templates`/`.../items`/`.../import-to-calendar`. Confirma en real: `recipes.search.v3`/`recipe.get.v2` funcionan tal cual documentados, `weekday` + `import-to-calendar` con `weeks` evita buscar comida por comida, y el validador detecta correctamente la falta de `objetivo_diario` como advertencia (no error) cuando no hay un target calórico estricto.
+
+Decisión del usuario tras la prueba: guardar copia permanente en la biblioteca propia (`recipes`) de cualquier receta de FatSecret usada en una plantilla, "por si quisiera modificar algo" -- riesgo legal asumido explícitamente pese a advertírsele que contradice el diseño original (`Bckbs::docs/FATSECRET_INTEGRATION.md` sección 11). `meal-plan-templates/{id}/items` con `fatsecret_recipe_id` ahora también rellena `recipe_id` (biblioteca propia, contenido ya traducido al español vía DeepL). `entrega-bckbs.md` actualizado -- el Productor no cambia cómo llama al endpoint, pero debe saber que `recipe-filter-list` empezará a devolver resultados reales a medida que se usan recetas de FatSecret. Pendiente: extender lo mismo a asignación directa al calendario y sustitución desde la app del cliente (no cubierto en esta pasada).
+
 ## v0.9.0 — 2026-09-20
 
 Integración real con FatSecret Platform API en Bckbs (`recipes`/`ingredients` vaciadas por completo el 2026-09-19, se repueblan vía FatSecret en vez de importación manual — ver `Bckbs::docs/FATSECRET_INTEGRATION.md`).
