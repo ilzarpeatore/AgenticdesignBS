@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.23.0 — 2026-09-27
+
+El usuario quiere montar en el panel admin un check-in de satisfacción con el programa cada 15 días (qué ejercicio cuesta más, qué sesión se complica). El Agente de Soporte / Customer Success ya vigila esas respuestas vía `GET admin-form-submission-list` de Bckbs (`agentes/soporte-customer-success/modulos/checkin-satisfaccion.md`, nuevo) — este agente debe leer la misma fuente, no solo el agente que vigila.
+
+- Sección "Memoria del cliente" (Paso 1) gana `GET admin-form-submission-list` como fuente a consultar antes de generar, cuando el coach tenga ese check-in configurado para el cliente.
+- No se duplica en `bstronger-memoria-clientes`: Bckbs ya es la fuente real de esas respuestas.
+- El Agente de Soporte solo vigila y escala si hay una señal de seguridad o insatisfacción — nunca decide programación; eso sigue siendo trabajo de este agente.
+
 ## v0.22.0 — 2026-09-27
 
 El usuario pidió calibrar el Agente de Soporte / Customer Success (`agentes/soporte-customer-success/`) a un servicio premium de ~300€/mes, siguiendo prácticas reales de coaching de alto contacto (investigación de mercado): la pieza de mayor impacto identificada es un check-in semanal estructurado y fijo — algo que este agente ya necesitaba (`bienestar_diario` existe en `log-registro.schema.json` desde antes, pero nada lo recogía en la práctica).

@@ -1,5 +1,14 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.8.0 — 2026-09-27
+
+El usuario quiere montar en el panel admin un check-in de satisfacción con el programa cada 15 días — qué ejercicio cuesta más, qué sesión se complica, cómo va la nutrición.
+
+- **Descubierto que Bckbs ya tiene un sistema completo de Forms/Check-ins** (`Form`/`FormQuestion`/`FormAssignment`/`FormSubmission`/`FormAnswer`), no usado hasta ahora por ningún agente. A diferencia del check-in semanal (WhatsApp, sin sistema de registro propio), este lo rellena el cliente dentro de la app y Bckbs ya lo persiste correctamente — **no se duplica en `bstronger-memoria-clientes`**.
+- **Nueva sección 3quater + `modulos/checkin-satisfaccion.md`:** el agente vigila `GET admin-form-submission-list` (nueva herramienta, ya existía) una vez al día, aplica el mismo cribado de seguridad de siempre si una respuesta menciona dolor (una encuesta no baja el nivel de exigencia), reconoce con calidez cuando aplica (patrón 3.8), y escala si la satisfacción es baja o se repite una queja. Los Productores de entrenamiento/nutrición deben leer esta misma fuente directamente en su "Memoria del cliente" — se documenta en sus propios `system-prompt.md`, no aquí.
+- **Gap real encontrado y arreglado en Bckbs:** `Form.recurrence` solo aceptaba `daily/weekly/monthly` pese a que el comentario de la migración ya mencionaba `biweekly` como opción nunca implementada. Arreglado y pusheado (commit `435d180`, 4 tests nuevos contra MySQL real local, suite completa de Feature verde) — pendiente de desplegar al VPS antes de que el usuario pueda crear el formulario quincenal desde el panel (`docs/TAREAS_PENDIENTES.md`, ítem 2.19).
+- `system-prompt.md` sube a v0.8.0.
+
 ## v0.7.0 — 2026-09-27
 
 El usuario pidió investigar cómo operan los entrenadores online que más facturan, para que este agente lo replique. Investigación de mercado (fuentes en `docs/TAREAS_PENDIENTES.md`): la práctica con más impacto medido en retención dentro del coaching de alto contacto es un check-in semanal fijo y corto, siempre con las mismas preguntas, en un día que nunca cambia — el churn en coaching online es sobre todo un problema de comunicación inconsistente, no de calidad de programación.

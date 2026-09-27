@@ -1,5 +1,9 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.11.0 — 2026-09-27
+
+Mismo cambio que v0.23.0 del agente de entrenamiento, mismo día — ver ese CHANGELOG para el contexto completo (check-in de satisfacción quincenal vía Forms de Bckbs). Sección "Memoria del cliente" gana `GET admin-form-submission-list` como fuente sobre adherencia real a la nutrición, sin duplicarla en `bstronger-memoria-clientes`.
+
 ## v0.10.0 — 2026-09-27
 
 Mismo cambio que v0.21.0 del agente de entrenamiento, mismo día — ver ese CHANGELOG para el contexto completo (calibración del Agente de Soporte a un servicio premium de ~300€/mes).
