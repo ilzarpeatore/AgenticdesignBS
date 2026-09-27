@@ -4,6 +4,8 @@ Este documento describe el formato exacto de archivo `.xlsx` que debes rellenar 
 
 Adjunto tienes `excel.example.xlsx` — un programa real de 4 semanas × 5 sesiones ya relleno con este mismo formato. Úsalo como referencia de estructura y de cómo se escriben los valores; no copies su contenido si el usuario te pide un programa distinto.
 
+**Este formato es solo para UN mesociclo** (unas pocas semanas). Si te piden una planificación a varios meses vista ("plan semestral", "los próximos 6 meses"), eso es un nivel distinto — el esqueleto macro (`esquemas/plan-macro.schema.json`, ver `system-prompt.md` Paso 2 apartado 4bis) — que no se rellena aquí ni se importa a BeFit directamente. El esqueleto solo decide cuántos mesociclos hay y qué toca en cada uno; cada uno de esos mesociclos, cuando le llega el turno, sigue generándose con este mismo documento.
+
 ## Qué debes devolver
 
 Un archivo `.xlsx` con **exactamente estas dos hojas** (los nombres deben ser idénticos, con tilde en "Programación"):

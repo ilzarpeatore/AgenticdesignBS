@@ -1,5 +1,14 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.19.0 — 2026-09-27
+
+Cierra el hueco que la propia v0.18.0 ya había dejado anotado ("no existe todavía una plantilla formal para este nivel de detalle"): pedido explícito del usuario tras comprobar que pedir "el plan semestral de un cliente" no devolvía ningún `.xlsx` — el agente no tenía ningún formato registrado para ese nivel, solo para un mesociclo individual.
+
+- **Nuevo `esquemas/plan-macro.schema.json`:** esqueleto de varios meses (nivel Macrociclo/Bloque de `modulos/periodizacion-por-calendario.md`) — lista de mesociclos con `numero`, `semanas`, `objetivo_principal`, `modulos_previstos`, `semana_deload` y `estado` (`planificado`/`generado`/`entregado`/`completado`). Sin detalle semana a semana ni columnas de ejercicio/series/reps — eso lo sigue cubriendo, sin cambios, `formato-salida/formato-excel.md` para cada mesociclo cuando le toca generarse.
+- **`system-prompt.md` (v0.13.0):** nuevo punto 0 (condicional) en el razonamiento del Paso 2 y nuevo apartado 4bis que describe el flujo en dos fases — generar/leer el esqueleto primero, luego el `.xlsx` de cada mesociclo cuando llega su turno, releyendo siempre la memoria episódica real del mesociclo anterior antes de fijar la progresión (no se trata el esqueleto como un contrato fijo, mismo criterio que ya fijaba v0.16.0 para el detalle completo por adelantado). "Memoria del cliente" del Paso 1 pasa a leer también `plan-macro.json` si existe. Formato de salida (sección 7) pasa de dos a tres formatos.
+- **Persistencia:** `plan-macro.json` vive en `bstronger-memoria-clientes/clientes/<cliente_id>/`, mismo patrón que el resto de memoria de cliente — repo editable a mano por el coach, revisado en el mismo Paso 5 que cualquier otro borrador.
+- No se ha tocado `formato-salida/formato-excel.md` en su contenido (solo una nota cruzada al principio) ni `validador/validar_programa.py` — el esqueleto no pasa por ese validador, solo el `.xlsx` de cada mesociclo.
+
 ## v0.18.0 — 2026-09-20
 
 Primer Mesociclo 1 real ejecutado end-to-end para **3 clientes simultáneos** (Nerea, Toni, Osas) — hasta ahora el único caso real completo era Toni (v0.9.0, Septiembre). Pedido explícito del coach. No se descubrió ninguna regla nueva ni se tocó ningún módulo de contenido — el pipeline (Paso 1 intake → Paso 0 selección de módulos → Paso 2 Productor con razonamiento → Paso 3 validador determinista → import a biblioteca) se siguió tal cual estaba especificado, primera vez que se ejercita de principio a fin para 3 perfiles distintos a la vez (fuerza/potencia+pliometría, hipertrofia con lesión de hombro, recomposición con antecedente de rodilla/cadera).

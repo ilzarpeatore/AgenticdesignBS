@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plan macro — esqueleto de planificación a varios meses",
+  "description": "Nivel Macrociclo/Bloque de periodizacion-por-calendario.md: la lista de mesociclos (bloques) previstos para cubrir el objetivo actual del cliente, con su duración y énfasis, ANTES de que cada uno se detalle semana a semana en el .xlsx de entrega (formato-salida/formato-excel.md). No sustituye esa entrega -- es el mapa que decide cuántos mesociclos hay y qué toca en cada uno; el contenido semana a semana de cada bloque se genera y revisa cuando llega su turno, con la adherencia real del anterior ya conocida (ver system-prompt.md, Paso 2, apartado 4bis). El número de mesociclos y su duración dependen siempre del caso concreto -- nunca una cifra fija de plantilla (periodizacion-por-calendario.md v0.3.0: \"6 meses = 2 bloques de 3\" no es válido como cifra fija).",
+  "type": "object",
+  "required": ["cliente_id", "fecha_creacion", "objetivo_general", "mesociclos"],
+  "properties": {
+    "cliente_id": {
+      "type": "string",
+      "description": "Mismo valor que en perfil-cliente.json, checkpoints-fisicos.json y log-registro.json de este cliente."
+    },
+    "fecha_creacion": { "type": "string", "format": "date-time" },
+    "fecha_ultima_revision": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Última vez que el esqueleto se replanificó (no que se generó el detalle de un mesociclo -- eso se refleja en el estado de cada mesociclo, no aquí)."
+    },
+    "horizonte_meses": {
+      "type": ["integer", "null"],
+      "description": "Solo informativo -- cuántos meses cubre este esqueleto a día de hoy. El horizonte real lo determina la suma de semanas de `mesociclos`, igual que `semanas` en la hoja Programa de formato-excel.md es informativo frente a las filas reales. Si cambias el número de mesociclos o sus semanas, actualiza también este campo o déjalo en null antes que dejarlo desincronizado."
+    },
+    "objetivo_general": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Objetivo del cliente que motiva este macrociclo (ej. 'Hipertrofia + recomposición, evento sin fecha fija')."
+    },
+    "fecha_evento": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "Si existe, este plan sigue periodizacion-orientada-evento.md en vez de periodizacion-por-calendario.md -- debe coincidir con actividad_principal.fecha_evento de perfil-cliente.json."
+    },
+    "mesociclos": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["numero", "nombre", "semanas", "objetivo_principal", "estado"],
+        "properties": {
+          "numero": { "type": "integer", "minimum": 1 },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Ej. 'Bloque 1 -- Acumulación de volumen'."
+          },
+          "semanas": { "type": "integer", "minimum": 1 },
+          "objetivo_principal": { "type": "string", "minLength": 1 },
+          "modulos_previstos": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Módulos de modulos/ que se prevé que apliquen a este bloque, a nivel de planificación -- informativo. El Paso 0 real, al generar el detalle de este mesociclo cuando llegue su turno, puede confirmar otros distintos si el contexto del cliente ha cambiado desde que se escribió el esqueleto."
+          },
+          "semana_deload": {
+            "type": ["integer", "null"],
+            "minimum": 1,
+            "description": "Semana dentro de este mesociclo (1..semanas) prevista para el deload, si aplica. Puede moverse al generar el detalle real, si las señales de fatiga lo piden (gestion-fatiga-deload.md) -- este valor es la previsión, no un contrato."
+          },
+          "estado": {
+            "type": "string",
+            "enum": ["planificado", "generado", "entregado", "completado"],
+            "description": "planificado: solo existe en este esqueleto, sin .xlsx todavía. generado: ya se creó su .xlsx de entrega (formato-excel.md) y pasó validar_programa.py, pendiente de aprobación del coach. entregado: el coach lo aprobó y se importó a BeFit (programs:import). completado: el cliente terminó las semanas de este bloque -- momento de leer su adherencia real antes de generar el siguiente mesociclo."
+          },
+          "training_program_id": {
+            "type": ["integer", "null"],
+            "description": "ID real en Bckbs (training_programs) una vez importado -- mismo dato que ya se referencia en CHANGELOG.md al registrar entregas reales."
+          },
+          "notas": {
+            "type": ["string", "null"],
+            "description": "Desviaciones reales respecto a lo planeado (duración distinta, objetivo cambiado, deload adelantado...). No se reescribe el bloque en silencio -- se anota aquí igual que log-registro.json nunca reescribe entradas anteriores."
+          }
+        }
+      }
+    },
+    "notas_generales": {
+      "type": ["string", "null"],
+      "description": "Contexto del macrociclo completo que no pertenece a ningún mesociclo concreto (ej. por qué se decidió este número de bloques, qué se descartó)."
+    }
+  }
+}
