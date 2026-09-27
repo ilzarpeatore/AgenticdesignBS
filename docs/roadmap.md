@@ -5,7 +5,7 @@
 ## Contexto de negocio
 
 - Servicio de asesoría de entrenamiento y nutrición online.
-- Hoy: servicio informal, atendido a amigos y familiares, sin apertura al mercado ni publicidad.
+- **(2026-09-27) El servicio ya se abrió al mercado con clientes de pago** — factura por debajo de 1.000€/mes. Hasta esta fecha era un servicio informal atendido a amigos y familiares; el criterio de progresión M0→M1 (ver abajo) se da por cumplido en su primera mitad (apertura al mercado con clientes de pago). La segunda mitad del criterio (varios ciclos seguidos sin correcciones mayores en revisión de los 3 agentes de M0) no se ha verificado de forma explícita, pero no se bloquea la transición por eso — los 3 agentes ya llevan varios ciclos reales operando (ver `docs/TAREAS_PENDIENTES.md`).
 - Objetivo: automatizar progresivamente mediante agentes de IA, empezando por el agente que más tiempo consume hoy.
 
 ## Principio de progresión
@@ -16,9 +16,11 @@ Como en un programa de entrenamiento real: no se sube de fase por calendario, se
 
 | Mesociclo | Contexto | Se automatiza | Control | Infraestructura |
 |---|---|---|---|---|
-| **M0 (actual)** | Amigos y familia, sin apertura al mercado | 3 agentes operativos (entrenamiento + import + nutrición) | Revisión humana al 100% | Ninguna — prompt guardado a mano, sin n8n |
-| **M1** | Servicio abierto, <1.000€/mes | 2-3 agentes operativos | Revisión humana por muestreo | n8n + Google Sheets como log |
-| **M2** | Ingresos recurrentes estables | 13 operativos + 6 controles + director | Un agente de control por área | n8n/Make + Airtable + Notion |
+| **M0 (cerrado 2026-09-27)** | Amigos y familia, sin apertura al mercado | 3 agentes operativos (entrenamiento + import + nutrición) | Revisión humana al 100% | Ninguna — prompt guardado a mano, sin n8n |
+| **M1 (actual, desde 2026-09-27)** | Servicio abierto, <1.000€/mes | 3 agentes de M0 + agentes operativos nuevos, uno a la vez por impacto en tiempo ahorrado (no por completitud del organigrama, ver `docs/ORGANIGRAMA_AGENTES.md`) | Revisión humana por muestreo en los agentes ya maduros; 100% en los nuevos hasta que se estabilicen | n8n (self-hosted o Cloud starter) + Google Sheets como log + API Claude/GPT por uso |
+| **M2** | Ingresos recurrentes estables (~500-1.000€/mes sostenidos varios meses) | 13 operativos + 6 controles + director | Un agente de control por área | n8n/Make + Airtable + Notion |
+
+**Candidato de infraestructura para M2 (no antes):** [Paperclip](https://github.com/paperclipai/paperclip) (Node.js + React + PostgreSQL, MIT) — capa de orquestación de organización de agentes: organigrama con roles/presupuestos/permisos, "heartbeats" programados que despiertan a cada agente con contexto (workspace, secretos con alcance limitado, skills, ascendencia del objetivo), checkout atómico de tareas para evitar duplicados, y auditoría de coste/logs por agente. No sustituye el contenido de los agentes (`system-prompt.md`, módulos, esquemas, memoria en `bstronger-memoria-clientes` seguirían siendo la fuente) — añade una capa por encima que decide cuándo se activa cada uno y quién aprueba qué. Encaja con el nivel de M2 (13 operativos + 6 controles + director, ya con Airtable/Notion/n8n) via adaptadores por tipo de agente (Claude Code, Codex/Cursor, scripts bash, webhooks HTTP); adoptarlo en M0/M1 sería construir infraestructura por delante del criterio de progresión (2026-09-27).
 
 **Criterios de progresión:**
 - M0 → M1: el servicio se abre al mercado con clientes de pago *y* el agente lleva varios ciclos seguidos sin correcciones mayores en revisión.
@@ -31,6 +33,9 @@ Como en un programa de entrenamiento real: no se sube de fase por calendario, se
 | Asistente de Programación de Entrenamiento | Genera el borrador de programa (síntesis multi-módulo) | — (produce el `.xlsx` que consume Bckbs) | `agentes/programacion-entrenamiento/system-prompt.md` |
 | Agente Importador de Programas | Lleva el `.xlsx` ya generado hasta la base de datos real (importar, verificar integridad) — no genera contenido, no decide programación, y **nunca asigna a un cliente real** (decisión del usuario, 2026-09-17): eso es siempre manual, en el panel admin | `ilzarpeatore/Bckbs` (Laravel, VPS `bestronger-vps`) | `agentes/importador-programas/system-prompt.md` |
 | Asistente de Programación de Nutrición | Genera el plan nutricional/recetas individualizado, coordinado con el entrenamiento real del cliente — no diseña entrenamiento ni diagnostica | `ilzarpeatore/Bckbs` (`meal_plan_templates`/`daily_plan_recipes`, API ya existente) | `agentes/programacion-nutricion/system-prompt.md` |
+| Agente de Soporte / Customer Success | Responde por WhatsApp a clientes activos (dudas logísticas, preguntas factuales sobre su plan real), detecta riesgo de baja y sigue a clientes inactivos — nunca decide programación/nutrición ni habla de precios/salud, siempre escala esos casos a humano en el momento | `ilzarpeatore/Bckbs` (`client-calendar-data`, `task-store`, ambos ya existentes) + WhatsApp Business/Twilio + n8n (por configurar) | `agentes/soporte-customer-success/system-prompt.md` |
+
+Primer agente operativo del organigrama de M1 más allá de los 3 de M0 (ver `docs/ORGANIGRAMA_AGENTES.md`) — todavía no desplegado, quedan prerrequisitos operativos en `docs/TAREAS_PENDIENTES.md`.
 
 Son agentes de cadena, no independientes. El importador empieza exactamente donde termina el productor de entrenamiento (recibe un `.xlsx` ya escrito). El de nutrición es distinto: no es una cadena estrictamente secuencial de un solo sentido, sino un **sequential handoff** (Multi-Agent Collaboration, cap. 7) — lee el `perfil-cliente.schema.json` y el razonamiento del Productor de entrenamiento como entrada de contexto (qué días y qué tipo de sesión hay), sin regenerar ni cuestionar el entrenamiento en sí. `restricciones_dieteticas` vive en el esquema del agente de entrenamiento pero la gestiona por completo el de nutrición — es el primer campo genuinamente compartido entre dos agentes de este proyecto.
 

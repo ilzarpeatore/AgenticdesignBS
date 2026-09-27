@@ -1,0 +1,168 @@
+# Organigrama completo de agentes — director, controles, operativos
+
+> Documento de referencia arquitectónica, compartido por el usuario el 2026-09-27. Describe el organigrama completo al que el sistema podría escalar (nivel M2), y la secuencia de implementación recomendada para llegar ahí sin construir por completitud especulativa. **No implica que los 20 agentes se construyan ya** — el `docs/roadmap.md` (mesociclo actual: M1) sigue marcando el ritmo real: un agente operativo nuevo a la vez, priorizado por impacto en tiempo ahorrado, con su control correspondiente solo cuando el operativo ya funciona sin supervisión constante. Ver `docs/TAREAS_PENDIENTES.md` para qué agente concreto se está construyendo ahora mismo dentro de este organigrama.
+
+## Contexto de negocio
+
+- Servicio de asesoría de entrenamiento online profesional.
+- Facturación real: **menos de 1.000€/mes** (el ejemplo de 10.000€/mes usado en el diseño original era solo para ilustrar la estructura completa; el objetivo es replicar el sistema con presupuesto ajustado).
+- Objetivo: automatizar progresivamente las tareas de un equipo pequeño mediante agentes de IA, empezando por el agente que más tiempo consume hoy y escalando por fases.
+
+---
+
+## Estructura general (3 niveles)
+
+1. **Agente director** — supervisión global del sistema.
+2. **6 agentes de control** — uno por área, auditan a los agentes operativos de su área.
+3. **13 agentes operativos** — ejecutan las tareas día a día. De estos, 3 ya existen y se diseñaron antes de este documento: el **Asistente de Programación de Entrenamiento**, el **Agente Importador de Programas** y el **Asistente de Programación de Nutrición** (área producto) — ver `docs/roadmap.md`, sección "Agentes existentes". Los 10 restantes son candidatos, no construidos todavía.
+
+---
+
+## Nivel 1 — Agente director
+
+**Características:**
+- Tono ejecutivo, orientado a resumen y priorización.
+- No interactúa con clientes finales.
+- Frecuencia de trabajo semanal (no tiempo real).
+
+**Funciones:**
+- Recopila los informes de los 6 agentes de control.
+- Detecta patrones cruzados entre áreas (ej. quejas de soporte coincidiendo con una campaña de ads mal targetizada).
+- Genera un resumen semanal con: alertas críticas, tendencias, recomendaciones.
+- Escala al humano cuando un control reporta el mismo fallo 3+ veces seguidas.
+- No corrige nada directamente — solo informa y prioriza.
+
+---
+
+## Nivel 2 — Agentes de control (uno por área)
+
+### Control ventas
+- **Características:** tono exigente pero justo; revisa contra guion de ventas y política de precios; acceso a transcripciones/logs del Closer y al CRM.
+- **Funciones:** verifica que no se prometan resultados no garantizados; comprueba que precio/condiciones coincidan con la política vigente; revisa que los leads calientes no queden sin seguimiento +24h; marca conversaciones con riesgo de reclamación.
+
+### Control soporte
+- **Características:** sensible a tono emocional; prioriza detección de riesgo sobre precisión formal.
+- **Funciones:** detecta respuestas genéricas que no responden a la pregunta real; identifica señales de posible baja (frustración, mención de "cancelar", falta de resultados); verifica tiempos de primera respuesta y tickets abandonados; revisa cumplimiento del proceso de onboarding.
+
+### Control contenido
+- **Características:** referencia = guía de marca/tono; revisa coherencia, no creatividad.
+- **Funciones:** valida que el copy no tenga afirmaciones médicas/salud no verificadas; revisa consistencia de tono entre canales; comprueba que no se reciclen ideas recientes; verifica cumplimiento del calendario de publicación.
+
+### Control producto (entrenamiento/nutrición)
+- **Características:** el más sensible del sistema — errores afectan la salud del cliente; requiere supervisión humana obligatoria en casos límite.
+- **Funciones:** revisa progresiones de carga/volumen peligrosas; verifica que los planes nutricionales no den consejos clínicos sin derivar a profesional; comprueba adaptación al nivel/objetivo del cliente; bloquea automáticamente outputs sobre medicación, suplementación de riesgo o restricciones calóricas extremas y deriva a revisión humana.
+
+### Control operaciones
+- **Características:** orientado a procesos, no a personas; revisa consistencia y cumplimiento de plazos.
+- **Funciones:** verifica tareas administrativas al día; comprueba que los informes sean coherentes con datos reales (sin cifras inventadas); detecta tareas duplicadas/solapadas entre agentes; alerta si un agente lleva X horas sin actividad esperada.
+
+### Control marketing
+- **Características:** orientado a rendimiento y cumplimiento normativo (publicidad engañosa).
+- **Funciones:** verifica que los anuncios cumplan políticas de plataforma y no prometan resultados poco realistas; revisa coherencia entre anuncio y producto; comprueba errores de personalización en email (nombres, links rotos); marca campañas con bajo rendimiento sostenido.
+
+---
+
+## Nivel 3 — Agentes operativos (13)
+
+### Área ventas
+- **Agente Closer/Ventas** — tono persuasivo no agresivo; conoce guion y objeciones. Cualifica leads, responde objeciones, agenda llamadas, hace seguimiento a los no cerrados, nunca cierra fuera de política de precios.
+- **Agente de Leads/CRM** — analítico, sin contacto directo con cliente. Clasifica leads (frío/tibio/caliente), etiqueta en CRM, dispara secuencias de seguimiento, avisa al Closer de leads calientes desatendidos.
+
+### Área soporte
+- **Agente de Soporte/Customer Success** — empático, prioriza resolver, escala a humano en temas delicados. Responde dudas frecuentes, detecta señales de baja, sigue proactivamente a clientes inactivos.
+- **Agente de Onboarding** — tono cercano y didáctico, opera solo en los primeros 7-14 días. Guía primeros pasos, envía recordatorios de bienvenida, alerta a soporte si el cliente no ha empezado.
+
+### Área contenido
+- **Agente Copywriter** — mantiene tono de marca, versátil entre formatos. Genera emails, textos de venta, guiones y posts; adapta el mismo mensaje a distintos canales.
+- **Agente de Redes Sociales** — conoce particularidades de cada plataforma. Propone calendario de contenido, adapta formato/duración, sugiere hooks, prepara descripciones y hashtags.
+- **Agente de Edición/Producción** *(apoyo, no autónomo, requiere revisión humana)* — genera subtítulos, sugiere cortes/timestamps, propone descripciones de vídeo.
+
+### Área producto
+- **Agente Asistente de Programación de Entrenamientos** — ya existe, ver `agentes/programacion-entrenamiento/system-prompt.md`.
+- **Agente Nutricional** — ya existe, ver `agentes/programacion-nutricion/system-prompt.md`.
+
+### Área operaciones
+- **Agente Administrativo/VA** — tareas repetitivas de bajo riesgo. Gestiona agenda, responde emails rutinarios, organiza documentos, recuerda pendientes.
+- **Agente de Reporting** — solo trabaja con datos reales, nunca inventa cifras. Genera informes mensuales (ventas, churn, engagement), detecta variaciones relevantes mes a mes.
+
+### Área marketing
+- **Agente de Ads** — orientado a rendimiento, conoce políticas publicitarias. Sugiere variaciones de copy/creatividades, analiza rendimiento, alerta de campañas flojas.
+- **Agente de Email Marketing** — trabaja con segmentación y automatización. Arma secuencias de nurturing, ajusta según apertura/clics, personaliza por segmento.
+
+*(El Agente Importador de Programas no aparece en este organigrama por área de negocio porque es infraestructura técnica del área producto, no una función de negocio — sigue existiendo igual, ver `agentes/importador-programas/`.)*
+
+---
+
+## Flujo de comunicación entre niveles
+
+**1. Log operativo → Control (cada acción)**
+
+Cada agente operativo genera un registro estructurado por interacción:
+
+```json
+{
+  "agente": "closer",
+  "timestamp": "2026-09-14T10:32:00",
+  "cliente_id": "xxxx",
+  "accion": "resumen breve de qué hizo",
+  "input_resumen": "qué pidió/dijo el cliente",
+  "confianza": "alta/media/baja",
+  "riesgo_detectado": null,
+  "requiere_revision": false
+}
+```
+
+El propio agente rellena `riesgo_detectado` cuando reconoce terreno delicado (promesa de resultado, salud, cliente enfadado) — así el control prioriza lo marcado en vez de auditar todo.
+
+**2. Control → Director (informe semanal, resumen no logs en bruto)**
+
+```json
+{
+  "area": "soporte",
+  "periodo": "semana 37",
+  "total_interacciones": 340,
+  "auditadas": 45,
+  "incidencias_bajas": 3,
+  "incidencias_altas": 1,
+  "detalle_incidencias_altas": ["..."],
+  "tendencia": "aumento de quejas sobre tiempos de respuesta"
+}
+```
+
+**3. Reglas de escalación**
+
+- **Riesgo bajo** (tono raro, respuesta mejorable): el control corrige o pide reintento, queda en el log, no sube al director.
+- **Riesgo alto** (salud, dinero, reclamación, promesa indebida): salta directo a **humano**, sin esperar al informe semanal; el director solo recibe la notificación.
+- **Patrón repetido** (3+ incidencias del mismo tipo en una semana): el control lo marca "sistémico" y entra en el resumen semanal del director como punto a decidir (cambiar prompt, cambiar proceso, etc.).
+
+Flujo de decisión por acción: `Acción del operativo → Log automático (JSON) → Control audita (muestreo + casos marcados) → [Todo correcto | Riesgo bajo: corrige | Riesgo alto: escala → Director/humano]`
+
+---
+
+## Stack técnico por presupuesto real (<1.000€/mes de facturación)
+
+**Nivel 0 — Sin coste / mínimo coste (para empezar, = infraestructura de M1)**
+- **n8n** (self-hosted gratis, o Cloud starter ~20€/mes) — orquestador que conecta los agentes, dispara logs y gestiona la lógica de escalación.
+- **Google Sheets** como base de datos de logs, sin coste.
+- **API de Claude o GPT (pago por uso)** — con este volumen, el gasto en tokens para varios agentes operativos suele rondar 20-60€/mes.
+- **WhatsApp Business API vía Twilio (pago por uso)** o gestión manual de IG/WhatsApp si el volumen es bajo.
+
+**Nivel 1 — Cuando haya ingresos recurrentes más estables (~500-1.000€/mes, = infraestructura de M2)**
+- **Make (Integromat)** como alternativa a n8n self-hosted si se prefiere menos mantenimiento técnico (~9-16€/mes).
+- **Airtable** en vez de Sheets cuando crece el volumen de datos.
+- **Notion** como panel de control para que el director escriba ahí el resumen semanal.
+
+**Lo que NO hace falta todavía**
+- Frameworks de agentes complejos (LangGraph, CrewAI): añaden fricción sin beneficio real con este volumen.
+- Bases de datos vectoriales, servidores dedicados, ni coste fijo mensual alto.
+
+---
+
+## Secuencia de implementación recomendada
+
+1. Montar **1 solo agente operativo** — el que más tiempo consume hoy — conectado por n8n a la API de Claude/GPT.
+2. Añadir su **agente de control** correspondiente solo cuando el operativo funcione sin supervisión constante.
+3. El **agente director** puede sustituirse por revisión manual (leer el Sheet/Airtable una vez a la semana) hasta tener 3+ controles activos.
+4. Repetir el proceso agente por agente, priorizando por impacto en tiempo ahorrado, no por completitud del organigrama.
+
+**(2026-09-27) Primer agente operativo nuevo priorizado: Soporte/Onboarding** — ver `docs/TAREAS_PENDIENTES.md` y `agentes/` para el diseño en curso.

@@ -1,13 +1,19 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
-## v0.19.0 — 2026-09-27
+## v0.20.0 — 2026-09-27
 
 Cierra el hueco que la propia v0.18.0 ya había dejado anotado ("no existe todavía una plantilla formal para este nivel de detalle"): pedido explícito del usuario tras comprobar que pedir "el plan semestral de un cliente" no devolvía ningún `.xlsx` — el agente no tenía ningún formato registrado para ese nivel, solo para un mesociclo individual.
 
 - **Nuevo `esquemas/plan-macro.schema.json`:** esqueleto de varios meses (nivel Macrociclo/Bloque de `modulos/periodizacion-por-calendario.md`) — lista de mesociclos con `numero`, `semanas`, `objetivo_principal`, `modulos_previstos`, `semana_deload` y `estado` (`planificado`/`generado`/`entregado`/`completado`). Sin detalle semana a semana ni columnas de ejercicio/series/reps — eso lo sigue cubriendo, sin cambios, `formato-salida/formato-excel.md` para cada mesociclo cuando le toca generarse.
-- **`system-prompt.md` (v0.13.0):** nuevo punto 0 (condicional) en el razonamiento del Paso 2 y nuevo apartado 4bis que describe el flujo en dos fases — generar/leer el esqueleto primero, luego el `.xlsx` de cada mesociclo cuando llega su turno, releyendo siempre la memoria episódica real del mesociclo anterior antes de fijar la progresión (no se trata el esqueleto como un contrato fijo, mismo criterio que ya fijaba v0.16.0 para el detalle completo por adelantado). "Memoria del cliente" del Paso 1 pasa a leer también `plan-macro.json` si existe. Formato de salida (sección 7) pasa de dos a tres formatos.
+- **`system-prompt.md` (v0.20.0):** nuevo punto 0 (condicional) en el razonamiento del Paso 2 y nuevo apartado 4bis que describe el flujo en dos fases — generar/leer el esqueleto primero, luego el `.xlsx` de cada mesociclo cuando llega su turno, releyendo siempre la memoria episódica real del mesociclo anterior antes de fijar la progresión (no se trata el esqueleto como un contrato fijo, mismo criterio que ya fijaba v0.16.0 para el detalle completo por adelantado). "Memoria del cliente" del Paso 1 pasa a leer también `plan-macro.json` si existe. Formato de salida (sección 7) pasa de dos a tres formatos.
 - **Persistencia:** `plan-macro.json` vive en `bstronger-memoria-clientes/clientes/<cliente_id>/`, mismo patrón que el resto de memoria de cliente — repo editable a mano por el coach, revisado en el mismo Paso 5 que cualquier otro borrador.
 - No se ha tocado `formato-salida/formato-excel.md` en su contenido (solo una nota cruzada al principio) ni `validador/validar_programa.py` — el esqueleto no pasa por ese validador, solo el `.xlsx` de cada mesociclo.
+
+## v0.19.0 — 2026-09-27
+
+- **Cabecera de `system-prompt.md` sincronizada** — se había quedado en v0.12.0 (19/09) mientras este changelog ya iba por v0.18.0, por trabajo concurrente de varias sesiones sin actualizar el encabezado a la vez.
+- **`formato-salida/catalogo-ejercicios.xlsx` refrescado por el usuario** — el anterior (14/09, 1505 ejercicios) llevaba dos semanas desactualizado: el usuario reportó que el Productor no seleccionaba bien los ejercicios de la BD real, y se confirmó que el catálogo consultado no reflejaba las importaciones reales desde entonces (Nerea/Toni/Osas, 17-20/09). El nuevo archivo (1520 ejercicios) se exportó hoy **después de borrar del catálogo real los duplicados** que causaba el bug ya documentado en `agentes/importador-programas/CHANGELOG.md` v0.4.1 (mismo ejercicio creado una vez por semana).
+- **Riesgo real sin verificar todavía:** borrar ejercicios duplicados de la BD puede dejar referencias rotas en programas que ya apuntaban a esos ids — ya pasó una vez antes (ver `Bckbs::app/Services/ExerciseMatcher/ExerciseMatcher.php`, comentario sobre una limpieza de catálogo del 2026-09-01 que rompió 4 referencias). Los 3 Mesociclo 1 ya asignados a clientes reales (Nerea `#65`, Toni `#64`, Osas `#66`, ver v0.18.0) son los que más importa verificar. Nuevo ítem en `docs/TAREAS_PENDIENTES.md`: correr `programs:check-integrity` contra el VPS real para confirmarlo.
 
 ## v0.18.0 — 2026-09-20
 
