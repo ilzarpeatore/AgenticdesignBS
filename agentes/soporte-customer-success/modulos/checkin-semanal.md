@@ -1,9 +1,17 @@
 # Módulo: Check-in semanal estructurado
 
 **Tipo:** General — proactivo, no depende de un mensaje entrante
-**Se activa cuando:** cron en n8n, **domingo por la mañana**, una vez por semana, para cada cliente de la hoja de mapeo (herramienta 2 de `system-prompt.md`) con perfil real en `bstronger-memoria-clientes`
-**Versión:** 0.1.0 · **Última actualización:** 2026-09-27
+**Se activa cuando:** cron en n8n, **domingo por la mañana**, una vez por semana, para cada cliente de la hoja de mapeo (herramienta 2 de `system-prompt.md`) con perfil real en `bstronger-memoria-clientes` **y que no esté dentro de su ventana activa de Onboarding** (ver "Exclusión" más abajo)
+**Versión:** 0.2.0 · **Última actualización:** 2026-09-27
 **Procedencia:** investigación de mercado sobre cómo operan los entrenadores online que más facturan (2026-09-27, ver `docs/TAREAS_PENDIENTES.md` para las fuentes) — la práctica con más impacto identificada en retención es un check-in semanal fijo, corto, con las mismas preguntas cada vez, no un formulario largo ni una cadencia irregular. Cierra además un hueco real: `bienestar_diario` existe en `log-registro.schema.json` desde antes de este agente, pero nada lo recogía en la práctica.
+
+## Exclusión: cliente dentro de su ventana de Onboarding
+
+Encontrado al revisar el diseño del Agente de Onboarding (mismo día): este check-in, tal y como se diseñó originalmente, se dispara para todo cliente con perfil real sin excepción — incluido uno que acaba de recibir su primer programa hace dos días. Eso significa que un cliente nuevo podría recibir la bienvenida y el toque intermedio del Agente de Onboarding **y** este check-in semanal en la misma semana: exactamente el "info overload" que la investigación de ambos agentes advierte, solo que viniendo de dos agentes distintos en vez de uno.
+
+**Antes de construir el mensaje, consulta la hoja de log de interacciones** (`esquemas/log-interaccion.schema.json`, compartida con el Agente de Onboarding): busca la entrada más reciente de este `cliente_id` con `agente: "onboarding-cliente-nuevo"`. Si existe y su `onboarding_estado` es `"activo"`, **sáltate el check-in de este domingo para este cliente** — el Agente de Onboarding ya está en contacto con él esta semana, no hace falta duplicar. Si no hay ninguna entrada de Onboarding, o la más reciente tiene `onboarding_estado: "cerrado"`, sigue el flujo normal de este módulo.
+
+No lo registres como "check-in sin respuesta" cuando se salta por esta razón — es una exclusión intencional, no un cliente que no contestó.
 
 ## Por qué domingo por la mañana y por qué no cambiarlo nunca
 

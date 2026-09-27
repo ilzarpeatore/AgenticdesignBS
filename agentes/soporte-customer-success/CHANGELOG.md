@@ -1,5 +1,12 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.11.0 — 2026-09-27
+
+Mismo hallazgo que v0.4.0 del Agente de Onboarding, mismo día — ver ese CHANGELOG para el contexto completo (el check-in semanal y el onboarding de un cliente nuevo no se coordinaban, riesgo real de sobrecargar de mensajes en la misma semana).
+
+- Nueva sección "Exclusión: cliente dentro de su ventana de Onboarding" en `modulos/checkin-semanal.md` (sube a v0.2.0): antes de construir el check-in del domingo, se consulta la entrada más reciente de `agente: "onboarding-cliente-nuevo"` de ese cliente en el log de interacciones compartido. Si `onboarding_estado: "activo"`, se salta ese domingo — no se registra como "sin respuesta", es una exclusión intencional.
+- No requirió ningún endpoint nuevo en Bckbs: se resolvió enteramente con datos que los dos agentes ya escriben en la misma hoja.
+
 ## v0.10.0 — 2026-09-27
 
 Gap de corrección encontrado al diseñar el Agente de Onboarding, y que resulta afectar igual a este agente: `GET client-session-feedback` solo filtraba por `completed_at IS NOT NULL`, sin comprobar si la sesión tenía series realmente registradas — mismo patrón de bug real que `EmptySessionAlertService` ya detecta (caso Ayoub, sesiones finalizadas con volumen 0 y cero filas de log).
