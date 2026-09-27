@@ -1,5 +1,14 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.4.0 — 2026-09-27
+
+El usuario pidió seguir mejorando el diseño tras la primera revisión. Se identificaron 4 huecos reales; se resuelven los 3 que no dependen de material que solo el usuario tiene (el cuarto, contrastar el módulo de tono contra conversaciones reales, queda pendiente de que el usuario aporte ejemplos).
+
+- **Nuevo `modulos/validacion-antes-de-enviar.md`:** este agente es el único de los 4 sin revisión humana antes de que su output llegue a producción (los otros 3 tienen validador determinista + humano al 100%). Nueva red de seguridad mecánica (nodo de código en n8n, no el LLM juzgándose a sí mismo): denylists de precio/condiciones comerciales, de prescripción de cambio de programación/nutrición, de diagnóstico médico; comprobación de coherencia con la clasificación del Paso 3 (cribado); y verificación de que cualquier dato factual citado (día, ejercicio, receta) tiene detrás una llamada real registrada a `client-calendar-data`/`client-meal-calendar` en el mismo turno, para atajar alucinaciones. Si algo no pasa, no se envía — se envía una respuesta neutra y se crea tarea con el mensaje bloqueado visible para el coach.
+- **Memoria de conversación (nuevo Paso 1bis del flujo):** hasta ahora cada mensaje entrante era una ejecución aislada, sin contexto de mensajes anteriores del mismo cliente — un "¿y si en vez de eso?" no tenía forma de interpretarse. Ahora se leen las últimas interacciones (24h o últimas 10, lo que sea menos) del log antes de generar.
+- **Mecanismo real de seguimiento proactivo (nueva sección 3bis):** antes el `system-prompt.md` decía "detecta clientes inactivos" sin definir cómo. Se investigó el código real de Bckbs y se encontró `GET client-session-feedback` (`ClientProfileCalendarController::getSessionFeedback`) — sesiones **realmente completadas** (`WorkoutSessionReview.completed_at`), no solo asignadas, que es la señal correcta (ya la usa el propio panel admin para mostrar feedback post-entreno). Umbral definido en función de `disponibilidad.dias_por_semana` real de cada cliente (2× su intervalo esperado entre sesiones), no un número arbitrario igual para todos. Nuevo patrón 3.7 en `modulos/tono-y-conocimiento-deportivo.md` (sube a v0.2.0): un mensaje de reenganche genérico funciona peor que uno que referencia algo real de esa persona; nunca en tono de reproche; no crea tarea automáticamente, solo si la respuesta del cliente trae señales de escalación.
+- `system-prompt.md` sube a v0.4.0: nueva tabla de herramientas, flujo renumerado (7 pasos + sección 3bis).
+
 ## v0.3.0 — 2026-09-27
 
 El usuario pidió que el agente pudiera leer entrenamiento y nutrición reales del cliente, para responder de forma aplicada cuando una duda combine ambos (ej. qué comer después de la sesión de hoy).
