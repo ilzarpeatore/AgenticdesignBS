@@ -20,6 +20,8 @@ Como en un programa de entrenamiento real: no se sube de fase por calendario, se
 | **M1** | Servicio abierto, <1.000€/mes | 2-3 agentes operativos | Revisión humana por muestreo | n8n + Google Sheets como log |
 | **M2** | Ingresos recurrentes estables | 13 operativos + 6 controles + director | Un agente de control por área | n8n/Make + Airtable + Notion |
 
+**Candidato de infraestructura para M2 (no antes):** [Paperclip](https://github.com/paperclipai/paperclip) (Node.js + React + PostgreSQL, MIT) — capa de orquestación de organización de agentes: organigrama con roles/presupuestos/permisos, "heartbeats" programados que despiertan a cada agente con contexto (workspace, secretos con alcance limitado, skills, ascendencia del objetivo), checkout atómico de tareas para evitar duplicados, y auditoría de coste/logs por agente. No sustituye el contenido de los agentes (`system-prompt.md`, módulos, esquemas, memoria en `bstronger-memoria-clientes` seguirían siendo la fuente) — añade una capa por encima que decide cuándo se activa cada uno y quién aprueba qué. Encaja con el nivel de M2 (13 operativos + 6 controles + director, ya con Airtable/Notion/n8n) via adaptadores por tipo de agente (Claude Code, Codex/Cursor, scripts bash, webhooks HTTP); adoptarlo en M0/M1 sería construir infraestructura por delante del criterio de progresión (2026-09-27).
+
 **Criterios de progresión:**
 - M0 → M1: el servicio se abre al mercado con clientes de pago *y* el agente lleva varios ciclos seguidos sin correcciones mayores en revisión.
 - M1 → M2: ingresos recurrentes sostenidos varios meses (~500-1.000€/mes) *y* los agentes operativos funcionan con supervisión por muestreo, no total.
