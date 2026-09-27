@@ -1,5 +1,14 @@
 # Changelog — Agente Importador de Programas
 
+## v0.4.2 — 2026-09-27
+
+Primer import real de un macrociclo completo (5 mesociclos de un mismo cliente, Carlos Palomar, en 5 archivos separados) tras formalizar el flujo de plan macro + formato de revisión detallada del agente de programación. Pedido explícito del usuario para probar el pipeline end-to-end.
+
+- 5 `.xlsx` (formato-excel.md, uno por mesociclo, semana local 1..N) generados traduciendo el contenido ya aprobado del documento de revisión (`formato-salida/formato-excel-detallado.md`) del agente de programación -- sin inventar nada nuevo en la traducción.
+- Los 5 pasaron `validador/validar_programa.py` (`aprobado: true`, 0 errores) y `--dry-run --confidence-gate` (22 ejercicios en nivel A, confianza 1.0, `review_required` vacío) antes del import real.
+- Import real contra `bestronger_test` (`bestronger-vps`) con `--json --confidence-gate --check-integrity`: `training_program_id` 129-133, 624 filas de ejercicio en total, 100% nivel A (0 creados, 0 ambiguos), `check-integrity` limpio tras cada uno. Verificado por SQL: `client_id=NULL`, `is_personal=0` en los 5 -- ninguno asignado, norma no negociable de este agente.
+- **Agrupación en el panel admin:** el esquema de `training_programs` no tiene ningún campo relacional de agrupación (sin `macrociclo_id`/tag) -- se logra por convención de título (`training_programs.title`, ej. "Carlos Palomar -- Macrociclo 1 -- Mesociclo 3/5 -- ..."), que ordena y agrupa visualmente en la lista del admin panel pero no es un dato estructurado. Si en el futuro se necesita agrupación real (filtrar/consultar "todos los mesociclos de este macrociclo"), haría falta una columna nueva en Bckbs -- anotado como posible mejora, no construida.
+
 ## v0.4.1 — 2026-09-27
 
 El usuario reportó que sus planes mensuales/mesociclos generados repetían el mismo ejercicio como "nuevo" una vez por semana (ej. "sentadilla unilateral" x4), sin priorizar ejercicios ya existentes en la BD. Investigado contra el código real de Bckbs (`ilzarpeatore/bckbs`, sin tocar producción):
