@@ -1,5 +1,15 @@
 # Changelog — Agente Importador de Programas
 
+## v0.4.1 — 2026-09-27
+
+El usuario reportó que sus planes mensuales/mesociclos generados repetían el mismo ejercicio como "nuevo" una vez por semana (ej. "sentadilla unilateral" x4), sin priorizar ejercicios ya existentes en la BD. Investigado contra el código real de Bckbs (`ilzarpeatore/bckbs`, sin tocar producción):
+
+- **Causa raíz encontrada y ya arreglada desde el 2026-09-24, antes del reporte del usuario:** `ExerciseMatcher` cargaba las firmas de la BD una sola vez al arrancar el import (cacheadas 1h) y no veía los ejercicios que el propio import iba creando sobre la marcha — el mismo nombre repetido en la semana 2 no encontraba el que se acababa de crear en la semana 1, y lo volvía a crear. Fix real (commit `70922d0`, con test de regresión): `ExerciseMatcher::register()` da de alta cada ejercicio recién creado en caliente, y `ProgramsImporter` recuerda los ya creados en el mismo import (`createdExercises`) para reutilizar el id aunque el matcher no lo devuelva por umbral/firma.
+- **Fix relacionado, mismo día:** resolver de equivalencias con IA (commit `867c053`) para nombres que son traducciones/anglicismos de ejercicios ya existentes (el matcher por reglas no los reconocía) — opcional, requiere `ANTHROPIC_API_KEY`, sin ella el comportamiento es idéntico al anterior.
+- El usuario confirmó haber visto el bug **antes** del 24/09 — coincide con la fecha del fix, probablemente ya resuelto en la práctica, pero **sin verificar todavía contra un import real nuevo en el VPS** (ítem 1.5 de `docs/TAREAS_PENDIENTES.md`, nuevo).
+- Ninguno de los dos fixes cambia el flujo de este agente (sección 3 de `system-prompt.md`, sube a v0.4.1) — son mejoras internas del matcher que el agente ya invocaba igual, no requieren ningún comando/parámetro nuevo.
+- Hallazgo aparte, no relacionado con este bug: `formato-salida/catalogo-ejercicios.xlsx` (el catálogo que consulta el Productor de entrenamiento antes de fijar cada nombre) no se actualiza desde el 2026-09-14 — con varios mesociclos reales importados desde entonces, es una foto parcial del catálogo real. Pendiente de que el usuario aporte una exportación actualizada.
+
 ## v0.4.0 — 2026-09-17
 
 Sincroniza con `docs/AGENTE_IMPORTADOR.md` (Bckbs, commit `ada8b1b`) tras verificación end-to-end real contra `bestronger-vps`: se generó un mesociclo real nuevo (`nerea-media-m1.xlsx`, 68 filas) para tener por fin un catálogo no importado antes, y `--confidence-gate` detectó correctamente un match nivel D (confianza 0.74, `Peso muerto rumano a una pierna con kettlebell` confundido con `Peso muerto rumano con barra` — unilateral/kettlebell vs. bilateral/barra) más 7 auto-creaciones.
