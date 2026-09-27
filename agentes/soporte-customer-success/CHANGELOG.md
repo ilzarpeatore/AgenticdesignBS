@@ -1,5 +1,13 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.5.0 — 2026-09-27
+
+El usuario preguntó si el agente podía construir su propio banco de respuestas leyendo el historial de conversación de cada cliente, en vez de que el usuario tuviera que aportar ejemplos.
+
+- **Aclaración necesaria antes de diseñar nada:** el historial de conversaciones que el coach ya ha tenido vive solo en su WhatsApp personal — ningún sistema de este proyecto lo captura hoy, así que el agente no puede "leerlo" aunque quisiera. El usuario aportará más adelante exportaciones de chat de WhatsApp (sin multimedia) por cliente para contrastar el módulo de tono contra casos reales, cuando le venga bien.
+- **Nueva sección 8 en `system-prompt.md` (sube a v0.5.0): mejora continua del banco de respuestas, explícitamente supervisada, no automática.** A partir del despliegue, cada interacción sí queda en el log real (`esquemas/log-interaccion.schema.json`) — se formaliza una revisión periódica (semanal/quincenal al principio) de ese log para: detectar preguntas reales frecuentes sin patrón que las cubra (solo se añade patrón nuevo si se repite, no por un caso aislado); afinar las denylists de `modulos/validacion-antes-de-enviar.md` con los falsos positivos/negativos reales que vaya bloqueando; y revisar los casos marcados `confianza: "baja"`.
+- **Por qué revisión humana y no autoajuste:** dejar que el agente reescriba su propio banco de respuestas sin supervisión rompería el mismo principio de control que ya aplica al resto del sistema — la revisión la hace el usuario hasta que exista el Control de Soporte (nivel 2 del organigrama), que entonces absorbe esta función.
+
 ## v0.4.0 — 2026-09-27
 
 El usuario pidió seguir mejorando el diseño tras la primera revisión. Se identificaron 4 huecos reales; se resuelven los 3 que no dependen de material que solo el usuario tiene (el cuarto, contrastar el módulo de tono contra conversaciones reales, queda pendiente de que el usuario aporte ejemplos).
