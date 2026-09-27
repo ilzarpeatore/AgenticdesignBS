@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.22.0 — 2026-09-27
+
+El usuario pidió calibrar el Agente de Soporte / Customer Success (`agentes/soporte-customer-success/`) a un servicio premium de ~300€/mes, siguiendo prácticas reales de coaching de alto contacto (investigación de mercado): la pieza de mayor impacto identificada es un check-in semanal estructurado y fijo — algo que este agente ya necesitaba (`bienestar_diario` existe en `log-registro.schema.json` desde antes, pero nada lo recogía en la práctica).
+
+- **`esquemas/log-registro.schema.json` gana `origen: "checkin_soporte"`** (mismo patrón que `checkpoint-fisico.schema.json` con `sync_automatico`, 2026-09-20): una entrada con este origen solo exige `bienestar_diario`, nunca `modulos_activos`/`razonamiento`/`confianza`/`requiere_revision` — no tiene sentido simular el razonamiento de una generación que no ocurrió. El comportamiento para entradas sin `origen` (todas las anteriores a esta fecha) o con `origen: "generacion"` no cambia.
+- **Sección "Memoria del cliente" (Paso 1)** actualizada para leer también estas entradas — es la misma serie temporal de bienestar que antes, con una fuente nueva.
+- Diseño completo del check-in (cadencia, preguntas, quién lo recoge) vive en `agentes/soporte-customer-success/modulos/checkin-semanal.md` — este documento no lo duplica.
+
 ## v0.21.0 — 2026-09-27
 
 El usuario pidió ver los 6 mesociclos de Carlos Palomar (110) "en el excel para poder revisar todo" y adjuntó como referencia el Excel real de un cliente de Be Stronger (`Porgramación 6 meses.xlsx`) que ya se había mencionado en v0.16.0. Al comparar el entregable generado (formato plano de `formato-excel.md`, pensado para importar) contra esa referencia, quedó claro que el coach esperaba el formato rico de revisión -- hojas por mesociclo con semanas en columnas, clasificación ancla/variable/nuevo, RPE/RIR por semana, patrones de reps. v0.16.0 había registrado ese formato como "servicio individualizado... no se generaliza a ningún módulo, cada cliente puede requerir indicaciones distintas".

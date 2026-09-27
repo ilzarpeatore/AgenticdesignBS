@@ -3,10 +3,26 @@
   "title": "Registro de generación — memoria episódica",
   "description": "Una entrada por borrador generado. Es la memoria episódica del agente: sin ella, cada ciclo se generaría como si el anterior no hubiera pasado. También alimenta el criterio de progresión M0 -> M1.",
   "type": "object",
-  "required": ["fecha", "cliente_id", "modulos_activos", "razonamiento", "confianza", "requiere_revision"],
+  "required": ["fecha", "cliente_id"],
+  "allOf": [
+    {
+      "if": { "properties": { "origen": { "const": "checkin_soporte" } }, "required": ["origen"] },
+      "then": {
+        "required": ["bienestar_diario"],
+        "properties": { "bienestar_diario": { "type": "object" } }
+      },
+      "else": { "required": ["modulos_activos", "razonamiento", "confianza", "requiere_revision"] }
+    }
+  ],
   "properties": {
     "fecha": { "type": "string", "format": "date-time" },
     "cliente_id": { "type": "string" },
+    "origen": {
+      "type": "string",
+      "enum": ["generacion", "checkin_soporte"],
+      "default": "generacion",
+      "description": "Añadido 2026-09-27, mismo patrón que checkpoint-fisico.schema.json. `generacion` (default, y el único valor posible antes de esta fecha) -- entrada de un ciclo generado por este agente, exige modulos_activos/razonamiento/confianza/requiere_revision. `checkin_soporte` -- entrada ligera creada por el Agente de Soporte / Customer Success a partir del check-in semanal por WhatsApp (ver agentes/soporte-customer-success/modulos/checkin-semanal.md): solo exige bienestar_diario, nunca simula un razonamiento de programación que no existió."
+    },
     "bloque": { "type": ["integer", "null"] },
     "mes": { "type": ["integer", "null"] },
     "semana": { "type": ["integer", "null"] },
@@ -36,7 +52,7 @@
     },
     "bienestar_diario": {
       "type": ["object", "null"],
-      "description": "Cuestionario basado en Hooper-Mackinnon, recogido antes de la sesión. Escala 1-7 (1=muy bien/muy bajo, 7=muy mal/muy alto).",
+      "description": "Cuestionario basado en Hooper-Mackinnon. Escala 1-7 (1=muy bien/muy bajo, 7=muy mal/muy alto). En una entrada `origen: generacion` se recoge antes de la sesión; en una entrada `origen: checkin_soporte` (añadido 2026-09-27) es la foto semanal que recoge el Agente de Soporte por WhatsApp, no ligada a una sesión concreta.",
       "properties": {
         "sueno": { "type": "integer", "minimum": 1, "maximum": 7 },
         "fatiga": { "type": "integer", "minimum": 1, "maximum": 7 },

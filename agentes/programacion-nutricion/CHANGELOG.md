@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.10.0 — 2026-09-27
+
+Mismo cambio que v0.21.0 del agente de entrenamiento, mismo día — ver ese CHANGELOG para el contexto completo (calibración del Agente de Soporte a un servicio premium de ~300€/mes).
+
+- **`esquemas/log-nutricion.schema.json` gana `origen: "checkin_soporte"`**: una entrada con este origen solo exige `adherencia_real` (nota real de consistencia nutricional recogida en el check-in semanal por WhatsApp), nunca `modulos_activos`/`razonamiento`/`confianza`/`requiere_revision`. El comportamiento para entradas sin `origen` o con `origen: "generacion"` no cambia.
+- Sección "Memoria del cliente" actualizada para leer también estas entradas.
+- Diseño completo del check-in en `agentes/soporte-customer-success/modulos/checkin-semanal.md`.
+
 ## v0.9.1 — 2026-09-20
 
 Primer caso real de principio a fin ejecutado contra producción (aunque con un cliente de prueba, no personalizado clínicamente): plan de 1 semana, 4 comidas/día, 28 items buscados en FatSecret, filtrados por macros, validados (`validador/validar_plan.py` → aprobado) y asignados vía `POST meal-plan-templates`/`.../items`/`.../import-to-calendar`. Confirma en real: `recipes.search.v3`/`recipe.get.v2` funcionan tal cual documentados, `weekday` + `import-to-calendar` con `weeks` evita buscar comida por comida, y el validador detecta correctamente la falta de `objetivo_diario` como advertencia (no error) cuando no hay un target calórico estricto.
