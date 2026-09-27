@@ -168,3 +168,5 @@ Flujo de decisión por acción: `Acción del operativo → Log automático (JSON
 **(2026-09-27) Primer agente operativo nuevo priorizado: Soporte/Onboarding** — ver `docs/TAREAS_PENDIENTES.md` y `agentes/` para el diseño en curso.
 
 **(2026-09-27) Segundo: Agente de Onboarding**, diseñado justo después de Soporte por ser su pareja natural en esta misma área y reutilizar casi toda su infraestructura — ver `agentes/onboarding-cliente-nuevo/system-prompt.md`.
+
+**Antes de diseñar el tercero**, seguir `docs/METODOLOGIA_DISENO_AGENTES.md` — el proceso real (no teórico) extraído de cómo se diseñaron los 5 agentes existentes, fase por fase: investigar el código real primero, investigar la práctica del sector cuando aplique, aislar qué decisiones son del usuario, aplicar los patrones reales del libro (no solo citarlos), comprobar solapamiento con agentes existentes, y sincronizar la documentación en el orden correcto.
