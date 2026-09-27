@@ -1,5 +1,13 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.10.0 — 2026-09-27
+
+Gap de corrección encontrado al diseñar el Agente de Onboarding, y que resulta afectar igual a este agente: `GET client-session-feedback` solo filtraba por `completed_at IS NOT NULL`, sin comprobar si la sesión tenía series realmente registradas — mismo patrón de bug real que `EmptySessionAlertService` ya detecta (caso Ayoub, sesiones finalizadas con volumen 0 y cero filas de log).
+
+- Este agente usa la misma fuente en dos sitios: sección 3bis (detectar inactividad, mirando la fecha de la sesión real más reciente) y patrón 3.8 de `tono-y-conocimiento-deportivo.md` (reconocer progreso citando `volume_kg`/sesiones completadas). Una sesión vacía contaba en ambos como actividad real — podía hacer parecer a un cliente menos inactivo de lo que está, o motivar una felicitación por una sesión que en realidad no se hizo.
+- **Arreglado y pusheado a Bckbs `main`** (commit `b11eb09`, compartido con el fix del Agente de Onboarding): nuevo campo `has_logged_sets`, reutilizando `EmptySessionAlertService::hasLoggedSets()`.
+- Sección 3bis y patrón 3.8 actualizados: descartar cualquier fila con `has_logged_sets: false` antes de usarla para calcular inactividad o citarla como progreso.
+
 ## v0.9.0 — 2026-09-27
 
 El usuario pidió profundizar en la opción de cerrar por backend el gap de identificación del cliente por teléfono — la hoja de mapeo manual teléfono→`cliente_id` (herramienta 2 desde el diseño inicial, v0.1.0) no escala bien de cara a crecer la cartera de clientes.

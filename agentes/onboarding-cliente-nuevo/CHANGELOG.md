@@ -1,5 +1,14 @@
 # Changelog — Agente de Onboarding (cliente nuevo)
 
+## v0.2.0 — 2026-09-27
+
+Gap de corrección encontrado al revisar cómo seguir perfeccionando el diseño: `GET client-session-feedback` (la señal que este agente usa para decidir "el cliente ya empezó de verdad, cierro el onboarding") solo filtraba por `completed_at IS NOT NULL` — no comprobaba si la sesión tenía series realmente registradas.
+
+- Bckbs ya tenía un servicio dedicado exactamente a este patrón de bug real (`EmptySessionAlertService`, caso Ayoub, 2026-09-25: sesiones finalizadas en verde con volumen 0 y cero filas en `client_exercise_logs`) — pero esa comprobación no llegaba a `client-session-feedback`.
+- Si el primer "completado" de un cliente nuevo hubiera sido justo uno de esos casos vacíos, este agente habría cerrado el seguimiento pensando que el cliente ya había empezado — la peor falsa señal de tranquilidad posible, justo en el momento que más importa vigilar.
+- **Arreglado y pusheado a Bckbs `main`** (commit `b11eb09`): nuevo campo `has_logged_sets` en la respuesta, reutilizando `EmptySessionAlertService::hasLoggedSets()` sin reimplementar la lógica. Campo aditivo — no afecta a otros consumidores del mismo endpoint (Agente de Soporte). 3 tests nuevos, suite Feature completa (133 tests) verde.
+- Paso 2 del flujo actualizado: una sesión `completed_at` con `has_logged_sets: false` se trata igual que si no hubiera ninguna sesión — sigue el flujo normal del Paso 3, nunca cierra el onboarding por sí sola.
+
 ## v0.1.0 — 2026-09-27
 
 Primer diseño. El usuario pidió empezar el siguiente agente del organigrama de M1 tras el Agente de Soporte / Customer Success; se eligió Onboarding por ser su pareja natural en el área soporte (`docs/ORGANIGRAMA_AGENTES.md` ya los marcaba juntos desde el principio) y por reutilizar casi toda la infraestructura de Soporte en vez de construir una nueva.
