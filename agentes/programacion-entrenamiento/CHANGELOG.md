@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.21.0 — 2026-09-27
+
+El usuario pidió calibrar el Agente de Soporte / Customer Success (`agentes/soporte-customer-success/`) a un servicio premium de ~300€/mes, siguiendo prácticas reales de coaching de alto contacto (investigación de mercado): la pieza de mayor impacto identificada es un check-in semanal estructurado y fijo — algo que este agente ya necesitaba (`bienestar_diario` existe en `log-registro.schema.json` desde antes, pero nada lo recogía en la práctica).
+
+- **`esquemas/log-registro.schema.json` gana `origen: "checkin_soporte"`** (mismo patrón que `checkpoint-fisico.schema.json` con `sync_automatico`, 2026-09-20): una entrada con este origen solo exige `bienestar_diario`, nunca `modulos_activos`/`razonamiento`/`confianza`/`requiere_revision` — no tiene sentido simular el razonamiento de una generación que no ocurrió. El comportamiento para entradas sin `origen` (todas las anteriores a esta fecha) o con `origen: "generacion"` no cambia.
+- **Sección "Memoria del cliente" (Paso 1)** actualizada para leer también estas entradas — es la misma serie temporal de bienestar que antes, con una fuente nueva.
+- Diseño completo del check-in (cadencia, preguntas, quién lo recoge) vive en `agentes/soporte-customer-success/modulos/checkin-semanal.md` — este documento no lo duplica.
+
 ## v0.20.0 — 2026-09-27
 
 Cierra el hueco que la propia v0.18.0 ya había dejado anotado ("no existe todavía una plantilla formal para este nivel de detalle"): pedido explícito del usuario tras comprobar que pedir "el plan semestral de un cliente" no devolvía ningún `.xlsx` — el agente no tenía ningún formato registrado para ese nivel, solo para un mesociclo individual.

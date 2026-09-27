@@ -3,12 +3,25 @@
   "title": "Registro de generación — memoria episódica (nutrición)",
   "description": "Una entrada por plan/borrador generado. Memoria episódica del Asistente de Programación de Nutrición — mismo rol que esquemas/log-registro.schema.json del agente de entrenamiento, adaptado a nutrición. Sin esto, cada ciclo se generaría como si el anterior no hubiera pasado, y el razonamiento del Paso 2 solo viviría en la conversación donde se generó.",
   "type": "object",
-  "required": ["fecha", "cliente_id", "modulos_activos", "razonamiento", "confianza", "requiere_revision"],
+  "required": ["fecha", "cliente_id"],
+  "allOf": [
+    {
+      "if": { "properties": { "origen": { "const": "checkin_soporte" } }, "required": ["origen"] },
+      "then": { "required": ["adherencia_real"] },
+      "else": { "required": ["modulos_activos", "razonamiento", "confianza", "requiere_revision"] }
+    }
+  ],
   "properties": {
     "fecha": { "type": "string", "format": "date-time" },
     "cliente_id": {
       "type": "string",
       "description": "Debe coincidir con el cliente_id de perfil-cliente.schema.json (entrenamiento) y perfil-nutricional.schema.json — es la clave que cruza los tres esquemas."
+    },
+    "origen": {
+      "type": "string",
+      "enum": ["generacion", "checkin_soporte"],
+      "default": "generacion",
+      "description": "Añadido 2026-09-27, mismo patrón que log-registro.schema.json (entrenamiento). `generacion` (default, único valor posible antes de esta fecha) -- entrada de un ciclo generado por este agente. `checkin_soporte` -- entrada ligera creada por el Agente de Soporte / Customer Success a partir del check-in semanal (ver agentes/soporte-customer-success/modulos/checkin-semanal.md): solo exige adherencia_real (nota de consistencia nutricional que el cliente reporta), nunca simula macros_objetivo ni razonamiento de generación que no existió."
     },
     "modulos_activos": {
       "type": "array",

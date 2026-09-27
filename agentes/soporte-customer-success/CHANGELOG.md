@@ -1,5 +1,15 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.7.0 — 2026-09-27
+
+El usuario pidió investigar cómo operan los entrenadores online que más facturan, para que este agente lo replique. Investigación de mercado (fuentes en `docs/TAREAS_PENDIENTES.md`): la práctica con más impacto medido en retención dentro del coaching de alto contacto es un check-in semanal fijo y corto, siempre con las mismas preguntas, en un día que nunca cambia — el churn en coaching online es sobre todo un problema de comunicación inconsistente, no de calidad de programación.
+
+- **Nueva sección 3ter + `modulos/checkin-semanal.md`:** check-in semanal, domingo por la mañana (decisión del usuario), a todos los clientes activos. Sigue el principio de "no preguntar lo que ya sabes por datos reales" — abre citando `GET client-session-feedback`/`GET client-meal-calendar` antes de preguntar, y solo pregunta lo subjetivo (`bienestar_diario`, escala 1-7 ya definida en `log-registro.schema.json`, más una nota libre de nutrición).
+- **Primera vez que este agente escribe en la memoria del cliente, no solo lee:** `esquemas/log-registro.schema.json` y `esquemas/log-nutricion.schema.json` (agentes de entrenamiento y nutrición, mismo día) ganan `origen: "checkin_soporte"` — una entrada ligera que no simula un razonamiento de generación que nunca ocurrió. Tabla de herramientas de este agente actualizada para reflejar que este es el único campo/caso donde escribe, no solo lee.
+- **Banda de alerta:** si fatiga/dolor/estrés vienen altos (especialmente 2 semanas seguidas), el check-in escala igual que cualquier señal de salud — nunca sugiere él mismo un ajuste de entrenamiento, eso sigue siendo del Productor de entrenamiento.
+- **Cliente que no responde al check-in** es en sí misma una señal temprana de desenganche (documentada en la investigación) — se registra, no se convierte en tarea automática salvo que coincida con otra señal de escalación.
+- `system-prompt.md` sube a v0.7.0.
+
 ## v0.6.0 — 2026-09-27
 
 El usuario pidió calibrar el agente para ofrecer atención de calidad acorde a un servicio de ~300€/mes — coaching 1:1 premium, no una app masiva de bajo coste.
