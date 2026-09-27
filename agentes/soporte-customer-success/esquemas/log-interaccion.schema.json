@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Registro de interacción — Agente de Soporte / Customer Success",
+  "description": "Una entrada por mensaje entrante gestionado (respondido o escalado). Persiste en Google Sheets (M1, ver docs/ORGANIGRAMA_AGENTES.md) hasta que el volumen justifique otra cosa. Es lo único que permite auditoría por muestreo del Control de Soporte cuando exista.",
+  "type": "object",
+  "required": ["agente", "timestamp", "cliente_id", "canal", "accion", "confianza", "requiere_revision"],
+  "properties": {
+    "agente": {
+      "type": "string",
+      "const": "soporte-customer-success"
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "cliente_id": {
+      "type": ["string", "null"],
+      "description": "Debe coincidir con el cliente_id de bstronger-memoria-clientes cuando se identificó correctamente. null si no se pudo identificar por teléfono (ver system-prompt.md, Paso 1 y Manejo de excepciones)."
+    },
+    "canal": {
+      "type": "string",
+      "enum": ["whatsapp"],
+      "description": "Único canal soportado en v0.1.0. Añadir aquí si se integra otro (Instagram, email) más adelante."
+    },
+    "accion": {
+      "type": "string",
+      "description": "Resumen breve de qué se hizo, ej. 'respondió duda sobre calendario', 'escaló por mención de dolor lumbar'."
+    },
+    "mensaje_cliente_resumen": {
+      "type": "string",
+      "description": "Resumen del mensaje entrante, no la transcripción completa salvo que sea corta — para no duplicar datos sensibles innecesariamente en el log."
+    },
+    "respuesta_directa": {
+      "type": ["string", "null"],
+      "description": "Qué respondió el agente, si respondió directo (no escaló). null si se escaló sin generar contenido (ver system-prompt.md, sección 4)."
+    },
+    "confianza": {
+      "type": "string",
+      "enum": ["alta", "media", "baja"]
+    },
+    "riesgo_detectado": {
+      "type": ["string", "null"],
+      "description": "Ej. 'mención de dolor', 'señal de baja', 'petición de cambio de programación', 'mención de precio/cancelación'. null si no hubo ninguna señal de la sección 4 del system-prompt."
+    },
+    "requiere_revision": {
+      "type": "boolean",
+      "description": "true si se creó una tarea (POST task-store) para el coach."
+    },
+    "task_id_creado": {
+      "type": ["integer", "null"],
+      "description": "id de la tarea creada en Bckbs (tasks.id) si requiere_revision es true. null en caso contrario."
+    }
+  }
+}
