@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Histórico de informes mensuales — Agente de Reporting",
+  "description": "Una fila por mes ya cerrado. Persiste en Google Sheets (M1, ver docs/ORGANIGRAMA_AGENTES.md) — es la única memoria de largo plazo que necesita este agente (Memory Management, cap. 8): sin esto no puede calcular ninguna variación mes a mes, que es la mitad del valor real de este agente sobre el GET dashboard que ya existe en Bckbs. Nunca se escribe una fila si el informe no llegó a enviarse (ver system-prompt.md, sección 5bis) — dejaría un mes 'fantasma' que descuadra la comparación del mes siguiente.",
+  "type": "object",
+  "required": ["mes", "ingresos_reales", "clientes_activos", "altas", "bajas", "adherencia_real_pct", "escalaciones", "generado_at"],
+  "properties": {
+    "mes": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$",
+      "description": "Mes que cubre el informe, formato YYYY-MM. El mes ya cerrado en el momento de generarse, nunca el mes en curso."
+    },
+    "ingresos_reales": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Suma real de Subscription.total_amount donde payment_status=paid dentro de este mes. Nunca una estimación."
+    },
+    "clientes_activos": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Clientes con estado activo al cierre de este mes (User::role('user'), status real de Bckbs)."
+    },
+    "altas": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Clientes nuevos dados de alta durante este mes."
+    },
+    "bajas": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Clientes con acceso revocado (access_revoked_at) o status pasado a inactive dentro de este mes. Sin distinción voluntaria/involuntaria todavía -- gap real documentado en system-prompt.md, Bckbs no captura el motivo de baja hoy."
+    },
+    "adherencia_real_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Porcentaje de clientes_activos con al menos una sesión completada con has_logged_sets: true durante este mes (GET client-session-feedback por cliente). No cuenta sesiones marcadas completadas sin series reales (ver Bckbs commit b11eb09)."
+    },
+    "escalaciones": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tareas con category=tarea_escalada_agente creadas durante este mes (GET admin/task-list) -- volumen real de veces que Soporte/Onboarding tuvieron que escalar algo a humano."
+    },
+    "notas_destacadas": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Texto de la sección 'a destacar' que se envió realmente en el informe de este mes, si hubo alguna señal de la sección 4bis del system-prompt.md. Vacío si ese mes no hubo nada que destacar -- no se rellena con contenido genérico solo por completitud."
+    },
+    "generado_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Cuándo se generó y envió realmente este informe -- no cuándo se calculó, si hubo un reintento por fallo técnico (ver system-prompt.md, sección 5bis)."
+    }
+  }
+}
