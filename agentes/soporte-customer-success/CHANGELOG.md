@@ -1,5 +1,14 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.6.0 — 2026-09-27
+
+El usuario pidió calibrar el agente para ofrecer atención de calidad acorde a un servicio de ~300€/mes — coaching 1:1 premium, no una app masiva de bajo coste.
+
+- **Contexto de nivel de servicio, sección 1:** nuevo párrafo explícito que fija el estándar (trato personal, nunca sensación de FAQ/bot) sin ampliar ningún límite existente — más exigencia dentro de lo ya permitido, no más alcance.
+- **Nueva sección 4bis — SLA de seguimiento de tareas escaladas:** hasta ahora, escalar creaba una tarea y ahí terminaba la responsabilidad del agente. En un servicio premium, un "te lo comento con tu coach" seguido de silencio real durante horas es peor que no responder. Nueva herramienta confirmada en el código real de Bckbs: `GET task-list` (`TaskController::getList`, filtra por `client_id`+`status`) — si una tarea sigue `pending` tras un umbral (propuesta: 4h en horario laboral), el agente envía un mensaje de refuerzo al cliente (sin inventar plazos ni soluciones), pasando igual por la validación del Paso 6. Nunca sube la prioridad ni reasigna la tarea por su cuenta — el seguimiento es comunicativo, no presión sobre el trabajo del coach.
+- **Nuevo patrón 3.8 en `modulos/tono-y-conocimiento-deportivo.md` (sube a v0.3.0): reconocer progreso real sin que lo pidan.** Un servicio premium no solo reacciona a problemas — nota cuando algo va bien. `GET client-session-feedback` gana un segundo uso (antes solo para detectar inactividad, ahora también para progreso: `volume_kg`, `difficulty_rating`, sesiones completadas), junto con `checkpoints-fisicos.json`/`observaciones_coach`. Guardrail explícito: nunca inventar una comparación de mejora sin tener ambos datos reales, y nunca convertirlo en diagnóstico o excusa para sugerir cambios de carga (eso sigue siendo escalación).
+- `system-prompt.md` sube a v0.6.0.
+
 ## v0.5.0 — 2026-09-27
 
 El usuario preguntó si el agente podía construir su propio banco de respuestas leyendo el historial de conversación de cada cliente, en vez de que el usuario tuviera que aportar ejemplos.
