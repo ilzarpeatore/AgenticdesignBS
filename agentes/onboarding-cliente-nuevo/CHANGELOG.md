@@ -1,5 +1,13 @@
 # Changelog — Agente de Onboarding (cliente nuevo)
 
+## v0.3.0 — 2026-09-27
+
+El usuario pidió investigar cómo debería ser un onboarding perfecto para un servicio de +300€/mes (fuentes en `docs/TAREAS_PENDIENTES.md`). Tres hallazgos, tres cambios de diseño confirmados por el usuario:
+
+- **El "info dump" del día 0 es el error más citado.** Nuevo Paso 2 en el flujo: un toque intermedio a los 2-3 días (un único consejo práctico, no una segunda bienvenida) — reparte lo que antes se intentaba meter todo en el mensaje de bienvenida. El Paso 1 queda limitado explícitamente a 2-3 ideas.
+- **Nunca cerrar en silencio.** El cierre por primera sesión completada (antes un simple registro en el log) ahora manda un check-in breve de reconocimiento citando el dato real de la sesión. El cierre por fin de ventana a los 14 días (antes "sin acción") ahora manda un mensaje de transición y crea una tarea de baja prioridad recordando al coach el check-in de satisfacción — apuntado al día 30, no al día 14: la investigación señala el check-in de 30 días ("qué está funcionando, qué mejorarías") como el de mayor impacto en retención, no uno más temprano.
+- **El vídeo de bienvenida del coach es la pieza de mayor impacto citada** — transmite que hay una persona real detrás, algo que ningún texto logra igual. Documentado con instrucciones de contenido completas en `modulos/primeros-pasos.md` (duración, qué decir, formato), marcado explícitamente como pendiente de que el usuario lo grabe — no es algo que este agente pueda generar ni decidir, y no bloquea el resto del diseño mientras tanto.
+
 ## v0.2.0 — 2026-09-27
 
 Gap de corrección encontrado al revisar cómo seguir perfeccionando el diseño: `GET client-session-feedback` (la señal que este agente usa para decidir "el cliente ya empezó de verdad, cierro el onboarding") solo filtraba por `completed_at IS NOT NULL` — no comprobaba si la sesión tenía series realmente registradas.
