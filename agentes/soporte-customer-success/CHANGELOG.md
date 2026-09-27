@@ -1,5 +1,14 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.12.0 — 2026-09-27
+
+Cierra el ítem 2.21, pospuesto en una revisión anterior del diseño: cuando este agente (o el de Onboarding) escala algo vía `POST task-store`, hasta ahora nadie avisaba activamente al coach — la tarea se quedaba en el panel hasta que la abría por su cuenta.
+
+- El usuario decidió el alcance de la decisión pendiente: el aviso se dispara en **toda** tarea `priority: high` con `client_id`, sin distinguir categoría (dolor vs. precio) ni origen (agente vs. panel admin) — hoy no hay ningún campo que permita esa distinción, y el volumen real de una sola cuenta de coach no la justifica todavía.
+- **Arreglado y pusheado a Bckbs `main`** (commit `b787638`): nuevo `TaskEscalationAlertService`, mismo patrón ya probado que `EmptySessionAlertService` — item en el Panel de Excepciones (nueva categoría `tarea_escalada_agente`, idempotente por tarea), email al coach (`StaffAlertService`) y notificación push (`CommonNotification`). Conectado desde `Admin\TaskController::store()`, sin tocar nada de cómo este agente crea tareas.
+- 5 tests nuevos, suite Feature completa (138 tests) verde, sin regresiones.
+- Pendiente de confirmar en el VPS real: el pipeline automático de Bckbs sigue bloqueado por facturación de GitHub (`docs/TAREAS_PENDIENTES.md`, ítem 1.6) — requiere el mismo despliegue manual por SSH que el resto de commits recientes.
+
 ## v0.11.0 — 2026-09-27
 
 Mismo hallazgo que v0.4.0 del Agente de Onboarding, mismo día — ver ese CHANGELOG para el contexto completo (el check-in semanal y el onboarding de un cliente nuevo no se coordinaban, riesgo real de sobrecargar de mensajes en la misma semana).
