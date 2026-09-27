@@ -1,12 +1,23 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
-## v0.21.0 — 2026-09-27
+## v0.22.0 — 2026-09-27
 
 El usuario pidió calibrar el Agente de Soporte / Customer Success (`agentes/soporte-customer-success/`) a un servicio premium de ~300€/mes, siguiendo prácticas reales de coaching de alto contacto (investigación de mercado): la pieza de mayor impacto identificada es un check-in semanal estructurado y fijo — algo que este agente ya necesitaba (`bienestar_diario` existe en `log-registro.schema.json` desde antes, pero nada lo recogía en la práctica).
 
 - **`esquemas/log-registro.schema.json` gana `origen: "checkin_soporte"`** (mismo patrón que `checkpoint-fisico.schema.json` con `sync_automatico`, 2026-09-20): una entrada con este origen solo exige `bienestar_diario`, nunca `modulos_activos`/`razonamiento`/`confianza`/`requiere_revision` — no tiene sentido simular el razonamiento de una generación que no ocurrió. El comportamiento para entradas sin `origen` (todas las anteriores a esta fecha) o con `origen: "generacion"` no cambia.
 - **Sección "Memoria del cliente" (Paso 1)** actualizada para leer también estas entradas — es la misma serie temporal de bienestar que antes, con una fuente nueva.
 - Diseño completo del check-in (cadencia, preguntas, quién lo recoge) vive en `agentes/soporte-customer-success/modulos/checkin-semanal.md` — este documento no lo duplica.
+
+## v0.21.0 — 2026-09-27
+
+El usuario pidió ver los 6 mesociclos de Carlos Palomar (110) "en el excel para poder revisar todo" y adjuntó como referencia el Excel real de un cliente de Be Stronger (`Porgramación 6 meses.xlsx`) que ya se había mencionado en v0.16.0. Al comparar el entregable generado (formato plano de `formato-excel.md`, pensado para importar) contra esa referencia, quedó claro que el coach esperaba el formato rico de revisión -- hojas por mesociclo con semanas en columnas, clasificación ancla/variable/nuevo, RPE/RIR por semana, patrones de reps. v0.16.0 había registrado ese formato como "servicio individualizado... no se generaliza a ningún módulo, cada cliente puede requerir indicaciones distintas".
+
+**Decisión explícita del usuario, con una corrección importante el mismo día:** se generaliza la **tabla/formato** (hojas por mesociclo, semanas en columnas, clasificación ancla/variable/nuevo, columnas Sets×Reps/RIR/Nota técnica) -- pero **NO los valores numéricos concretos de progresión, regresión o descarga** de ese cliente original (RPE exacto por semana, %, qué ejercicios son "seguros"). Esos siguen siendo individualizados por cliente y mesociclo, decisión del Productor, igual que ya lo es la duración de cada mesociclo (`periodizacion-por-calendario.md` v0.3.0). La primera versión de este cambio (v0.2.0 de `progresion-carga.md`, corregida en el mismo día a v0.2.1) generalizaba también los números por error.
+
+- **`modulos/progresion-carga.md` (v0.2.1):** nuevo "Esquema de especificación detallada de mesociclo" -- clasificación ancla/variable/nuevo, patrones de reps A (descendente)/B (ascendente)/C (fijo), que exista una progresión de RPE semana a semana con deload, sistema de RIR según nº de series y si el ejercicio se trata como "seguro" para ese cliente. Los números concretos del caso real (RPE 7-7.5 en S1, +5%, -30% en deload, la lista de ejercicios "seguros" de ese cliente) quedan como **ejemplo ilustrativo explícito**, no como valor por defecto. El contenido específico del cliente original (2 ejercicios excluidos permanentemente) tampoco se traslada.
+- **Nuevo `formato-salida/formato-excel-detallado.md`:** especifica el `.xlsx` de revisión (hoja `Mn` por mesociclo, `Visión general` cruzando todos los mesociclos, `Leyenda y metodología`). Es un documento distinto de `formato-excel.md` -- se genera primero para que el coach lo revise, y solo tras su aprobación se traduce (sin reinventar contenido) al formato de importación de siempre. Limitación conocida y documentada: no genera gráficos embebidos (la referencia real tenía una hoja `DASHBOARD` con gráficos) -- requeriría construir a mano las partes OOXML de `xl/charts/`, fuera de alcance de esta versión.
+- **`system-prompt.md` (v0.21.0):** sección 7 pasa de tres a cuatro formatos de salida; apartado 4bis del Paso 2 actualizado para reflejar el nuevo paso intermedio.
+- **Carlos Palomar (110):** su Excel de 5 mesociclos se regenera en este formato nuevo (hojas `Mn` + `Visión general` + `Leyenda y metodología`, sustituyendo la tabla plana anterior), aplicando la clasificación ancla/variable a su roster de 22 ejercicios con una progresión de RPE/RIR decidida específicamente para su caso (técnica autoevaluada baja, nivel intermedio provisional, precaución reforzada por su historial de TCA superado) -- no copiada del cliente original. Ver `bstronger-memoria-clientes/clientes/110-carlos-palomar-dominguez/log-registro.json` para el razonamiento completo.
 
 ## v0.20.0 — 2026-09-27
 
