@@ -1,5 +1,15 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.9.0 — 2026-09-27
+
+El usuario pidió profundizar en la opción de cerrar por backend el gap de identificación del cliente por teléfono — la hoja de mapeo manual teléfono→`cliente_id` (herramienta 2 desde el diseño inicial, v0.1.0) no escala bien de cara a crecer la cartera de clientes.
+
+- **Nuevo `GET admin/users/lookup-by-phone?phone=<numero>` en Bckbs** (commit `fbaaf82`): `phone_number` ya existía como columna en `users` pero sin endpoint de búsqueda ni índice único a nivel de BD. El nuevo endpoint normaliza el número a solo dígitos, prueba primero un match exacto contra lo ya guardado y, si falla, contra los últimos 9 dígitos — cubre el caso real de clientes cuyo número se guardó sin el prefijo de país, mientras WhatsApp siempre lo manda completo (E.164). Nunca elige entre varias coincidencias: devuelve 409 si hay más de una, la desambiguación queda en manos humanas.
+- De paso, `store()`/`update()` de `Admin\UserController` ganan validación `unique:users,phone_number` (ya existía en `API\UserController` y `SettingController`, faltaba en el panel admin) — evita que a partir de ahora se puedan crear dos clientes con el mismo teléfono desde el panel.
+- 5 tests nuevos contra MySQL real local, suite Feature completa (130 tests) verde, sin regresiones.
+- **Paso 1 del flujo actualizado:** el endpoint es ahora el mecanismo primario de identificación; la hoja de mapeo manual pasa a fallback (404/409), no se elimina — sigue haciendo falta para los números ya guardados de forma inconsistente antes de este fix (dato histórico sucio que el endpoint no puede adivinar).
+- Pendiente de desplegar `fbaaf82` al VPS real (esta sesión no tiene acceso VPS) antes de que el mecanismo funcione en producción — hasta entonces, sigue usándose solo la hoja de mapeo.
+
 ## v0.8.0 — 2026-09-27
 
 El usuario quiere montar en el panel admin un check-in de satisfacción con el programa cada 15 días — qué ejercicio cuesta más, qué sesión se complica, cómo va la nutrición.
