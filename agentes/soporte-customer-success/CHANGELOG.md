@@ -1,5 +1,31 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.6.0 — 2026-09-27
+
+El usuario pidió calibrar el agente para ofrecer atención de calidad acorde a un servicio de ~300€/mes — coaching 1:1 premium, no una app masiva de bajo coste.
+
+- **Contexto de nivel de servicio, sección 1:** nuevo párrafo explícito que fija el estándar (trato personal, nunca sensación de FAQ/bot) sin ampliar ningún límite existente — más exigencia dentro de lo ya permitido, no más alcance.
+- **Nueva sección 4bis — SLA de seguimiento de tareas escaladas:** hasta ahora, escalar creaba una tarea y ahí terminaba la responsabilidad del agente. En un servicio premium, un "te lo comento con tu coach" seguido de silencio real durante horas es peor que no responder. Nueva herramienta confirmada en el código real de Bckbs: `GET task-list` (`TaskController::getList`, filtra por `client_id`+`status`) — si una tarea sigue `pending` tras un umbral (propuesta: 4h en horario laboral), el agente envía un mensaje de refuerzo al cliente (sin inventar plazos ni soluciones), pasando igual por la validación del Paso 6. Nunca sube la prioridad ni reasigna la tarea por su cuenta — el seguimiento es comunicativo, no presión sobre el trabajo del coach.
+- **Nuevo patrón 3.8 en `modulos/tono-y-conocimiento-deportivo.md` (sube a v0.3.0): reconocer progreso real sin que lo pidan.** Un servicio premium no solo reacciona a problemas — nota cuando algo va bien. `GET client-session-feedback` gana un segundo uso (antes solo para detectar inactividad, ahora también para progreso: `volume_kg`, `difficulty_rating`, sesiones completadas), junto con `checkpoints-fisicos.json`/`observaciones_coach`. Guardrail explícito: nunca inventar una comparación de mejora sin tener ambos datos reales, y nunca convertirlo en diagnóstico o excusa para sugerir cambios de carga (eso sigue siendo escalación).
+- `system-prompt.md` sube a v0.6.0.
+
+## v0.5.0 — 2026-09-27
+
+El usuario preguntó si el agente podía construir su propio banco de respuestas leyendo el historial de conversación de cada cliente, en vez de que el usuario tuviera que aportar ejemplos.
+
+- **Aclaración necesaria antes de diseñar nada:** el historial de conversaciones que el coach ya ha tenido vive solo en su WhatsApp personal — ningún sistema de este proyecto lo captura hoy, así que el agente no puede "leerlo" aunque quisiera. El usuario aportará más adelante exportaciones de chat de WhatsApp (sin multimedia) por cliente para contrastar el módulo de tono contra casos reales, cuando le venga bien.
+- **Nueva sección 8 en `system-prompt.md` (sube a v0.5.0): mejora continua del banco de respuestas, explícitamente supervisada, no automática.** A partir del despliegue, cada interacción sí queda en el log real (`esquemas/log-interaccion.schema.json`) — se formaliza una revisión periódica (semanal/quincenal al principio) de ese log para: detectar preguntas reales frecuentes sin patrón que las cubra (solo se añade patrón nuevo si se repite, no por un caso aislado); afinar las denylists de `modulos/validacion-antes-de-enviar.md` con los falsos positivos/negativos reales que vaya bloqueando; y revisar los casos marcados `confianza: "baja"`.
+- **Por qué revisión humana y no autoajuste:** dejar que el agente reescriba su propio banco de respuestas sin supervisión rompería el mismo principio de control que ya aplica al resto del sistema — la revisión la hace el usuario hasta que exista el Control de Soporte (nivel 2 del organigrama), que entonces absorbe esta función.
+
+## v0.4.0 — 2026-09-27
+
+El usuario pidió seguir mejorando el diseño tras la primera revisión. Se identificaron 4 huecos reales; se resuelven los 3 que no dependen de material que solo el usuario tiene (el cuarto, contrastar el módulo de tono contra conversaciones reales, queda pendiente de que el usuario aporte ejemplos).
+
+- **Nuevo `modulos/validacion-antes-de-enviar.md`:** este agente es el único de los 4 sin revisión humana antes de que su output llegue a producción (los otros 3 tienen validador determinista + humano al 100%). Nueva red de seguridad mecánica (nodo de código en n8n, no el LLM juzgándose a sí mismo): denylists de precio/condiciones comerciales, de prescripción de cambio de programación/nutrición, de diagnóstico médico; comprobación de coherencia con la clasificación del Paso 3 (cribado); y verificación de que cualquier dato factual citado (día, ejercicio, receta) tiene detrás una llamada real registrada a `client-calendar-data`/`client-meal-calendar` en el mismo turno, para atajar alucinaciones. Si algo no pasa, no se envía — se envía una respuesta neutra y se crea tarea con el mensaje bloqueado visible para el coach.
+- **Memoria de conversación (nuevo Paso 1bis del flujo):** hasta ahora cada mensaje entrante era una ejecución aislada, sin contexto de mensajes anteriores del mismo cliente — un "¿y si en vez de eso?" no tenía forma de interpretarse. Ahora se leen las últimas interacciones (24h o últimas 10, lo que sea menos) del log antes de generar.
+- **Mecanismo real de seguimiento proactivo (nueva sección 3bis):** antes el `system-prompt.md` decía "detecta clientes inactivos" sin definir cómo. Se investigó el código real de Bckbs y se encontró `GET client-session-feedback` (`ClientProfileCalendarController::getSessionFeedback`) — sesiones **realmente completadas** (`WorkoutSessionReview.completed_at`), no solo asignadas, que es la señal correcta (ya la usa el propio panel admin para mostrar feedback post-entreno). Umbral definido en función de `disponibilidad.dias_por_semana` real de cada cliente (2× su intervalo esperado entre sesiones), no un número arbitrario igual para todos. Nuevo patrón 3.7 en `modulos/tono-y-conocimiento-deportivo.md` (sube a v0.2.0): un mensaje de reenganche genérico funciona peor que uno que referencia algo real de esa persona; nunca en tono de reproche; no crea tarea automáticamente, solo si la respuesta del cliente trae señales de escalación.
+- `system-prompt.md` sube a v0.4.0: nueva tabla de herramientas, flujo renumerado (7 pasos + sección 3bis).
+
 ## v0.3.0 — 2026-09-27
 
 El usuario pidió que el agente pudiera leer entrenamiento y nutrición reales del cliente, para responder de forma aplicada cuando una duda combine ambos (ej. qué comer después de la sesión de hoy).
