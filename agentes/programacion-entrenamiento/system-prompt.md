@@ -1,8 +1,9 @@
 # Asistente de Programación de Entrenamiento — marco fijo
 
-**Versión:** 0.12.0
-**Última actualización:** 2026-09-19
+**Versión:** 0.19.0
+**Última actualización:** 2026-09-27
 **Changelog:**
+- v0.19.0 — Cabecera de versión sincronizada con `CHANGELOG.md` (se había quedado en v0.12.0 mientras el changelog ya iba por v0.18.0 — trabajo concurrente de varias sesiones sin actualizar este encabezado). `formato-salida/catalogo-ejercicios.xlsx` refrescado por el usuario (1521 filas, duplicados del catálogo real eliminados) — ver `CHANGELOG.md` para el detalle y el riesgo de integridad pendiente de verificar.
 - v0.12.0 — Cierra el ítem 2.4 de `docs/TAREAS_PENDIENTES.md`: la regla de derivación de `nivel_fuerza` (2026-09-16) se contrastó contra 6 casos reales y solo acertó en 3 -- falló justo en el sentido que más importa (subestimó a un cliente con técnica autoevaluada muy baja que el coach clasificó como avanzado, sobreestimó a dos con experiencia/técnica alta). `nivel_fuerza` pasa de "siempre derivado por el Productor" a "confirmado por el coach cuando existe, derivado solo como estimación de baja confianza si no existe todavía" -- mismo tratamiento que cualquier otro dato de memoria. Actualiza `esquemas/perfil-cliente.schema.json` (descripción de `nivel_fuerza`) y Paso 1 punto 4.
 - v0.11.2 — Decisión del usuario (2026-09-19): en `bstronger-memoria-clientes`, `perfil-nutricional.json` deja de ser un archivo aparte y pasa a vivir anidado bajo la clave `"nutricion"` dentro de `perfil-cliente.json`. Sin impacto funcional en este agente (sigue leyendo solo lo que ya leía, ahora en el mismo archivo); actualiza la sección "Memoria del cliente" para no citar un archivo que ya no existe.
 - v0.11.1 — Cierra el ítem 2.6 (dónde vive la memoria real): repo privado **`ilzarpeatore/bstronger-memoria-clientes`**, elegido sobre una tabla en Bckbs (no editable a mano) o Google Sheets (exige API antes de M1). Actualiza la sección "Memoria del cliente" con la ubicación exacta y el porqué.

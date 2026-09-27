@@ -1,5 +1,11 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.19.0 — 2026-09-27
+
+- **Cabecera de `system-prompt.md` sincronizada** — se había quedado en v0.12.0 (19/09) mientras este changelog ya iba por v0.18.0, por trabajo concurrente de varias sesiones sin actualizar el encabezado a la vez.
+- **`formato-salida/catalogo-ejercicios.xlsx` refrescado por el usuario** — el anterior (14/09, 1505 ejercicios) llevaba dos semanas desactualizado: el usuario reportó que el Productor no seleccionaba bien los ejercicios de la BD real, y se confirmó que el catálogo consultado no reflejaba las importaciones reales desde entonces (Nerea/Toni/Osas, 17-20/09). El nuevo archivo (1520 ejercicios) se exportó hoy **después de borrar del catálogo real los duplicados** que causaba el bug ya documentado en `agentes/importador-programas/CHANGELOG.md` v0.4.1 (mismo ejercicio creado una vez por semana).
+- **Riesgo real sin verificar todavía:** borrar ejercicios duplicados de la BD puede dejar referencias rotas en programas que ya apuntaban a esos ids — ya pasó una vez antes (ver `Bckbs::app/Services/ExerciseMatcher/ExerciseMatcher.php`, comentario sobre una limpieza de catálogo del 2026-09-01 que rompió 4 referencias). Los 3 Mesociclo 1 ya asignados a clientes reales (Nerea `#65`, Toni `#64`, Osas `#66`, ver v0.18.0) son los que más importa verificar. Nuevo ítem en `docs/TAREAS_PENDIENTES.md`: correr `programs:check-integrity` contra el VPS real para confirmarlo.
+
 ## v0.18.0 — 2026-09-20
 
 Primer Mesociclo 1 real ejecutado end-to-end para **3 clientes simultáneos** (Nerea, Toni, Osas) — hasta ahora el único caso real completo era Toni (v0.9.0, Septiembre). Pedido explícito del coach. No se descubrió ninguna regla nueva ni se tocó ningún módulo de contenido — el pipeline (Paso 1 intake → Paso 0 selección de módulos → Paso 2 Productor con razonamiento → Paso 3 validador determinista → import a biblioteca) se siguió tal cual estaba especificado, primera vez que se ejercita de principio a fin para 3 perfiles distintos a la vez (fuerza/potencia+pliometría, hipertrofia con lesión de hombro, recomposición con antecedente de rodilla/cadera).
