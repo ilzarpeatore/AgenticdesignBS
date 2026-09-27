@@ -1,5 +1,12 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.24.0 — 2026-09-27
+
+El usuario pidió auditar el diseño de todos los agentes contra el contenido teórico real del repositorio (`Agentic-Design-Patterns`, no de memoria) y aplicar las correcciones necesarias.
+
+- **Citas que faltaban, diseño ya correcto:** la sección "Memoria del cliente" ya distinguía correctamente historial disponible/no disponible como manda Memory Management (cap. 8) — nunca se citó. El patrón Productor (Paso 2) + Crítico (Paso 3/4, una segunda pasada de LLM con prompt distinto) ya era el modelo Producer-Critic de Reflection (cap. 4) — nunca se citó. Ambas correcciones son solo de trazabilidad, no cambian el comportamiento.
+- **Gap real, no solo de cita (Exception Handling and Recovery, cap. 12):** ni este agente ni ningún otro del sistema distinguía un fallo técnico real de un caso de negocio. Dos casos añadidos: `validar_programa.py` fallando en sí mismo (excepción de Python, no un `aprobado: false`) no se trata como "sin errores" — se detiene y se reporta. Un archivo de memoria del cliente que existe pero no se puede leer bien (JSON malformado) no se trata como "sin historial" — podría estar ocultando un dato de seguridad real (`cribado_medico`, restricciones).
+
 ## v0.23.0 — 2026-09-27
 
 El usuario quiere montar en el panel admin un check-in de satisfacción con el programa cada 15 días (qué ejercicio cuesta más, qué sesión se complica). El Agente de Soporte / Customer Success ya vigila esas respuestas vía `GET admin-form-submission-list` de Bckbs (`agentes/soporte-customer-success/modulos/checkin-satisfaccion.md`, nuevo) — este agente debe leer la misma fuente, no solo el agente que vigila.

@@ -1,5 +1,12 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.13.0 — 2026-09-27
+
+El usuario pidió auditar el diseño de todos los agentes contra el contenido teórico real del repositorio (`Agentic-Design-Patterns`) y aplicar las correcciones necesarias. Para este agente salió un gap real, no solo de cita.
+
+- **Exception Handling and Recovery (cap. 12), gap real:** la sección 5 ("Manejo de excepciones") solo cubría datos ambiguos del *cliente* — nada en el diseño decía qué hacer ante un fallo técnico real (API de Claude caída, un endpoint de Bckbs devolviendo 500, un timeout), pese a que este agente opera de forma autónoma 24/7 sin revisión humana previa. Nueva sección 5bis + `modulos/manejo-excepciones-tecnicas.md` (compartido con Onboarding, no duplicado): detección, reintentos con backoff corto para errores transitorios, fallback honesto (nunca generar contenido como si el cliente no tuviera historial cuando en realidad no se pudo leer), escalación vía `TaskEscalationAlertService` si el fallo persiste, y el caso límite de que la propia API de Claude falle del todo (mensaje de acuse de recibo fijo y pre-escrito, no generado por el LLM, ya que es justo lo que falló).
+- Cita corregida en la sección 3: "Planning, cap. 6 + Prompt Chaining, cap. 1" (antes sin números, inconsistente con el resto del documento).
+
 ## v0.12.0 — 2026-09-27
 
 Cierra el ítem 2.21, pospuesto en una revisión anterior del diseño: cuando este agente (o el de Onboarding) escala algo vía `POST task-store`, hasta ahora nadie avisaba activamente al coach — la tarea se quedaba en el panel hasta que la abría por su cuenta.

@@ -1,5 +1,12 @@
 # Changelog — Agente de Onboarding (cliente nuevo)
 
+## v0.5.0 — 2026-09-27
+
+Mismo hallazgo que v0.13.0 del Agente de Soporte, mismo día — ver ese CHANGELOG para el contexto completo (auditoría del diseño contra el contenido teórico del repositorio).
+
+- Nueva sección 4bis (Exception Handling and Recovery, cap. 12): este agente tampoco tenía ningún plan para un fallo técnico real, solo para señales del cliente (sección 4). Referencia al mismo módulo compartido `agentes/soporte-customer-success/modulos/manejo-excepciones-tecnicas.md` — mismo fallo técnico, mismas reglas para los dos agentes, no se duplica.
+- Cita corregida en la sección 3: "Planning, cap. 6 + Prompt Chaining, cap. 1".
+
 ## v0.4.0 — 2026-09-27
 
 El usuario pidió priorizar cerrar un hallazgo pendiente: el check-in semanal del Agente de Soporte y este agente no se coordinaban entre sí — un cliente nuevo podía recibir la bienvenida/toque intermedio de Onboarding **y** el check-in semanal de Soporte en la misma semana, justo el "info overload" entre dos agentes que la investigación de v0.3.0 advertía dentro de uno solo.
