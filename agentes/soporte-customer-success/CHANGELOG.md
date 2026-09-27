@@ -1,5 +1,14 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.3.0 — 2026-09-27
+
+El usuario pidió que el agente pudiera leer entrenamiento y nutrición reales del cliente, para responder de forma aplicada cuando una duda combine ambos (ej. qué comer después de la sesión de hoy).
+
+- **Nueva herramienta confirmada en el código real de Bckbs:** `GET client-meal-calendar` (admin, `Admin\ClientMealPlanController::getCalendar`, parámetros `user_id`+rango de fechas, máx. 62 días) — devuelve el plan de comidas real día a día con receta completa (`DailyPlan`/`DailyPlanRecipe`/`Recipe`). Es el equivalente exacto de `client-calendar-data` (que solo cubre entrenamiento) para el lado de nutrición. No se construyó nada nuevo — mismo criterio que el resto del proyecto: primero se comprobó que ya existía.
+- **Memoria del cliente, alcance explícito ampliado:** antes la tabla de herramientas citaba la memoria de forma genérica; ahora nombra explícitamente `log-nutricion.json` y la clave `nutricion` de `perfil-cliente.json` (gustos, disponibilidad de cocina, hábitos prioritarios), no solo el lado de entrenamiento.
+- Paso 3 del flujo (`system-prompt.md`, sube a v0.3.0) actualizado: si la pregunta combina los dos dominios, consulta ambas fuentes antes de responder, no solo una.
+- **El límite no cambia:** leer los dos dominios sigue sin ser lo mismo que decidir sobre ellos — el agente sigue sin poder cambiar ni un ejercicio ni un macro, sección 1 intacta.
+
 ## v0.2.0 — 2026-09-27
 
 El usuario pidió explícitamente que el agente no "suene a bot" — que responda con la formación real de un profesional de ciencias del deporte combinado con atención al cliente, no como un FAQ automatizado que reconoce palabras clave.
