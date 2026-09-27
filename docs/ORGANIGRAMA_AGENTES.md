@@ -166,3 +166,5 @@ Flujo de decisión por acción: `Acción del operativo → Log automático (JSON
 4. Repetir el proceso agente por agente, priorizando por impacto en tiempo ahorrado, no por completitud del organigrama.
 
 **(2026-09-27) Primer agente operativo nuevo priorizado: Soporte/Onboarding** — ver `docs/TAREAS_PENDIENTES.md` y `agentes/` para el diseño en curso.
+
+**(2026-09-27) Segundo: Agente de Onboarding**, diseñado justo después de Soporte por ser su pareja natural en esta misma área y reutilizar casi toda su infraestructura — ver `agentes/onboarding-cliente-nuevo/system-prompt.md`.
