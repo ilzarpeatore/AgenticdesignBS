@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Revisión de cierre de mesociclo — Control Producto",
+  "description": "Una entrada por mesociclo cerrado de un cliente. Producida por el Agente de Control Producto al pasar el estado de un mesociclo en plan-macro.json a 'completado', ANTES de que el Asistente de Programación de Entrenamiento genere el siguiente. Compara lo prescrito (el .xlsx ya entregado de ese mesociclo) contra lo que el cliente registró de verdad (client-exercise-history, client-muscle-volume, client-session-feedback de Bckbs) y recomienda una dirección de ajuste -- nunca una cifra absoluta nueva, eso lo decide el Productor al redactar (system-prompt.md del Asistente de Programación, sección 4bis). Persistido en bstronger-memoria-clientes/clientes/<cliente_id>/revisiones-cierre/mesociclo-<numero>.json, mismo patrón que el resto de memoria de cliente.",
+  "type": "object",
+  "required": [
+    "cliente_id", "mesociclo_numero", "fecha", "adherencia_general",
+    "confianza_global", "hallazgos_ejercicios", "hallazgos_grupos_musculares"
+  ],
+  "properties": {
+    "cliente_id": {
+      "type": "string",
+      "description": "Mismo valor que en perfil-cliente.json, plan-macro.json y log-registro.json de este cliente."
+    },
+    "mesociclo_numero": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Corresponde a mesociclos[].numero del plan-macro.json de este cliente -- el mesociclo que se acaba de cerrar (estado: completado), no el que se va a generar a continuación."
+    },
+    "fecha": { "type": "string", "format": "date-time" },
+    "periodo_analizado": {
+      "type": "object",
+      "description": "Rango real de fechas consultado en Bckbs -- para que la revisión sea auditable contra la fuente exacta, no una afirmación sin rastro.",
+      "properties": {
+        "desde": { "type": "string", "format": "date" },
+        "hasta": { "type": "string", "format": "date" }
+      }
+    },
+    "adherencia_general": {
+      "type": "object",
+      "required": ["sesiones_prescritas", "sesiones_completadas", "porcentaje"],
+      "description": "De client-session-feedback -- adherencia del mesociclo completo, no de un ejercicio. Ver 'Regla de confianza por adherencia' en system-prompt.md: por debajo del umbral, los hallazgos individuales se degradan a confianza baja y la recomendación por defecto es 'mantener', nunca 'subir' ni 'bajar' basándose en datos poco fiables.",
+      "properties": {
+        "sesiones_prescritas": { "type": "integer", "minimum": 0 },
+        "sesiones_completadas": { "type": "integer", "minimum": 0 },
+        "porcentaje": { "type": "number", "minimum": 0, "maximum": 100 },
+        "sesiones_vacias": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sesiones marcadas como completadas pero sin series reales registradas (has_logged_sets: false, ver ClientProfileCalendarController::getSessionFeedback en Bckbs) -- cuentan como NO fiables para el análisis de rendimiento aunque cuenten como adherencia de calendario."
+        }
+      }
+    },
+    "confianza_global": {
+      "type": "string",
+      "enum": ["alta", "media", "baja"],
+      "description": "Baja si adherencia_general.porcentaje está por debajo del umbral (ver system-prompt.md) o si sesiones_vacias es una proporción relevante de las completadas -- los hallazgos individuales pueden tener su propia confianza más específica, pero esta es la lectura de conjunto que el Productor debe mirar primero."
+    },
+    "hallazgos_ejercicios": {
+      "type": "array",
+      "description": "Uno por cada ejercicio ancla o variable del mesociclo cerrado con al menos 2 sesiones registradas con series reales -- ver 'Casos límite' en system-prompt.md para ejercicios nuevos o sin historial suficiente.",
+      "items": {
+        "type": "object",
+        "required": ["ejercicio", "direccion_recomendada", "eje_recomendado", "evidencia", "confianza"],
+        "properties": {
+          "ejercicio": { "type": "string", "minLength": 1 },
+          "direccion_recomendada": {
+            "type": "string",
+            "enum": ["subir", "mantener", "bajar", "sin_historial_suficiente"]
+          },
+          "eje_recomendado": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["carga", "reps", "series", "rir_rpe", "ninguno"] },
+            "description": "Por qué eje concreto se sugiere el cambio (progresion-carga.md ya distingue estos mismos ejes) -- 'ninguno' cuando direccion_recomendada es 'mantener' o 'sin_historial_suficiente'. Nunca una cifra: el Productor decide el valor exacto al redactar el siguiente mesociclo."
+          },
+          "evidencia": {
+            "type": "object",
+            "description": "Datos reales que sustentan la recomendación -- nunca una afirmación sin ellos.",
+            "required": ["sesiones_con_datos", "completo_reps_prescritas", "rir_rpe_real_vs_objetivo"],
+            "properties": {
+              "sesiones_con_datos": { "type": "integer", "minimum": 0 },
+              "completo_reps_prescritas": {
+                "type": "string",
+                "enum": ["si_consistente", "parcial", "no_consistente"],
+                "description": "¿El cliente completó el rango de reps prescrito en la mayoría de sus series registradas (client-exercise-history)?"
+              },
+              "rir_rpe_real_vs_objetivo": {
+                "type": "string",
+                "enum": ["mas_facil", "coincide", "mas_dificil", "no_reportado"],
+                "description": "¿El RIR/RPE que el cliente registró de verdad fue más fácil, igual, o más difícil que el objetivo prescrito para esa semana (progresion-carga.md, tabla de RPE)? Es el dato que distingue 'subir' de 'mantener' cuando las reps sí se completaron -- ver la regla de decisión completa en system-prompt.md."
+              },
+              "tendencia_carga_kg": {
+                "type": ["string", "null"],
+                "enum": ["ascendente", "plana", "descendente", "inconsistente", null],
+                "description": "Solo si el ejercicio registra carga_kg real (no todos -- ej. peso corporal). De client-exercise-history a lo largo de las semanas del mesociclo cerrado."
+              }
+            }
+          },
+          "confianza": {
+            "type": "string",
+            "enum": ["alta", "media", "baja"],
+            "description": "Puede ser más baja que confianza_global si este ejercicio en concreto tiene menos sesiones con datos que la media del mesociclo."
+          },
+          "notas": {
+            "type": ["string", "null"],
+            "description": "Contexto que no cabe en los campos estructurados -- ej. una molestia técnica anotada en las notas de sesión que explica por qué no completó las reps, y que debería derivar a seleccion-ejercicios-sustitucion-lesion.md en vez de solo interpretarse como 'bajar'."
+          }
+        }
+      }
+    },
+    "hallazgos_grupos_musculares": {
+      "type": "array",
+      "description": "De client-muscle-volume -- volumen real semanal por grupo muscular a lo largo del mesociclo cerrado, contra el MEV/MAV/MRV previsto (biomecanica-programacion-hipertrofia.md sección 9).",
+      "items": {
+        "type": "object",
+        "required": ["grupo_muscular", "direccion_recomendada", "evidencia", "confianza"],
+        "properties": {
+          "grupo_muscular": { "type": "string", "minLength": 1 },
+          "direccion_recomendada": {
+            "type": "string",
+            "enum": ["subir_volumen", "mantener_volumen", "bajar_volumen", "sin_historial_suficiente"]
+          },
+          "evidencia": {
+            "type": "object",
+            "required": ["volumen_real_series_semana", "senales_fatiga_excesiva"],
+            "properties": {
+              "volumen_real_series_semana": {
+                "type": "array",
+                "items": { "type": "number" },
+                "description": "Serie de valores reales, una entrada por semana del mesociclo cerrado (client-muscle-volume) -- para que el Productor vea la trayectoria real, no solo un promedio que esconde si subió y luego cayó."
+              },
+              "senales_fatiga_excesiva": {
+                "type": "boolean",
+                "description": "true si gestion-fatiga-deload.md detectó señales reales de fatiga excesiva en este grupo antes de llegar al MRV estimado -- si es true, el MRV real de este cliente es más bajo de lo estimado y el siguiente mesociclo debe recalibrar el techo a la baja, no repetir el mismo objetivo."
+              }
+            }
+          },
+          "confianza": { "type": "string", "enum": ["alta", "media", "baja"] }
+        }
+      }
+    },
+    "notas_generales": {
+      "type": ["string", "null"],
+      "description": "Contexto del mesociclo completo que no pertenece a un ejercicio o grupo concreto -- ej. un cambio de contexto nutricional a déficit calórico a mitad del mesociclo (hipertrofia-recomposicion-corporal.md), que el Productor debe tener en cuenta al reconciliar estas recomendaciones con la jerarquía universal."
+    }
+  }
+}

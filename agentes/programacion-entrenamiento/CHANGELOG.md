@@ -1,5 +1,14 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.26.0 — 2026-09-28
+
+El usuario preguntó si hacía falta un supervisor que revisara, con datos reales de ejecución (no solo el plan escrito), si el mesociclo siguiente debe subir, mantener o bajar series/reps/carga — distinto del bug de progresión plana de v0.25.0 (ese era el plan contra sí mismo; esto es el plan contra la realidad).
+
+- **Investigado antes de diseñar**: `GET client-exercise-history`, `GET client-muscle-volume` y `GET client-session-feedback` de Bckbs ya exponen peso/reps/RIR reales por sesión, volumen real por grupo muscular, y adherencia real — sin backend nuevo.
+- **Nuevo agente, no un paso interno**: `agentes/control-producto/` — el mismo razonamiento que justifica separar Productor y Crítico (Reflection, cap. 4) aplica aquí: el paso que juzga si el mesociclo anterior funcionó no debería ser el mismo que, por inercia, sigue escribiendo el siguiente.
+- **Reconciliación obligatoria, no un bloqueo ciego**: Paso 2 apartado 4bis ahora exige leer la recomendación de Control Producto antes de generar el siguiente mesociclo — seguirla, o justificar la desviación citando la jerarquía universal (sección 5, ej. una lesión nueva o un déficit calórico que cambia el ritmo de progresión esperado). El Crítico (sección 6) audita que ninguna desviación quede sin justificar.
+- Ver `agentes/control-producto/system-prompt.md` y `CHANGELOG.md` para el diseño completo de la regla de decisión (subir/mantener/bajar según reps completadas y RIR/RPE real vs. objetivo, con una regla de confianza específica para adherencia baja).
+
 ## v0.25.0 — 2026-09-28
 
 El usuario reportó que todas las programaciones entregadas hasta ahora mantienen el mismo número de series y repeticiones durante los 5-6 meses de un macrociclo — sin progresión de volumen ni de carga en absoluto. Preguntó si hacía falta un supervisor/Control nuevo.

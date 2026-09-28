@@ -63,6 +63,11 @@
             "type": ["integer", "null"],
             "description": "ID real en Bckbs (training_programs) una vez importado -- mismo dato que ya se referencia en CHANGELOG.md al registrar entregas reales."
           },
+          "revision_cierre_disponible": {
+            "type": "boolean",
+            "default": false,
+            "description": "Añadido 2026-09-28. true cuando agentes/control-producto/ ya generó revisiones-cierre/mesociclo-<numero>.json para este bloque (solo tiene sentido una vez estado=completado). Informativo -- el Productor de todas formas comprueba la existencia real del archivo (system-prompt.md sección 4bis) antes de generar el siguiente mesociclo; este campo es para que el coach vea de un vistazo, sin abrir el repo de memoria, si la revisión de cierre ya está hecha."
+          },
           "notas": {
             "type": ["string", "null"],
             "description": "Desviaciones reales respecto a lo planeado (duración distinta, objetivo cambiado, deload adelantado...). No se reescribe el bloque en silencio -- se anota aquí igual que log-registro.json nunca reescribe entradas anteriores."
