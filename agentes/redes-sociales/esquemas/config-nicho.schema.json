@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Configuración de nicho — Agente de Redes Sociales",
+  "description": "Un documento por nicho en experimento. El experimento inicial (2026-09-28) tiene exactamente dos activos a la vez, cada uno con su propia cuenta — ver system-prompt.md sección 1 para por qué es un solo agente parametrizado y no dos agentes separados.",
+  "type": "object",
+  "required": ["nicho_id", "cuenta", "positioning_statement", "pilares_contenido", "estado", "fecha_inicio_experimento", "metrica_decision"],
+  "properties": {
+    "nicho_id": {
+      "type": "string",
+      "description": "Identificador corto y estable, ej. 'recomposicion-40-plus' — nunca cambia aunque el nombre público de la cuenta cambie."
+    },
+    "cuenta": {
+      "type": "object",
+      "required": ["plataformas", "handle"],
+      "properties": {
+        "plataformas": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["instagram", "tiktok", "youtube_shorts"] },
+          "minItems": 1
+        },
+        "handle": { "type": "string" },
+        "enlace_bio": {
+          "type": "string",
+          "description": "URL o mecanismo distinto por cuenta para poder atribuir leads a este nicho concreto (ver system-prompt.md sección 6 — gap real sin CRM, requiere que este campo se rellene antes de publicar nada, o el experimento no podrá decidirse con datos)."
+        }
+      }
+    },
+    "positioning_statement": {
+      "type": "string",
+      "description": "Debe seguir la fórmula obligatoria de modulos/tono-enfoque-ventas-redes.md sección 1: 'Ayudo a [audiencia específica] a lograr [objetivo específico] mediante [método/enfoque propio]'. No se genera contenido para un nicho sin esto relleno de forma concreta, nunca genérica."
+    },
+    "audiencia_especifica": {
+      "type": "string",
+      "description": "La audiencia del positioning_statement, aislada para referencia rápida del Productor."
+    },
+    "pilares_contenido": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["nombre", "descripcion", "frecuencia_semanal"],
+        "properties": {
+          "nombre": { "type": "string" },
+          "descripcion": { "type": "string" },
+          "frecuencia_semanal": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "estado": {
+      "type": "string",
+      "enum": ["activo", "pausado", "ganador", "descartado"],
+      "description": "'ganador'/'descartado' se fijan solo cuando el coach decide el experimento (sección 6 del system-prompt) — nunca los decide el agente por sí solo."
+    },
+    "fecha_inicio_experimento": { "type": "string", "format": "date" },
+    "fecha_fin_experimento_prevista": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "Recomendación de diseño: 8 semanas (ver system-prompt.md sección 6) — el propio coach puede extenderla."
+    },
+    "metrica_decision": {
+      "type": "string",
+      "description": "Cómo se decidirá el nicho ganador — debe incluir leads/contactos atribuidos, nunca solo alcance o 'me gusta' (ver system-prompt.md sección 6)."
+    }
+  }
+}
