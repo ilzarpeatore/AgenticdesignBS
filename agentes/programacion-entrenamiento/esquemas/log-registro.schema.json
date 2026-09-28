@@ -101,8 +101,8 @@
       }
     },
     "aprobado_critico": {
-      "type": "boolean",
-      "description": "Resultado del Paso 4 (crítico) — checklist de juicio de los módulos activos."
+      "type": ["boolean", "null"],
+      "description": "Resultado del Paso 4 (crítico) — checklist de juicio de los módulos activos. Contrastado 2026-09-28 contra los logs reales: varias entradas históricas (Toni, Osas, Nerea) lo tienen en null -- entregas anteriores a que este campo se registrara de forma consistente, no una entrada corrupta. No confundir con 'ausente' (el campo no es obligatorio, ver 'required' de este esquema): si está presente, null significa 'no se registró en su momento', no 'reprobado'."
     },
     "confianza": {
       "type": "string",

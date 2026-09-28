@@ -40,7 +40,10 @@
           "type": ["boolean", "null"],
           "description": "Cribado básico de RED-S / baja disponibilidad energética. Mismo criterio de género que parq_pregnant_or_possible."
         },
-        "parq_eating_disorder_history": { "type": "boolean" },
+        "parq_eating_disorder_history": {
+          "type": ["boolean", "null"],
+          "description": "Añadida al onboarding real el 2026-09-16, igual que parq_pregnant_or_possible/parq_menstrual_change_or_stress_fracture (ver la nota de arriba, caso (b)) -- en un cliente con onboarding anterior a esa fecha, null es un valor real y legítimo (nunca se le preguntó), no un dato corrupto. Contrastado 2026-09-28 contra los 8 perfiles reales en bstronger-memoria-clientes: el cliente 100-hamza-elouafa tiene este campo en null -- el tipo del esquema decía 'boolean' sin admitir null, en contradicción con su propia descripción del caso (b). Corregido aquí, no es un caso aislado: cualquier cliente futuro con onboarding anterior al 2026-09-16 puede llegar en el mismo estado."
+        },
         "parq_medical_history": {
           "type": ["string", "null"],
           "description": "Texto libre del onboarding real -- puede contener diagnóstico cardíaco/pulmonar/metabólico o medicación relevante, pero no está estructurado. Léelo, no lo ignores, pero no lo trates como un booleano fiable: si algo ahí sugiere una de las contraindicaciones de contraindicaciones-medicas.md, pregunta para confirmar en vez de decidir solo con el texto libre."

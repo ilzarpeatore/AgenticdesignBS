@@ -1,5 +1,17 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.26.1 — 2026-09-28
+
+Dentro del plan de creación/mejora/sincronización del equipo completo — ítem pendiente de siempre (2.1: "contrastar el esquema ya reconciliado contra VALORES reales de 2-3 clientes actuales") por fin cerrado, contra los 8 clientes reales disponibles en `bstronger-memoria-clientes`, no solo 2-3.
+
+- Instalado `jsonschema` real y validados `perfil-cliente.schema.json`, `log-registro.schema.json` y `checkpoint-fisico.schema.json` contra los 8 perfiles/logs/checkpoints reales — no solo inspección manual.
+- **Tres campos no admitían `null` pese a que un caso real legítimo lo necesitaba:**
+  - `parq_eating_disorder_history` (cribado_medico): el cliente `100-hamza-elouafa` lo tiene en `null` — onboarding anterior a 2026-09-16, nunca se le preguntó. La propia descripción del esquema ya documentaba este caso para `parq_pregnant_or_possible`/`parq_menstrual_change_or_stress_fracture`, pero se dejó fuera de la tercera pregunta añadida esa misma fecha por descuido.
+  - `aprobado_critico` (log-registro): entradas históricas de Toni, Osas y Nerea lo tienen en `null` — entregas anteriores a que este campo se registrara de forma consistente.
+  - `fecha` (checkpoint-fisico): el checkpoint inicial de Toni, Borja y Hamsa viene de su guideline de coach original (documento previo a este sistema), que no especifica fecha exacta — se dejó en `null` en vez de inventarla, ya explicado en `observaciones_coach` de cada uno.
+- Los 8 perfiles y sus logs/checkpoints reales validan sin ningún error tras el arreglo. Sin cambio de comportamiento del Productor ni del Crítico — solo corrección de tipado del esquema para que deje de contradecir su propia documentación y los datos reales que ya existían.
+- Suite de tests del validador (22 tests) verificada tras el cambio — sin regresión, el arreglo no toca `validar_programa.py`.
+
 ## v0.26.0 — 2026-09-28
 
 El usuario preguntó si hacía falta un supervisor que revisara, con datos reales de ejecución (no solo el plan escrito), si el mesociclo siguiente debe subir, mantener o bajar series/reps/carga — distinto del bug de progresión plana de v0.25.0 (ese era el plan contra sí mismo; esto es el plan contra la realidad).

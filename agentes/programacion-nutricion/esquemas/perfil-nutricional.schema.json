@@ -57,21 +57,21 @@
     },
     "disponibilidad_cocina": {
       "type": "object",
-      "description": "Reconciliado 2026-09-16: no se preguntaba en el onboarding real (perfil-nutricional.schema.json lo requería desde el primer borrador del agente, pero nada en Bckbs lo recogía). Se añadió a NutritionQuestionnaireAnswer esta misma fecha.",
+      "description": "Reconciliado 2026-09-16: no se preguntaba en el onboarding real (perfil-nutricional.schema.json lo requería desde el primer borrador del agente, pero nada en Bckbs lo recogía). Se añadió a NutritionQuestionnaireAnswer esta misma fecha -- un cliente con onboarding anterior, o cuyo nutrition_questionnaire_answers sigue incompleto, puede tener este objeto presente con sus tres campos en null: es un dato real pendiente, no corrupto (mismo criterio que parq_eating_disorder_history en perfil-cliente.schema.json). Contrastado 2026-09-28 contra los 8 perfiles reales: 100-hamza-elouafa y 104-alberto-martin están en este estado -- el tipo de los tres campos no admitía null, corregido aquí.",
       "required": ["minutos_por_comida", "nivel_habilidad"],
       "properties": {
         "minutos_por_comida": {
-          "type": "integer",
-          "description": "cooking_minutes_per_meal — tiempo real disponible para cocinar cada comida, no un ideal aspiracional."
+          "type": ["integer", "null"],
+          "description": "cooking_minutes_per_meal — tiempo real disponible para cocinar cada comida, no un ideal aspiracional. null si nunca se preguntó (ver descripción del objeto padre)."
         },
         "nivel_habilidad": {
-          "type": "string",
-          "enum": ["principiante", "intermedio", "avanzado"],
-          "description": "cooking_skill_level en Bckbs usa beginner/intermediate/advanced (inglés) — traduce al guardar/leer este campo, igual que ya se hace con severity/type de restricciones_dieteticas. Independiente del nivel de fuerza del cliente en el otro agente."
+          "type": ["string", "null"],
+          "enum": ["principiante", "intermedio", "avanzado", null],
+          "description": "cooking_skill_level en Bckbs usa beginner/intermediate/advanced (inglés) — traduce al guardar/leer este campo, igual que ya se hace con severity/type de restricciones_dieteticas. Independiente del nivel de fuerza del cliente en el otro agente. null si nunca se preguntó."
         },
         "cocina_para_mas_personas": {
-          "type": "boolean",
-          "description": "cooks_for_others en Bckbs."
+          "type": ["boolean", "null"],
+          "description": "cooks_for_others en Bckbs. null si nunca se preguntó."
         }
       }
     },

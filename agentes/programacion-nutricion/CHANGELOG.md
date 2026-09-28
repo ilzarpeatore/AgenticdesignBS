@@ -1,5 +1,13 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.12.1 — 2026-09-28
+
+Dentro del plan de creación/mejora/sincronización del equipo completo, dentro del cierre del ítem 2.1/2.2 de `docs/TAREAS_PENDIENTES.md`.
+
+- `perfil-nutricional.schema.json` (`disponibilidad_cocina`) contrastado con `jsonschema` real contra los 8 perfiles reales de `bstronger-memoria-clientes`. `100-hamza-elouafa` y `104-alberto-martin` tienen `minutos_por_comida`/`nivel_habilidad`/`cocina_para_mas_personas` en `null` — mismo caso ya documentado en el ítem 2.5 (onboarding anterior a que Bckbs recogiera este dato, o cuestionario de nutrición todavía incompleto en el caso de Alberto). El esquema no admitía `null` en ninguno de los tres campos, en contradicción con datos reales ya conocidos. Corregido.
+- **Ítem 2.2 (caso real completo de nutrición, tipo Toni en entrenamiento) sigue sin poder cerrarse desde aquí**: confirmado que `99-toni-perez-fernandez` no tiene todavía ningún `log-nutricion.json` real — nadie ha generado un ciclo real de nutrición para él. Cerrar 2.2 de verdad requiere que el coach dispare un ciclo real de este agente para un cliente con restricciones/objetivos concretos, no algo que una sesión de diseño pueda fabricar sin generar contenido real para un cliente de pago.
+- Sin cambio de comportamiento del Productor ni del Crítico — solo corrección de tipado del esquema.
+
 ## v0.12.0 — 2026-09-27
 
 Mismo hallazgo que v0.24.0 del agente de entrenamiento, mismo día — ver ese CHANGELOG para el contexto completo (auditoría del diseño contra el contenido teórico del repositorio).

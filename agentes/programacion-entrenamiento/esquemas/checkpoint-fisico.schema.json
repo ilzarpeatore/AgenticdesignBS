@@ -9,7 +9,11 @@
       "type": "string",
       "description": "Debe coincidir con el cliente_id de perfil-cliente.schema.json / perfil-nutricional.schema.json."
     },
-    "fecha": { "type": "string", "format": "date" },
+    "fecha": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "Contrastado 2026-09-28 contra los checkpoints reales de Toni/Borja/Hamsa: el checkpoint inicial de estos 3 clientes viene de su guideline de coach original (documento previo a este sistema), que no especifica una fecha exacta -- se dejó en null en vez de inventar una, con la razón explicada en observaciones_coach (mismo criterio del proyecto de nunca fabricar un dato que no existe). null es aceptable SOLO en ese caso (checkpoint retroactivo de un documento externo sin fecha) -- cualquier checkpoint que el propio agente registre a partir de una reevaluación real debe llevar fecha siempre."
+    },
     "metricas": {
       "type": "object",
       "description": "Snapshot en esta fecha. Cualquier campo puede faltar (no todas las reevaluaciones miden lo mismo) -- null o ausente no es un error, solo un dato no tomado esta vez.",
