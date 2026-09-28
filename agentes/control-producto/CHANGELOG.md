@@ -1,5 +1,14 @@
 # Changelog — Agente de Control Producto (revisión de cierre de mesociclo, entrenamiento)
 
+## v0.2.0 — 2026-09-28
+
+El usuario preguntó qué más necesitaban este agente y el Productor para trabajar juntos lo mejor posible. Cuatro correcciones de la misma petición:
+
+- **La más importante: se quita la dependencia dura de `plan-macro.json`.** v0.1.0 exigía un mesociclo en `estado: completado` de ese archivo para activarse — pero el propio system-prompt del Productor dice que generar mesociclos sueltos sin ese esqueleto es el patrón normal, no la excepción. Exigirlo habría dejado este Control inaplicable a la mayoría de clientes reales. Disparador ampliado: basta con que exista un mesociclo anterior entregado, visible en `log-registro.json`. `plan-macro.json` se sigue usando cuando existe (da fechas exactas), pero ya no bloquea la activación.
+- **Lectura compartida del `.xlsx`**: usa `agentes/programacion-entrenamiento/validador/lectura_programa.py` (extraído del validador en la misma petición) en vez de interpretar el formato de columnas por su cuenta.
+- **Paso 8 de calibración**: compara la recomendación anterior contra el resultado real del mesociclo que se acaba de cerrar — si el mismo desajuste se repite 2 veces seguidas para un cliente, se marca para recalibrar el criterio de ese cliente en concreto.
+- **Nuevo `ejemplo-trabajado.md`**: un caso ilustrativo (prescrito real de Toni + ejecución inventada para el ejemplo, dejado explícito) que prueba las cuatro direcciones de la regla de decisión contra el esquema real, ya que este agente no tiene datos reales de ejecución con los que construir un fixture de verdad todavía (a diferencia del validador, que sí usa el `.xlsx` real de Toni).
+
 ## v0.1.0 — 2026-09-28
 
 Primer diseño, a petición explícita del usuario. Segundo agente de Control del proyecto (después de `agentes/control-contenido/`), y el primero directamente activable hoy.

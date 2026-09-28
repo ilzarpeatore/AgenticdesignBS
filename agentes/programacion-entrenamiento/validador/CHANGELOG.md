@@ -1,5 +1,13 @@
 # Changelog — Validador determinista (Paso 3)
 
+## v0.7.0 — 2026-09-28
+
+El usuario preguntó qué más necesitaban el Productor y el nuevo Agente de Control Producto para trabajar juntos lo mejor posible. Uno de los huecos reales: Control Producto necesita leer "lo prescrito" del mismo `.xlsx` que ya valida este código, y sin nada compartido cada uno lo interpretaría a su manera.
+
+- **Extraído `lectura_programa.py`**: apertura del workbook, comprobación de hojas/columnas obligatorias, e indexado de filas — antes vivía inline en `validar_programa()`, ahora es un módulo propio que ambos agentes importan.
+- **Sin cambio de comportamiento**: `validar_programa.py` produce exactamente los mismos mensajes de error/advertencia que antes (verificado con la suite de tests existente, las 17 pruebas siguen en verde sin tocarlas).
+- 5 tests nuevos (`test_lectura_programa.py`) contra el mismo fixture real de Toni — lectura correcta, y las dos formas de fallo real (hoja/columna ausente) lanzan `LecturaProgramaError` con el mismo texto que antes emitía el validador.
+
 ## v0.6.0 — 2026-09-28
 
 El usuario reportó que todas las programaciones entregadas hasta ahora mantienen el mismo número de series y repeticiones durante los 5-6 meses de un macrociclo, sin progresión de ningún tipo — ver `../CHANGELOG.md` v0.25.0 para el diagnóstico completo (el conocimiento ya existía en `progresion-carga.md`/`biomecanica-programacion-hipertrofia.md`, el hueco real era que nada lo comprobaba).

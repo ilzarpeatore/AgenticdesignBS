@@ -4,6 +4,14 @@ Código real, no prosa: comprueba mecánicamente el `.xlsx` que el Productor
 genera (formato descrito en `../formato-salida/formato-excel.md`) antes de
 que llegue al Crítico (Paso 4) o al humano (Paso 5).
 
+**El lector del `.xlsx` vive en `lectura_programa.py` (extraído en v0.7.0)**,
+no en este archivo — `agentes/control-producto/` lo reutiliza para leer "lo
+prescrito" al comparar contra la ejecución real, así los dos agentes
+interpretan el mismo formato de columnas exactamente igual en vez de
+divergir con el tiempo. Este archivo (`validar_programa.py`) aplica las
+reglas de qué es válido; `lectura_programa.py` solo sabe abrir el archivo y
+devolver filas.
+
 ## Qué comprueba
 
 - Hojas `Programa` y `Programación` presentes, con las 19 columnas
