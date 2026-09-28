@@ -18,7 +18,7 @@ Un archivo `.xlsx` con:
 1. Una hoja **`M1`, `M2`, ... `Mn`** — una por cada mesociclo de `plan-macro.json` (si existe) o del alcance pedido, en el mismo orden. El número de semanas de cada hoja es el `semanas` de ese mesociclo en `plan-macro.json` — **no una cifra fija de 6**, cámbialo según el caso (periodizacion-por-calendario.md v0.3.0).
 2. Una hoja **`Visión general`** que cruza todos los mesociclos generados, con el volumen (nº de series) por sesión y semana de un vistazo.
 3. Una hoja **`Leyenda y metodología`** — estática, misma estructura en todos los clientes, describe el sistema (ver más abajo).
-4. Opcional, no obligatorio: una hoja de dashboard con gráficos. **No implementado todavía en el generador actual** (ver "Limitación conocida" al final) — si se omite, no es un error.
+4. Opcional, no obligatorio: una hoja `📊 DASHBOARD` con gráficos (ver la sección dedicada más abajo) — si se omite, no es un error, pero recomendada cuando el coach vaya a revisar el macrociclo completo de una vez.
 
 ---
 
@@ -77,6 +77,17 @@ Contenido estático (no cambia entre clientes, salvo el nombre/macrociclo del t�
 - [ ] Hoja `Leyenda y metodología` presente, con las exclusiones específicas de este cliente si las tiene.
 - [ ] Advertencia explícita (en la hoja `Programa`-equivalente o en la fila 1/2 de cada `Mn` posterior al primero) de que los mesociclos aún no generados con datos reales de adherencia son una **proyección**, no un contrato fijo — mismo principio que `system-prompt.md` apartado 4bis.
 
-## Limitación conocida (2026-09-27)
+## Hoja `📊 DASHBOARD` (opcional, con gráficos embebidos) — resuelto 2026-09-29
 
-El Excel real que motivó este formato incluye también una hoja `📊 DASHBOARD` con gráficos (evolución de volumen, distribución por patrón de movimiento, etc.). El generador actual **no produce gráficos embebidos** — requiere construir a mano las partes OOXML de `xl/charts/` y `xl/drawings/`, bastante más complejo que las hojas de datos. Se documenta aquí como límite conocido del generador, no como parte opcional del formato: si en el futuro se automatizan gráficos, añadir esa sección a este documento entonces.
+La limitación de abajo quedó resuelta: **`openpyxl` sí genera gráficos nativos de Excel** (`openpyxl.chart.LineChart`, `BarChart`, `RadarChart`) sin necesidad de construir a mano las partes OOXML de `xl/charts/`/`xl/drawings/` — basta con volcar los datos que alimentan cada gráfico en celdas normales de la misma hoja (una tabla pequeña, puede quedar fuera del área visible) y apuntar el gráfico a ese rango con `Reference` + `add_chart`. Probado en la generación real de 5 macrociclos completos (2026-09-28/29, ver `CHANGELOG.md` v0.24.0), sin adjuntar esos archivos a este repo por ser datos de cliente.
+
+Si se añade esta hoja (recomendada cuando el coach vaya a revisar el macrociclo completo, no obligatoria para un mesociclo suelto):
+
+1. **Tira de KPI** (fila superior, 4-6 celdas fusionadas con relleno de color): pico de series máximo del macrociclo y en qué semana, número de mesociclos y semanas totales, días/semana, variación de series de la semana 1 entre el primer y el último mesociclo, series totales del macrociclo.
+2. **Gráfico de líneas**: series totales por semana, a lo largo de TODAS las semanas del macrociclo (eje X = `M1 S1`, `M1 S2`... `Mn Sn`) — el mejor gráfico único para ver de un vistazo si el volumen realmente sube o si hay un mesociclo plano/decreciente (exactamente lo que `validador/validar_macrociclo.py` V1/V2b comprueba por código; el gráfico es la versión visual para el coach).
+3. **Gráfico de barras**: series de la semana 1 (o el pico) por mesociclo, una barra por mesociclo — hace evidente de un vistazo si algún mesociclo no sube respecto al anterior.
+4. **Gráfico de radar**: series por grupo muscular, comparando el primer mesociclo contra el pico del último — muestra qué grupos crecieron más y cuáles se quedaron atrás en el macrociclo completo.
+5. **Tabla de progresión por grupo y mesociclo** (semana 1, una fila por grupo muscular, una columna por mesociclo): con relleno de color condicional simple (verde si sube respecto al mesociclo anterior, amarillo si igual, rojo si baja) — es la versión tabular de V1, útil para que el coach vea el detalle exacto detrás del gráfico de radar.
+6. Si el macrociclo corrige o sustituye un programa anterior del mismo cliente, una tabla **antes/después** con los indicadores más relevantes de ese caso concreto (nunca genérica — depende de qué estaba mal en el programa anterior).
+
+Los datos que alimentan cada gráfico son los mismos que ya se calculan para las hojas `Mn` y `Visión general` — no dupliques la lógica, vuelca esas mismas cifras a una zona de datos de esta hoja y referencia esas celdas desde los objetos `Chart`.

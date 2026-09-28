@@ -1,5 +1,15 @@
 # Changelog — Validador determinista (Paso 3)
 
+## v0.8.0 — 2026-09-29
+
+Cierra el gap que v0.6.0 dejó explícito ("la progresión de un ejercicio ancla entre mesociclos de un mismo macrociclo queda fuera de su alcance") -- expuesto de forma independiente por una serie de macrociclos reales trabajados en `bsa` (ver `../CHANGELOG.md` v0.27.0).
+
+- **Nuevo `validar_macrociclo.py`**: mismo contrato (`aprobado`/`errores`/`advertencias` en JSON), pero opera sobre el CONJUNTO de `.xlsx` de un macrociclo, no uno solo. Usa `lectura_programa.py` (v0.7.0) para abrir cada archivo -- mismo lector que `validar_programa.py` y Control Producto.
+- Comprueba: la base (S1) y el pico semanal de cada grupo muscular no se quedan planos ni retroceden de un mesociclo al siguiente (`../modulos/biomecanica-programacion-hipertrofia.md` sección 9bis); cada mesociclo tiene una descarga real; el rango de reps cambia semana a semana con ambos sentidos representados por sesión; opcionalmente, mínimos de reps/RIR para un patrón de ejercicio pasado por `--patron-seguro` (sin lista hardcodeada, igual que `--excluidos` en `validar_programa.py`).
+- Un `.xlsx` sin las hojas `Programa`/`Programación` se omite en silencio (no es un mesociclo -- el Excel de revisión de `formato-excel-detallado.md` suele vivir en la misma carpeta); uno que sí tiene esas hojas pero está mal formado por dentro sí cuenta como error real.
+- 9 tests nuevos (`test_validar_macrociclo.py`), fixtures sintéticas generadas con `openpyxl` (no hay individualización de cliente que justifique un fixture real aquí, a diferencia de `validar_programa.py`). Probado además, durante el desarrollo, contra los macrociclos reales completos de 5 clientes de `bsa` (sin adjuntarlos a este repo).
+- No sustituye por completo el "chequeo cruzado" de juicio que v0.6.0 dejó enteramente al Crítico (`../system-prompt.md` sección 6) -- reduce esa carga a lo que un número puede decidir; si el roster de ejercicios en sí (no solo sus cifras) tiene sentido de un mesociclo al siguiente sigue siendo juicio.
+
 ## v0.7.0 — 2026-09-28
 
 El usuario preguntó qué más necesitaban el Productor y el nuevo Agente de Control Producto para trabajar juntos lo mejor posible. Uno de los huecos reales: Control Producto necesita leer "lo prescrito" del mismo `.xlsx` que ya valida este código, y sin nada compartido cada uno lo interpretaría a su manera.

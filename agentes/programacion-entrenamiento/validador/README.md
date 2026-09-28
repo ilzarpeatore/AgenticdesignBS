@@ -82,3 +82,45 @@ sin Hack Squat ni elevación lateral en máquina), no un ejemplo sintético.
 El resto de pruebas son copias de ese mismo archivo mutadas para provocar
 cada fallo uno a uno, así el validador se prueba contra el mismo tipo de
 archivo que genera el Productor.
+
+## `validar_macrociclo.py` — progresión ENTRE mesociclos (v0.8.0, 2026-09-29)
+
+Usa `lectura_programa.py` para abrir cada `.xlsx` (mismo lector que `validar_programa.py` y Control
+Producto). `validar_programa.py` comprueba UN `.xlsx` contra el formato; no puede ver si el macrociclo completo
+**progresa** de un mesociclo al siguiente, porque eso solo existe comparando varios archivos a la vez. Ver
+`../modulos/biomecanica-programacion-hipertrofia.md` sección 9bis para la regla completa y el caso real que
+expuso este hueco -- un macrociclo puede pasar `validar_programa.py` en los seis mesociclos y aun así tener
+el volumen semanal total plano o decreciente mes a mes.
+
+Corre esto además de `validar_programa.py` (por archivo) cuando generes o revises dos o más mesociclos
+seguidos del mismo macrociclo — ver `system-prompt.md` sección 6:
+
+```bash
+python3 validar_macrociclo.py <carpeta-con-los-.xlsx-de-los-mesociclos> \
+    --agrupar-hombro \
+    --patron-seguro "press de pecho|press de hombro|fondos|apertura" --reps-min-seguro 8 --rir-min-seguro 2 \
+    --texto
+```
+
+Comprueba mecánicamente: **V1** las series de la semana 1 de cada grupo muscular suben de mesociclo a
+mesociclo; **V2b** el pico semanal de cada grupo (no solo la base) tampoco retrocede, aunque la base suba —
+la forma más fácil de que esto falle en silencio es aplicar la onda intra-mesociclo de forma inconsistente
+entre mesociclos; **V2** cada mesociclo tiene una descarga real (última semana por debajo del 80% de su
+pico); **V3** el rango de reps cambia semana a semana dentro de cada mesociclo, con ambos sentidos
+representados en cada sesión; **V4** (opcional, `--patron-seguro`) mínimos de reps/RIR para un patrón de
+ejercicio marcado por la restricción de un cliente concreto — no hay ninguna lista de ejercicios "seguros"
+hardcodeada, se pasa por CLI igual que `--excluidos` en `validar_programa.py`.
+
+Los archivos se procesan en el orden en que se pasan (o el orden alfabético del glob de una carpeta) — ese
+orden es el orden real de los mesociclos. Si el título de la hoja `Programa` de un archivo dice "Mesociclo N",
+se usa solo como advertencia de cruce, nunca como filtro: este repo no impone ninguna convención de títulos.
+
+Salida: mismo contrato que `validar_programa.py` (JSON con `aprobado`/`errores`/`advertencias`), más un campo
+`tablas` con el detalle legible por humano de cada regla — usa `--texto` para imprimir solo ese detalle en
+texto plano si lo vas a enseñar directamente al coach.
+
+**Pruebas** (`tests/test_validar_macrociclo.py`): a diferencia del validador de un mesociclo, este comprueba
+una propiedad matemática del conjunto de archivos, no algo específico de ningún cliente — las fixtures son
+macrociclos sintéticos generados con `openpyxl` (correctos por diseño, mutados uno a uno para provocar cada
+fallo), no un caso real adjunto. Probado además contra los macrociclos reales de 5 clientes distintos (6
+mesociclos cada uno) durante su desarrollo, sin adjuntarlos a este repo por ser datos sensibles de cliente.

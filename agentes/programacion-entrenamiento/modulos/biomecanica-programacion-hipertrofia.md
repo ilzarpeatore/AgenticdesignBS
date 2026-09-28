@@ -2,9 +2,10 @@
 
 **Tipo:** General
 **Se activa cuando:** el objetivo incluye ganancia de tamaño muscular como componente relevante — casi siempre junto con `hipertrofia-recomposicion-corporal.md`, pero también con cualquier otro módulo de objetivo que incluya hipertrofia como parte del plan (ej. un deportista que además quiere ganar masa en fase de base).
-**Versión:** 0.3.0 · **Última actualización:** 2026-09-28
+**Versión:** 0.4.0 · **Última actualización:** 2026-09-29
 **Procedencia:** primer módulo escrito desde cero. Cubre el "cómo entrenar" a nivel de ejercicio y serie; `hipertrofia-recomposicion-corporal.md` cubre el "cuánto y en qué contexto energético".
-**v0.3.0:** el usuario reportó programas reales sin ninguna progresión de volumen durante 5-6 meses, contradiciendo directamente la sección 9 (MEV→MAV→MRV) que este módulo ya definía. Añadida una "Checklist de verificación" (ver final del documento) — el hueco no era de contenido, era que nada comprobaba que la sección 9 se aplicara de verdad. Ver `progresion-carga.md` v0.3.0 y `../validador/CHANGELOG.md` para el chequeo mecánico correspondiente (series/reps/RIR/carga, no solo volumen).
+**v0.3.0** (2026-09-28): el usuario reportó programas reales sin ninguna progresión de volumen durante 5-6 meses, contradiciendo directamente la sección 9 (MEV→MAV→MRV) que este módulo ya definía. Añadida una "Checklist de verificación" (ver final del documento) — el hueco no era de contenido, era que nada comprobaba que la sección 9 se aplicara de verdad DENTRO de un mesociclo. Ver `progresion-carga.md` v0.3.0 y `../validador/CHANGELOG.md` para el chequeo mecánico correspondiente (series/reps/RIR/carga, no solo volumen).
+**v0.4.0** (2026-09-29, trabajo concurrente sobre el mismo síntoma real): nueva sección 9bis — la mitad que aún faltaba tras v0.3.0 es la progresión ENTRE mesociclos (no solo dentro de uno), a partir de una serie de casos reales trabajados fuera del flujo formal del agente. Ver `CHANGELOG.md` v0.24.0.
 
 > Este módulo responde a una pregunta de control de calidad directa: ¿el agente sabe programar carga/volumen a nivel fino y conoce la biomecánica de la hipertrofia, o solo maneja el contexto de déficit/superávit? Antes de este módulo, no. Con él, sí.
 
@@ -74,6 +75,54 @@ Cada ejercicio tiene una curva de fuerza distinta a lo largo de su rango de movi
 **Progresa una variable a la vez:** subir series y subir carga agresivamente en la misma semana acumula fatiga más rápido de lo previsto. Evita también el patrón contrario — bajar repeticiones semana a semana mientras sube la carga rápido (ej. series de 10 → 8 → 6 mismo ejercicio en pocas semanas) suele ser subóptimo frente a simplemente añadir series manteniendo el rango de reps.
 
 > **Nivel de certeza:** el marco MEV/MAV/MRV es una herramienta práctica muy extendida en el sector (popularizada por Israetel/RP Strength), no un consenso académico cerrado — alguna revisión señala que la evidencia de que la fatiga se "acumula" de forma predecible sesión a sesión es todavía equívoca. Úsalo como heurística de programación, no como cifra exacta que se le presente al cliente como certeza absoluta.
+
+## 9bis. Progresión de volumen ENTRE mesociclos (a lo largo del macrociclo)
+
+La sección 9 cubre cómo sube el volumen semana a semana **dentro** de un mesociclo. Esto cubre la mitad que faltaba: cómo debe evolucionar
+la **base** de cada mesociclo (su semana 1) respecto al mesociclo anterior, cuando se genera un macrociclo de varios mesociclos seguidos
+(`esquemas/plan-macro.schema.json`). Sin esta regla, un Productor puede repetir sin querer la misma base de volumen ciclo tras ciclo —
+onda de intensidad correcta dentro de cada mesociclo, pero sin acumulación real a lo largo del macrociclo, que es la forma más silenciosa
+de fallar en esto: el borrador "parece" bien programado (RIR undulando, deload presente) y aun así no hay progresión real de un mes al
+siguiente.
+
+**Caso real que expuso el fallo (2026-09-28, fuera de este repo — ver nota de procedencia al final):** la primera versión de un macrociclo
+de 6 meses tenía estructura correcta (split, técnicas, descargas, RIR) pero el volumen semanal total se quedaba plano mesociclo a
+mesociclo y en el último **bajaba** (`88 → 100 → 103 → 103 → 114 → 102`), y ningún ejercicio de progresión cambiaba de rango de reps entre
+semanas de carga (0 de ~22). El razonamiento explícito del Paso 2 había validado nombres de catálogo, tiempos de sesión y estructura —
+nada había validado la progresión en sí, porque no había ningún chequeo, ni de código ni de checklist, que la comprobara.
+
+**Regla operativa (general, sin valores por defecto):**
+
+1. **La base (semana 1) de cada grupo muscular sube de mesociclo a mesociclo**, no solo la carga o el RIR — el número de series
+   semanales de un grupo en el mesociclo N+1 debe ser mayor que en el mesociclo N (o igual como máximo en el último tramo del
+   macrociclo, nunca menor). El reparto entre ejercicios de ese grupo y entre sesiones lo decide el Productor; lo que no es negociable
+   es que la suma no se quede plana ni retroceda.
+2. **El PICO semanal de cada grupo (tras aplicar la onda de la sección 9) tampoco retrocede de un mesociclo al siguiente, aunque la
+   base suba.** Esta es la parte que más fácil pasa desapercibida: si la onda intra-mesociclo (el `+1-2 series` de la sección 9) se
+   aplica de forma inconsistente entre mesociclos — por ejemplo, porque un mesociclo ya estaba en curso con una onda más agresiva y los
+   siguientes se diseñaron con una onda más conservadora — el pico real de un mesociclo puede quedar por debajo del pico del anterior
+   incluso cuando su base (S1) es mayor. Caso real: la base subía de un mesociclo al siguiente, pero el pico de ese segundo mesociclo
+   quedaba por debajo del pico del primero en 8 de 10 grupos musculares, porque el primero (ya en curso) aplicaba la onda a todos los
+   ejercicios elegibles y el segundo solo a algunos. Se corrige aplicando la misma regla de onda, de forma consistente, en **todos**
+   los mesociclos del macrociclo — no solo en el que se está diseñando ahora.
+3. **La descarga sigue siendo real cada mesociclo** (sección 2 de `progresion-carga.md` / regla de deload de este módulo) — la base que
+   sube de un mes a otro no exime de bajar volumen e intensidad en la última semana de cada uno.
+4. **El rango de reps cambia semana a semana** dentro de cada mesociclo (patrones A/B/C, sección 9 y `progresion-carga.md`) — y en cada
+   sesión conviene que haya representados los dos sentidos (algún ejercicio que baja de rango y sube de carga, alguno que sube de rango
+   con carga estable), no todos moviéndose en el mismo sentido. Un macrociclo donde ningún ejercicio cambia de rango entre semanas de
+   carga tiene la misma apariencia de "bien estructurado" que el caso real de arriba y el mismo problema de fondo.
+
+**Verificación mecánica:** cuando se generan dos o más mesociclos del mismo macrociclo (aunque sea de uno en uno, mientras existan
+entregas anteriores del mismo cliente para comparar), corre `validador/validar_macrociclo.py` sobre el conjunto de `.xlsx` ya generados
+además de `validador/validar_programa.py` por archivo (ver `system-prompt.md`, sección 6) — comprueba mecánicamente los puntos 1, 2 y 4
+de arriba; no dependas de que el razonamiento del Paso 2 lo detecte solo por inspección, que es exactamente como pasó desapercibido en
+el caso real.
+
+**Procedencia:** regla añadida el 2026-09-29 a partir de una serie de casos reales trabajados fuera del flujo formal de este agente
+(directamente contra la base de datos de BeFit por SSH, sin pasar por `esquemas/plan-macro.schema.json` ni persistir `razonamiento` en
+`bstronger-memoria-clientes`) — ver la entrada correspondiente de `CHANGELOG.md` para el detalle completo y la lista de casos. Se
+documenta aquí, en la forma general sin los números concretos de ningún cliente, siguiendo el mismo criterio que v0.2.1 de
+`progresion-carga.md`.
 
 ## 10. Unilateral vs. bilateral
 
