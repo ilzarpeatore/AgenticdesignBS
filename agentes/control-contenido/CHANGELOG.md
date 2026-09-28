@@ -1,5 +1,16 @@
 # Changelog — Agente de Control Contenido (audita Copywriter + Copywriter Comercial)
 
+## v0.2.0 — 2026-09-28
+
+El usuario pidió maximizar la eficiencia de este agente. Investigada la documentación real de la API de Claude (skill interna `claude-api`, `shared/agent-design.md` y `shared/cost-optimization.md`, snapshot 2026-06-24) antes de cambiar nada.
+
+- **Hallazgo honesto de partida**: con el volumen real de este agente (una auditoría al mes, un puñado de posts), el coste en tokens ya es insignificante en cualquier configuración razonable. La eficiencia que de verdad aporta aquí es de arquitectura — menos llamadas, menos ambigüedad — no la optimización de céntimos que tendría sentido a mayor escala.
+- **Consolidación de 3 llamadas a 1**: los chequeos de temas cruzados, tono y salud/nutrición pasan de ser 3 pasos/llamadas de juicio separados a un único prompt con salida estructurada (Paso 3, v0.2.0) — menos turnos, un solo prefijo de contexto, salida directamente parseable para la clasificación de riesgo.
+- **Nuevo filtro determinista, sin modelo**: comparar `updated_at` contra `created_at` (Paso 2) decide qué posts necesitan de verdad el re-chequeo de salud — solo los que el coach editó después de la revisión del Crítico. Evita gastar tokens releyendo contenido que ya pasó por el Crítico sin ningún cambio desde entonces.
+- **Higiene de tokens**: el chequeo de temas/tono usa título+descripción, no el artículo completo; el contenido completo solo se manda de los posts que superan el filtro anterior.
+- **Effort `medium`, no el más alto por defecto**: la investigación de coste real de Anthropic muestra curvas casi planas en trabajo de tipo auditoría/clasificación — `medium` iguala la precisión del nivel por defecto a una fracción del coste.
+- **Levers deliberadamente descartados, documentados con su razón**: caching entre ciclos (los ciclos están separados por un mes, muy por encima de cualquier ventana de caché real) y Batch API (pensada para volumen alto sin nadie esperando — aquí hay una llamada real al mes, el ahorro sería de céntimos). Añadirlos habría sido sobre-optimizar por completitud, no por necesidad real.
+
 ## v0.1.0 — 2026-09-28
 
 Primer diseño, a petición explícita del usuario. Primer agente de Control (nivel 2 del organigrama) de todo el proyecto.
