@@ -10,7 +10,8 @@ Uso:
     python3 validar_programa.py <programa.xlsx> \
         [--catalogo catalogo-ejercicios.xlsx] \
         [--excluidos "Hack Squat" "Elevación lateral en máquina"] \
-        [--semanas-esperadas 3]
+        [--semanas-esperadas 3] \
+        [--semanas-deload 6]
 
 Salida: informe JSON por stdout con `aprobado`, `errores` y `advertencias`,
 y código de salida 0 si aprobado, 1 si no.
@@ -93,11 +94,82 @@ def cargar_catalogo(ruta_catalogo: str) -> set[str]:
     return {_normalizar(fila[idx_titulo]) for fila in filas[1:] if fila and not _celda_vacia(fila[idx_titulo])}
 
 
+def _firma_progresion(fila, val) -> tuple:
+    """Tupla comparable de los seis ejes por los que un ejercicio puede
+    progresar. Los numéricos se comparan tal cual; las cadenas (reps, rir,
+    rpe suelen venir como rango, ej. '8-10') se normalizan igual que un
+    nombre de ejercicio. Cualquier eje vale para 'progresa' -- no exigimos
+    que sea uno concreto (ver `_validar_progresion`)."""
+    valores = (
+        val(fila, "series"), val(fila, "reps"), val(fila, "rir"),
+        val(fila, "rpe"), val(fila, "carga_kg"), val(fila, "carga_pct"),
+    )
+    return tuple(_normalizar(v) if isinstance(v, str) else v for v in valores)
+
+
+def _validar_progresion(filas, val, semanas_deload: set[int]) -> tuple[list[str], list[str]]:
+    """Ningún parámetro de programación (series, reps, RIR/RPE o carga)
+    cambia para un ejercicio entre semanas de acumulación -> sin progresión
+    de ningún tipo. Comparamos la tupla completa de los 6 ejes, nunca uno
+    solo: cuál de ellos lleva la progresión es decisión del Productor para
+    cada ejercicio (`progresion-carga.md`) -- el caso real de Toni progresa
+    solo vía RIR con series y reps fijos las 3 semanas, y eso es correcto,
+    no un fallo. Solo se marca cuando NINGÚN eje cambia en absoluto.
+
+    Bloqueante (`errores`) si la mitad o más de los ejercicios comparables
+    del programa no muestran ninguna progresión -- eso es el patrón
+    sistémico reportado, no una elección puntual del coach sobre un
+    ejercicio concreto (ej. un ejercicio de estabilidad/rehabilitación
+    deliberadamente estático), que se deja como advertencia individual.
+    """
+    por_ejercicio: dict[str, list[tuple]] = {}
+    for fila in filas:
+        semana = val(fila, "semana")
+        if not isinstance(semana, (int, float)) or int(semana) in semanas_deload:
+            continue
+        if _es_verdadero(val(fila, "es_descanso")):
+            continue
+        ejercicio = val(fila, "ejercicio")
+        if _celda_vacia(ejercicio):
+            continue
+        clave = _normalizar(ejercicio)
+        por_ejercicio.setdefault(clave, []).append((ejercicio, _firma_progresion(fila, val)))
+
+    planos: list[str] = []
+    calificables = 0
+    for entradas in por_ejercicio.values():
+        if len(entradas) < 2:
+            continue  # una sola semana de datos no es evidencia de "sin progresión"
+        calificables += 1
+        firmas_distintas = {firma for _, firma in entradas}
+        if len(firmas_distintas) == 1:
+            planos.append(entradas[0][0])
+
+    errores: list[str] = []
+    advertencias: list[str] = []
+    if not planos:
+        return errores, advertencias
+
+    mensaje = (
+        f"{len(planos)} de {calificables} ejercicio(s) no cambian ni series, ni reps, ni RIR/RPE "
+        f"ni carga entre semanas de acumulación: {', '.join(sorted(planos))}. Contradice "
+        "progresion-carga.md y biomecanica-programacion-hipertrofia.md sección 9 (MEV→MAV) "
+        "-- confirma que la progresión no se está omitiendo, o si es una decisión deliberada "
+        "para ese ejercicio concreto."
+    )
+    if calificables and len(planos) / calificables >= 0.5:
+        errores.append(mensaje)
+    else:
+        advertencias.append(mensaje)
+    return errores, advertencias
+
+
 def validar_programa(
     ruta_programa: str,
     ruta_catalogo: str | None = None,
     ejercicios_excluidos: list[str] | None = None,
     semanas_esperadas: int | None = None,
+    semanas_deload: list[int] | None = None,
 ) -> InformeValidacion:
     informe = InformeValidacion()
     excluidos_normalizados = {_normalizar(e) for e in (ejercicios_excluidos or [])}
@@ -250,6 +322,22 @@ def validar_programa(
             f"Las semanas escritas tienen huecos: {sorted(semanas_vistas)} (deberían ser consecutivas desde 1)."
         )
 
+    # 12. Progresión de volumen/intensidad (Guardrails, cap. 18): ningún ejercicio
+    # se queda sin progresar en absoluto a lo largo de las semanas de acumulación.
+    # Por defecto, sin --semanas-deload explícito, se asume que la última semana
+    # vista es la de deload -- regla universal en todos los módulos de objetivo
+    # ("el mesociclo cierra con una semana de deload"), nunca una semana de
+    # acumulación real contra la que juzgar progresión.
+    if semanas_deload is not None:
+        deload_final = set(semanas_deload)
+    elif semanas_vistas:
+        deload_final = {max(semanas_vistas)}
+    else:
+        deload_final = set()
+    errores_progresion, advertencias_progresion = _validar_progresion(filas, val, deload_final)
+    informe.errores.extend(errores_progresion)
+    informe.advertencias.extend(advertencias_progresion)
+
     return informe
 
 
@@ -262,6 +350,10 @@ def main() -> int:
         help="Nombres de ejercicios excluidos para este cliente (lesión, material no disponible...).",
     )
     parser.add_argument("--semanas-esperadas", type=int, default=None, help="Número de semanas que el programa debería cubrir.")
+    parser.add_argument(
+        "--semanas-deload", type=int, nargs="*", default=None,
+        help="Semanas de deload (no se juzga progresión en ellas). Por defecto, la última semana vista.",
+    )
     args = parser.parse_args()
 
     informe = validar_programa(
@@ -269,6 +361,7 @@ def main() -> int:
         ruta_catalogo=args.catalogo,
         ejercicios_excluidos=args.excluidos,
         semanas_esperadas=args.semanas_esperadas,
+        semanas_deload=args.semanas_deload,
     )
     print(json.dumps(informe.to_dict(), ensure_ascii=False, indent=2))
     return 0 if informe.aprobado else 1

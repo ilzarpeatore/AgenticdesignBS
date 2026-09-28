@@ -170,5 +170,69 @@ class TestAdvertenciasNoBloqueantes(unittest.TestCase):
         self.assertTrue(any("no coincide exactamente con ningún título del catálogo" in a for a in informe.advertencias))
 
 
+class TestProgresionDeVolumen(unittest.TestCase):
+    """El caso real de Toni progresa solo vía RIR (series y reps fijos las 3
+    semanas) -- eso debe aprobar sin ningún aviso. Las mutaciones prueban que
+    'sin ningún eje que progrese' sí se detecta, a nivel individual y a nivel
+    sistémico."""
+
+    def setUp(self):
+        self.ruta_tmp = os.path.join(DIR_FIXTURES, f"_tmp_{self._testMethodName}.xlsx")
+
+    def tearDown(self):
+        if os.path.exists(self.ruta_tmp):
+            os.remove(self.ruta_tmp)
+
+    def test_programa_real_de_toni_no_marca_progresion_plana(self):
+        # Ya cubierto por TestProgramaRealDeToni (errores/advertencias vacíos),
+        # pero lo hacemos explícito aquí: progresar solo vía RIR es válido,
+        # no debe generar ningún mensaje del nuevo chequeo de progresión.
+        informe = validar_programa(TONI_XLSX, semanas_esperadas=3)
+        self.assertFalse(any("progresion-carga" in e for e in informe.errores))
+        self.assertFalse(any("progresion-carga" in a for a in informe.advertencias))
+
+    def test_detecta_patron_sistemico_sin_ninguna_progresion(self):
+        def mutar(wb):
+            ws = wb["Programación"]
+            idx_ejercicio = 8  # columna H
+            idx_rir = 12  # columna L
+            for fila in ws.iter_rows(min_row=2):
+                if fila[idx_ejercicio - 1].value:  # fila de ejercicio, no de descanso
+                    fila[idx_rir - 1].value = "2-3"  # mismo RIR las 3 semanas -> nada progresa
+        _copiar_y_mutar(TONI_XLSX, self.ruta_tmp, mutar)
+        informe = validar_programa(self.ruta_tmp, semanas_esperadas=3)
+        self.assertFalse(informe.aprobado)
+        self.assertTrue(any("no cambian ni series, ni reps, ni RIR/RPE ni carga" in e for e in informe.errores))
+
+    def test_un_unico_ejercicio_estatico_es_solo_advertencia(self):
+        def mutar(wb):
+            ws = wb["Programación"]
+            idx_ejercicio = 8
+            idx_rir = 12
+            for fila in ws.iter_rows(min_row=2):
+                if fila[idx_ejercicio - 1].value == "Press banca con mancuernas":
+                    fila[idx_rir - 1].value = "2-3"  # solo este ejercicio deja de progresar
+        _copiar_y_mutar(TONI_XLSX, self.ruta_tmp, mutar)
+        informe = validar_programa(self.ruta_tmp, semanas_esperadas=3)
+        self.assertTrue(informe.aprobado)  # por debajo del umbral del 50%, no bloquea
+        self.assertTrue(any("Press banca con mancuernas" in a for a in informe.advertencias))
+
+    def test_semanas_deload_explicitas_excluyen_esa_semana_del_juicio(self):
+        # Si se marcan TODAS las semanas como deload, no queda ninguna semana
+        # de acumulación contra la que juzgar progresión -- no debe haber
+        # ningún hallazgo, aunque el archivo (mutado) sea completamente plano.
+        def mutar(wb):
+            ws = wb["Programación"]
+            idx_ejercicio = 8
+            idx_rir = 12
+            for fila in ws.iter_rows(min_row=2):
+                if fila[idx_ejercicio - 1].value:
+                    fila[idx_rir - 1].value = "2-3"
+        _copiar_y_mutar(TONI_XLSX, self.ruta_tmp, mutar)
+        informe = validar_programa(self.ruta_tmp, semanas_esperadas=3, semanas_deload=[1, 2, 3])
+        self.assertFalse(any("progresion-carga" in e for e in informe.errores))
+        self.assertFalse(any("progresion-carga" in a for a in informe.advertencias))
+
+
 if __name__ == "__main__":
     unittest.main()

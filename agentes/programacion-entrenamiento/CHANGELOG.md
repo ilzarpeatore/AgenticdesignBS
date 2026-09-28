@@ -1,5 +1,16 @@
 # Changelog — Asistente de Programación de Entrenamiento
 
+## v0.25.0 — 2026-09-28
+
+El usuario reportó que todas las programaciones entregadas hasta ahora mantienen el mismo número de series y repeticiones durante los 5-6 meses de un macrociclo — sin progresión de volumen ni de carga en absoluto. Preguntó si hacía falta un supervisor/Control nuevo.
+
+- **Diagnóstico real antes de decidir**: leído `progresion-carga.md` y `biomecanica-programacion-hipertrofia.md` sección 9 (MEV→MAV→MRV) — el conocimiento ya estaba escrito y detallado desde antes. El hueco real: `validador/validar_programa.py` comprobaba estructura (hojas, columnas, semanas) pero cero verificación de progresión, y ningún módulo tenía una checklist explícita para el Crítico tampoco.
+- **No se diseñó un Control nuevo**: esto es un chequeo mecánico (comparar números entre semanas), no una decisión de juicio — encaja en el validador determinista que el sistema ya usa para todo lo verificable sin LLM (sección 6 del system-prompt), no justifica una capa organizativa nueva.
+- **Nuevo chequeo en el validador** (ver `validador/CHANGELOG.md` v0.6.0): tupla completa (series, reps, RIR/RPE, carga_kg, carga_pct) por ejercicio entre semanas de acumulación — si NINGÚN eje cambia, es un fallo; si cambia al menos uno (ej. solo el RIR, como el caso real de Toni), es válido. Verificado contra el fixture real antes de escribir la lógica, para no marcar como fallo un programa correcto ya entregado a un cliente real.
+- **Refuerzo del Productor** (Paso 2, nuevo punto 5): decide y anota el eje de progresión de cada ejercicio antes de generar el borrador, no después — la checklist mecánica es una red de seguridad, no el primer lugar donde debería detectarse esto.
+- **Checklist de verificación añadida** a `progresion-carga.md` y `biomecanica-programacion-hipertrofia.md` — el system-prompt decía que cada módulo tenía una, estos dos no la tenían escrita.
+- **Gap real documentado, no resuelto todavía**: el validador solo audita un `.xlsx` (un mesociclo) a la vez — la progresión de un ejercicio ancla **entre** mesociclos de un mismo macrociclo sigue dependiendo del Crítico releyendo la memoria episódica del cliente, no de código. Si esto también resulta estar fallando en la práctica, ahí sí podría justificar una comprobación automatizada nueva (comparando varios `.xlsx`/`plan-macro.json` a la vez) — no hoy, sin evidencia real de ese caso concreto todavía.
+
 ## v0.24.0 — 2026-09-27
 
 El usuario pidió auditar el diseño de todos los agentes contra el contenido teórico real del repositorio (`Agentic-Design-Patterns`, no de memoria) y aplicar las correcciones necesarias.
