@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hallazgo — Agente de Control Operaciones",
+  "description": "Un documento por hallazgo, nunca prosa libre — ver system-prompt.md Paso 5.",
+  "type": "object",
+  "required": ["tipo", "riesgo", "fecha_deteccion", "descripcion"],
+  "properties": {
+    "tipo": {
+      "type": "string",
+      "enum": ["solapamiento_tareas", "discrepancia_informe", "posible_inactividad"]
+    },
+    "riesgo": {
+      "type": "string",
+      "enum": ["alto", "bajo"],
+      "description": "Ver system-prompt.md Paso 4 para el criterio exacto de cada nivel."
+    },
+    "fecha_deteccion": { "type": "string", "format": "date" },
+    "cliente_id": {
+      "type": ["string", "null"],
+      "description": "Solo aplica a 'solapamiento_tareas'."
+    },
+    "agentes_implicados": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "source_repo/source_key de las tareas en conflicto, o los agentes cuya cadencia se está comparando."
+    },
+    "descripcion": { "type": "string" },
+    "evidencia": {
+      "type": "object",
+      "description": "Datos crudos que sustentan el hallazgo (ids de tarea, cifra citada vs. cifra real, fecha esperada vs. fecha real de última entrada) — nunca solo la conclusión.",
+      "properties": {
+        "tareas_ids": { "type": "array", "items": { "type": "string" } },
+        "cifra_citada": { "type": ["number", "string", "null"] },
+        "cifra_real": { "type": ["number", "string", "null"] },
+        "fecha_esperada": { "type": ["string", "null"], "format": "date" },
+        "fecha_ultima_entrada_real": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+    "es_sistemico": {
+      "type": "boolean",
+      "default": false,
+      "description": "true si el mismo tipo de hallazgo se repite 3 meses seguidos (Paso 4) — señal de que el proceso, no solo el caso puntual, necesita revisión."
+    },
+    "estado": {
+      "type": "string",
+      "enum": ["abierto", "revisado_por_coach", "descartado_intencional"],
+      "default": "abierto"
+    }
+  }
+}

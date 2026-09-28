@@ -1,5 +1,15 @@
 # Changelog — Agente de Redes Sociales
 
+## v0.2.0 — 2026-09-28
+
+Dentro del plan de seguir creando/mejorando/educando/optimizando/sincronizando el equipo completo, pedido por el usuario. Cinco cambios:
+
+- **Cumplimiento de políticas reales de plataforma.** Nueva sección 7 de `modulos/tono-enfoque-ventas-redes.md`: Meta prohíbe autopercepción negativa, "antes/después" con transformación implícita (incluye testimonios en vídeo describiendo un "journey"), primeros planos de "zona problema", y exige un disclaimer literal si se habla de resultados de salud; TikTok prohíbe reclamos de alto riesgo. Hueco real: el Crítico solo aplicaba la Ley General de Publicidad española, no el baremo mucho más estricto de las propias plataformas. Nuevo punto del Crítico (`system-prompt.md` Paso 4) que lo aplica, con más fuerza en los pilares de transformación y conversión directa.
+- **Higgsfield gana Marketing Studio (vídeo).** Verificado con `models_explore` que existe un modo real de vídeo UGC/producto listo para TikTok/Reels (hooks y settings reutilizables, hasta 15s) — antes solo se contemplaba imagen estática. Coste en créditos por generación no verificado todavía; el criterio por defecto (Paso 4bis) es probar una vez con la primera pieza de conversión directa antes de asumirlo como flujo regular, dado el crédito limitado (60, plan básico).
+- **Estructura por formato en `post-borrador.schema.json`.** Nuevo campo `estructura_formato` — un guion de vídeo necesita timestamps, un carrusel necesita texto por diapositiva; antes todo se trataba igual bajo un `cuerpo` genérico.
+- **Coordinación de bajo coste con los dos Copywriter.** Nuevo Paso 1bis: antes de fijar el ángulo de una pieza, consulta título+descripción de los posts recientes de ambos (mismo dato que ya usa `agentes/control-contenido/`) para no repetir exactamente el mismo ángulo en tres canales la misma semana.
+- **Rigor mínimo de muestra.** Nueva regla en la sección 6: al menos 8 piezas publicadas con métricas por nicho antes de que la comparación del experimento tenga algún valor — evita decidir el nicho ganador con 2-3 piezas.
+
 ## v0.1.0 — 2026-09-28
 
 Primer diseño. El usuario quiere un agente de contenido para redes (Instagram/TikTok/YouTube), pero todavía no ha decidido el nicho definitivo de enfoque. Propuso crear dos agentes, uno por nicho, publicando desde dos cuentas distintas, y quedarse con el que atraiga más clientes potenciales — pidió recomendación de diseño antes de proceder.
