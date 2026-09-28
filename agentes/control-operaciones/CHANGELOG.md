@@ -1,0 +1,12 @@
+# Changelog — Agente de Control Operaciones
+
+## v0.1.0 — 2026-09-28
+
+Primer diseño, dentro del plan de crear/mejorar/educar/optimizar/sincronizar el equipo completo. Recomendado en una sesión anterior como el siguiente Control a diseñar: es el único que audita *entre* agentes en vez de dentro de un área, y cierra el mismo tipo de gap que ya hizo falta corregir a mano una vez (ítem 2.24 — Soporte y Onboarding contactando al mismo cliente la misma semana sin coordinarse).
+
+- **A diferencia de Control Contenido, no depende de que un operativo concreto lleve ciclos reales corriendo** — audita procesos transversales (tareas, informes, cadencia) que se activan por sí solos en cuanto su prerrequisito real existe. Documentado explícitamente en la sección 8: el chequeo de cadencia ya puede correr hoy contra los agentes de M0; el de solapamiento de tareas necesita que al menos dos agentes escriban en `task-list` (Soporte/Onboarding, hoy sin desplegar); el de coherencia de informes necesita que Reporting haya generado al menos uno.
+- **Groundeado sin backend nuevo**: `Task` (Bckbs) ya tiene `source_key`/`source_repo`/`category`/`client_id` — investigado antes de diseñar, confirma que se puede agrupar tareas por cliente y origen sin ningún campo nuevo. `ExceptionCategory::TAREA_ESCALADA_AGENTE` (ítem 2.21) ya agrupaba escalaciones de agente sin distinguir origen — este Control es quien por fin usa `source_repo` para cerrar esa distinción.
+- **Tres funciones reales, cada una con su propio prerrequisito**: detección de tareas duplicadas/solapadas entre agentes (Paso 1, sin modelo), coherencia de las cifras del informe mensual de Reporting contra una re-consulta en vivo (Paso 2), y chequeo de cadencia declarada vs. actividad real por agente (Paso 3) — con su limitación declarada explícitamente: es una comprobación de recencia de datos, no un heartbeat en tiempo real, y nunca confirma inactividad, solo la señala para revisión humana.
+- Nuevo esquema `esquemas/hallazgo-operaciones.schema.json` — salida estructurada por hallazgo (tipo, riesgo, evidencia cruda), mismo patrón que el resto de agentes de Control.
+- Mismo criterio de eficiencia que Control Contenido v0.2.0 a este volumen (una auditoría al mes): pasos deterministas sin modelo donde es posible, una sola llamada combinada para los juicios que sí lo requieren, Sonnet con effort `medium`, sin caching ni Batch API.
+- **No es el Agente Director** (nivel 1 del organigrama, sin diseñar) — reporta directo al coach mientras tanto, mismo patrón que Control Contenido y Control Producto.
