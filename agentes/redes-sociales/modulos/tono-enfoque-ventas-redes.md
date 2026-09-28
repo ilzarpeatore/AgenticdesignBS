@@ -1,7 +1,11 @@
 # Módulo — Tono y enfoque de venta en redes
 
-**Versión:** 0.1.0
+**Versión:** 0.2.0
 **Última actualización:** 2026-09-28
+**Changelog:**
+- v0.2.0 — Dentro del plan de seguir educando/optimizando el equipo completo. Añadida la sección 7 (cumplimiento de políticas reales de plataforma, Meta/TikTok) — hueco real: el Crítico del agente solo aplicaba la Ley General de Publicidad española (heredada de `agentes/copywriter-comercial/`), pero Meta/Instagram tienen un baremo mucho más estricto y específico para contenido de salud/fitness que no estaba cubierto en ningún sitio del sistema. Investigado antes de escribir nada.
+- v0.1.0 — Primer diseño, ver `../CHANGELOG.md`.
+
 **Procedencia:** investigación de mercado real (fuentes al final), pedida explícitamente por el usuario antes de diseñar el agente — "necesito que eduques bien con información al agente para que identifique el tipo de contenido a crear". Compartido por los dos nichos activos del experimento (`esquemas/config-nicho.schema.json`): el mecanismo de este módulo es el mismo para ambos, solo cambia la audiencia y el `positioning_statement` de cada uno.
 
 ## 1. Especificidad de nicho, no de servicio
@@ -46,6 +50,20 @@ El descubrimiento por interés/palabra clave pesa más que el hashtag genérico,
 
 Reels/shorts de 30-60 segundos; Instagram, TikTok y YouTube son las tres plataformas con más tracción para este tipo de contenido. Este agente diseña para las tres con el mismo guion base, ajustando solo énfasis de pilar (sección 2) y tono (TikTok más informal/personal, Instagram más práctico/educativo).
 
+## 7. Cumplimiento de políticas reales de plataforma (Meta/Instagram, TikTok) — no es solo el límite legal español
+
+El límite de "no prometer resultados garantizados" (`agentes/copywriter-comercial/system-prompt.md`, Ley 34/1988 + Directiva 2006/114/CE) sigue aplicando aquí, pero las plataformas donde vive este agente tienen su propio baremo, más estricto y más específico para salud/fitness — investigado en 2026-09-28, no estaba cubierto en ningún sitio del sistema hasta ahora:
+
+- **Meta (Instagram) prohíbe implicar autopercepción negativa** — cualquier pieza que sugiera que el espectador debería sentirse mal con su cuerpo, peso o salud actual para vender el servicio.
+- **Prohíbe presentar un cuerpo o figura concretos como el ideal a alcanzar.**
+- **"Antes/después" con transformación implícita está prohibido, no solo el formato clásico partido en dos.** Esto incluye un testimonio en vídeo donde el cliente describe su "journey" mientras se le ve en buena forma — el clasificador de Meta lo trata igual que un antes/después explícito.
+- **Primeros planos de "zonas problema"** (abdomen, muslos, etc. aislados) son otro de los cuatro motivos de rechazo más frecuentes.
+- **Si se habla de un resultado de salud, se exige el disclaimer literal** "este producto/servicio no está destinado a diagnosticar, tratar, curar ni prevenir ninguna enfermedad" en el propio texto de la pieza — omitirlo es motivo de rechazo automático.
+- **No se pueden citar cifras ni plazos concretos de pérdida de peso o cambio físico** ("pierde X kg en Y semanas").
+- **TikTok prohíbe explícitamente los reclamos de pérdida de peso o ganancia muscular de "alto riesgo"** — un mensaje general y de bajo riesgo dirigido a adultos (18+) sí está permitido, pero nunca en formato de promesa concreta.
+
+**Aplicación directa a los pilares de este agente (sección 2):** el pilar de **transformación/prueba social** y el de **conversión directa** son los que más exposición tienen a estas restricciones — cualquier pieza de esos dos pilares debe pasar por este chequeo en el Crítico del agente (`system-prompt.md` Paso 4) antes de generarse, no solo por el límite legal español genérico.
+
 ## Fuentes
 
 - [Fitness Coach Instagram Content Ideas: 2026 Marketing Guide — FitBudd](https://www.fitbudd.com/academy/fitness-coach-instagram-content-ideas-guide-to-marketing-for-professionals-2026)
@@ -57,3 +75,7 @@ Reels/shorts de 30-60 segundos; Instagram, TikTok y YouTube son las tres platafo
 - [AIDA vs PAS vs BAB: Best Copywriting Frameworks for 2026 — SwiftCopy](https://swiftcopy.io/blog/aida-pas-bab-copywriting-frameworks)
 - [13 fitness influencers coaches should study in 2026 — Coachway](https://coachway.io/articles/fitness-influencers-coaches-should-study/)
 - [How to Start Online Fitness Coaching (2026) — SetSmart](https://setsmart.io/blog/how-to-start-online-fitness-coaching)
+- [Meta Ad Policy for Health, Fitness & Appearance Ads (2026) — Primores](https://primores.org/wiki/marketing/meta-ad-policy/)
+- [Meta Health and Wellness Restrictions in 2026: The Complete Guide — Aixel](https://aixel.io/blog/meta-health-wellness-ad-restrictions-2026)
+- [Meta Weight Loss & Supplement Ads 2026: Banned Claims — AuditSocials](https://www.auditsocials.com/blog/meta-health-wellness-restricted-ads-2026-supplements-body-image-medical-claim-rules)
+- [Requirements for Responsible Health-Related Content — TikTok](https://seller-us.tiktok.com/university/essay?knowledge_id=4545471832983342&lang=en)
