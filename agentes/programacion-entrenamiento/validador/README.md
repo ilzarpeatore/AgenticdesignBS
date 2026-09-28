@@ -4,6 +4,14 @@ Código real, no prosa: comprueba mecánicamente el `.xlsx` que el Productor
 genera (formato descrito en `../formato-salida/formato-excel.md`) antes de
 que llegue al Crítico (Paso 4) o al humano (Paso 5).
 
+**El lector del `.xlsx` vive en `lectura_programa.py` (extraído en v0.7.0)**,
+no en este archivo — `agentes/control-producto/` lo reutiliza para leer "lo
+prescrito" al comparar contra la ejecución real, así los dos agentes
+interpretan el mismo formato de columnas exactamente igual en vez de
+divergir con el tiempo. Este archivo (`validar_programa.py`) aplica las
+reglas de qué es válido; `lectura_programa.py` solo sabe abrir el archivo y
+devolver filas.
+
 ## Qué comprueba
 
 - Hojas `Programa` y `Programación` presentes, con las 19 columnas
@@ -20,6 +28,24 @@ que llegue al Crítico (Paso 4) o al humano (Paso 5).
 - Si se pasa `--excluidos`, ningún ejercicio de la lista aparece en el
   programa (uso: lesión activa o material no disponible de ese cliente
   concreto — ver `seleccion-ejercicios-sustitucion-lesion.md`).
+- **Progresión (v0.6.0):** ningún ejercicio se queda sin progresar en
+  absoluto entre semanas de acumulación — mira la tupla completa (series,
+  reps, RIR/RPE, carga_kg, carga_pct), no un eje aislado, porque cuál de
+  ellos lleva la progresión es decisión del Productor caso a caso
+  (`progresion-carga.md`): el programa real de Toni progresa solo vía RIR,
+  con series y reps fijos las 3 semanas, y eso es correcto — solo se marca
+  cuando NINGÚN eje cambia. Por defecto trata la última semana vista como
+  deload (no se juzga progresión en ella); pásalo explícito con
+  `--semanas-deload` si el mesociclo no sigue ese patrón.
+
+Lo que **no** es error, salvo que sea sistémico:
+
+- **Un único ejercicio sin ninguna progresión** es advertencia, no error —
+  puede ser una elección deliberada del Productor (ej. un ejercicio de
+  estabilidad/rehabilitación pensado para mantenerse igual). Si la mitad o
+  más de los ejercicios del programa no progresan en ningún eje, sí es
+  error bloqueante — ese es el patrón sistémico real que motivó este
+  chequeo (ver `CHANGELOG.md`).
 
 Lo que **no** es error, solo advertencia (criterio ya explícito en
 `formato-excel.md`, no una interpretación nueva de este código):
@@ -57,9 +83,10 @@ El resto de pruebas son copias de ese mismo archivo mutadas para provocar
 cada fallo uno a uno, así el validador se prueba contra el mismo tipo de
 archivo que genera el Productor.
 
-## `validar_macrociclo.py` — progresión ENTRE mesociclos (2026-09-29)
+## `validar_macrociclo.py` — progresión ENTRE mesociclos (v0.8.0, 2026-09-29)
 
-`validar_programa.py` comprueba UN `.xlsx` contra el formato; no puede ver si el macrociclo completo
+Usa `lectura_programa.py` para abrir cada `.xlsx` (mismo lector que `validar_programa.py` y Control
+Producto). `validar_programa.py` comprueba UN `.xlsx` contra el formato; no puede ver si el macrociclo completo
 **progresa** de un mesociclo al siguiente, porque eso solo existe comparando varios archivos a la vez. Ver
 `../modulos/biomecanica-programacion-hipertrofia.md` sección 9bis para la regla completa y el caso real que
 expuso este hueco -- un macrociclo puede pasar `validar_programa.py` en los seis mesociclos y aun así tener

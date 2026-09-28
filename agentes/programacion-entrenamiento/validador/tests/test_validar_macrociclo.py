@@ -172,6 +172,22 @@ class TestMacrocicloSintetico(unittest.TestCase):
         self.assertFalse(informe.aprobado)
         self.assertTrue(any(e.startswith("V4") for e in informe.errores))
 
+    def test_ignora_en_silencio_un_xlsx_que_no_es_un_mesociclo(self):
+        # Un Excel de revisión (formato-excel-detallado.md) suele vivir en la misma carpeta que los .xlsx de
+        # importación de cada mesociclo -- no tiene las hojas Programa/Programación y debe omitirse sin más,
+        # no tratarse como un mesociclo roto.
+        wb = openpyxl.Workbook()
+        wb.active.title = "Resumen"
+        wb.active.append(["esto no es un mesociclo"])
+        ruta = os.path.join(self.tmp, "zzz_Revision_no_es_mesociclo.xlsx")
+        wb.save(ruta)
+        try:
+            informe = validar_macrociclo(self.rutas + [ruta])
+            self.assertEqual(informe.errores, [])
+            self.assertTrue(informe.aprobado)
+        finally:
+            os.remove(ruta)
+
     def test_orden_declarado_no_coincide_con_posicion_da_advertencia(self):
         # Renombra el título del segundo archivo para que declare "Mesociclo 5" en vez de 2.
         wb = openpyxl.load_workbook(self.rutas[1])

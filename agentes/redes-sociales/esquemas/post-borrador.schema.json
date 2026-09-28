@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Borrador de pieza de contenido — Agente de Redes Sociales",
+  "description": "Salida estructurada de cada pieza, nunca prosa libre. No existe integración real de publicación en redes (ver system-prompt.md sección 2) — este documento es lo que el coach revisa y publica a mano, con o sin el asset visual de Higgsfield ya adjunto.",
+  "type": "object",
+  "required": ["nicho_id", "plataforma", "pilar", "framework_usado", "hook", "cuerpo", "cta", "hashtags", "estado"],
+  "properties": {
+    "nicho_id": { "type": "string", "description": "Debe existir en config-nicho.schema.json con estado 'activo'." },
+    "plataforma": { "type": "string", "enum": ["instagram", "tiktok", "youtube_shorts"] },
+    "pilar": { "type": "string", "description": "Uno de los pilares declarados en config-nicho.schema.json para este nicho." },
+    "framework_usado": {
+      "type": "string",
+      "enum": ["hook_retain_reward", "PAS", "AIDA", "BAB"],
+      "description": "Ver modulos/tono-enfoque-ventas-redes.md sección 3 para cuándo usar cada uno."
+    },
+    "hook": { "type": "string", "description": "Primeros 1-3 segundos. Obligatorio y revisado aparte por el Crítico (system-prompt.md Paso 4bis) — sin hook fuerte, el resto no importa." },
+    "cuerpo": { "type": "string", "description": "Guion o caption completo, según formato." },
+    "cta": { "type": "string", "description": "Ninguna pieza se crea sin CTA explícita, incluida la del pilar de autoridad/educación (puede ser tan simple como invitar a comentar una palabra clave, ver módulo sección 4)." },
+    "hashtags": {
+      "type": "object",
+      "required": ["amplios", "intermedios", "nicho"],
+      "properties": {
+        "amplios": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 3 },
+        "intermedios": { "type": "array", "items": { "type": "string" }, "minItems": 4, "maxItems": 5 },
+        "nicho": { "type": "array", "items": { "type": "string" }, "minItems": 3, "maxItems": 4 }
+      }
+    },
+    "brief_visual": {
+      "type": "string",
+      "description": "Descripción de la pieza visual necesaria — lo que se manda a Higgsfield (o a un humano) para generarla."
+    },
+    "higgsfield_generado": { "type": "boolean", "default": false },
+    "higgsfield_asset_url": { "type": ["string", "null"] },
+    "cita_cliente_real": {
+      "type": ["object", "null"],
+      "description": "Solo si el pilar es 'prueba social/transformación'. Nunca se rellena sin consentimiento explícito confirmado por el coach (mismo guardrail que los dos Copywriter).",
+      "properties": {
+        "cliente_id": { "type": "string" },
+        "consentimiento_confirmado_por_coach": { "const": true }
+      },
+      "required": ["cliente_id", "consentimiento_confirmado_por_coach"]
+    },
+    "estado": {
+      "type": "string",
+      "enum": ["borrador", "aprobado_coach", "publicado", "descartado"],
+      "description": "Nunca pasa a 'publicado' por el propio agente — lo marca el coach tras publicarlo él mismo a mano (Human-in-the-Loop, system-prompt.md sección 5)."
+    },
+    "metricas_manuales": {
+      "type": ["object", "null"],
+      "description": "Rellenado por el coach tras publicar, no por el agente. Alimenta la decisión del experimento (sección 6 del system-prompt) — 'leads_atribuidos' es el campo que de verdad decide el nicho ganador, no 'alcance'.",
+      "properties": {
+        "alcance": { "type": ["integer", "null"] },
+        "comentarios": { "type": ["integer", "null"] },
+        "dms_recibidos": { "type": ["integer", "null"] },
+        "leads_atribuidos": { "type": ["integer", "null"] }
+      }
+    }
+  }
+}

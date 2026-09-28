@@ -1,5 +1,12 @@
 # Changelog — Agente Importador de Programas
 
+## v0.4.3 — 2026-09-27
+
+Auditoría del diseño contra el contenido teórico del repositorio (`Agentic-Design-Patterns`), pedida por el usuario para todos los agentes.
+
+- Cita corregida en la sección "Flujo paso a paso": "Planning + Prompt Chaining" sin números de capítulo (inconsistente con el resto del documento) pasa a "Planning, cap. 6 + Prompt Chaining, cap. 1".
+- La sección 5 (Manejo de excepciones) ya aplicaba correctamente el patrón real de Exception Handling and Recovery (cap. 12) desde antes de esta auditoría — archivo inválido, fila irreparable en `check-integrity`, ambos fallos técnicos reales, no casos de negocio. A diferencia de los otros 4 agentes del sistema, este no necesitó corrección de fondo, solo confirmación.
+
 ## v0.4.2 — 2026-09-27
 
 Primer import real de un macrociclo completo (5 mesociclos de un mismo cliente, Carlos Palomar, en 5 archivos separados) tras formalizar el flujo de plan macro + formato de revisión detallada del agente de programación. Pedido explícito del usuario para probar el pipeline end-to-end.

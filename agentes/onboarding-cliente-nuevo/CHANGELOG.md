@@ -1,5 +1,21 @@
 # Changelog — Agente de Onboarding (cliente nuevo)
 
+## v0.5.0 — 2026-09-27
+
+Mismo hallazgo que v0.13.0 del Agente de Soporte, mismo día — ver ese CHANGELOG para el contexto completo (auditoría del diseño contra el contenido teórico del repositorio).
+
+- Nueva sección 4bis (Exception Handling and Recovery, cap. 12): este agente tampoco tenía ningún plan para un fallo técnico real, solo para señales del cliente (sección 4). Referencia al mismo módulo compartido `agentes/soporte-customer-success/modulos/manejo-excepciones-tecnicas.md` — mismo fallo técnico, mismas reglas para los dos agentes, no se duplica.
+- Cita corregida en la sección 3: "Planning, cap. 6 + Prompt Chaining, cap. 1".
+
+## v0.4.0 — 2026-09-27
+
+El usuario pidió priorizar cerrar un hallazgo pendiente: el check-in semanal del Agente de Soporte y este agente no se coordinaban entre sí — un cliente nuevo podía recibir la bienvenida/toque intermedio de Onboarding **y** el check-in semanal de Soporte en la misma semana, justo el "info overload" entre dos agentes que la investigación de v0.3.0 advertía dentro de uno solo.
+
+- `esquemas/log-interaccion.schema.json` (compartido con Soporte) gana el campo `onboarding_estado` (`activo`/`cerrado`), obligatorio en toda entrada de este agente vía `allOf`/`if`/`then` — mismo patrón condicional ya usado en `log-registro.schema.json`/`log-nutricion.schema.json` para `origen`.
+- El campo `agente` del esquema pasa de `const: "soporte-customer-success"` a `enum` con los dos agentes — corrige un descuido real: este agente decía "reutilizar" el esquema desde v0.1.0, pero el `const` original solo permitía el nombre de Soporte.
+- Cada entrada de este agente debe llevar `agente: "onboarding-cliente-nuevo"` y `onboarding_estado: "activo"`, salvo la entrada de cierre (Paso 3 o Paso 6), que lleva `"cerrado"`.
+- El check-in semanal de Soporte lee este campo y se salta a un cliente cuyo onboarding sigue activo — sin necesidad de ningún endpoint nuevo en Bckbs, solo usando la hoja de log que ya comparten.
+
 ## v0.3.0 — 2026-09-27
 
 El usuario pidió investigar cómo debería ser un onboarding perfecto para un servicio de +300€/mes (fuentes en `docs/TAREAS_PENDIENTES.md`). Tres hallazgos, tres cambios de diseño confirmados por el usuario:

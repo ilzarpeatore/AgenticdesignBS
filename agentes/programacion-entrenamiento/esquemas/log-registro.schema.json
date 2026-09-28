@@ -65,6 +65,41 @@
       "type": "boolean",
       "description": "Resultado del Paso 3 (validador determinista) — checklist mecánica de los módulos activos."
     },
+    "revision_cierre_reconciliacion": {
+      "type": ["object", "null"],
+      "description": "Añadido 2026-09-28 (system-prompt.md v0.26.0). Solo aplica cuando existía `revision-cierre-mesociclo-<numero>.json` del mesociclo anterior (agentes/control-producto/). Null cuando no existía ese archivo (cliente sin plan-macro.json, o Control Producto no ha corrido todavía) -- ausencia legítima, no un dato que falte.",
+      "required": ["mesociclo_revisado", "hallazgos_seguidos", "desviaciones"],
+      "properties": {
+        "mesociclo_revisado": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "mesociclo_numero del revision-cierre-mesociclo.json leído."
+        },
+        "hallazgos_seguidos": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Cuántos hallazgos (por ejercicio o grupo muscular) de esa revisión se aplicaron tal cual en este borrador."
+        },
+        "desviaciones": {
+          "type": "array",
+          "description": "Un hallazgo no seguido sin entrada aquí es exactamente lo que el Crítico (system-prompt.md sección 6) debe rechazar -- este array es donde vive la justificación obligatoria.",
+          "items": {
+            "type": "object",
+            "required": ["ejercicio_o_grupo", "punto_jerarquia_universal", "motivo"],
+            "properties": {
+              "ejercicio_o_grupo": { "type": "string", "minLength": 1 },
+              "punto_jerarquia_universal": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6,
+                "description": "Qué punto de la jerarquía universal (system-prompt.md sección 5, 1=seguridad...6=preferencias del cliente) justifica desviarse de la recomendación."
+              },
+              "motivo": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
     "aprobado_critico": {
       "type": "boolean",
       "description": "Resultado del Paso 4 (crítico) — checklist de juicio de los módulos activos."

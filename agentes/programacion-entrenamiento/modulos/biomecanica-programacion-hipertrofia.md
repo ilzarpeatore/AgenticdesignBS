@@ -2,8 +2,10 @@
 
 **Tipo:** General
 **Se activa cuando:** el objetivo incluye ganancia de tamaño muscular como componente relevante — casi siempre junto con `hipertrofia-recomposicion-corporal.md`, pero también con cualquier otro módulo de objetivo que incluya hipertrofia como parte del plan (ej. un deportista que además quiere ganar masa en fase de base).
-**Versión:** 0.3.0 · **Última actualización:** 2026-09-29
-**Procedencia:** primer módulo escrito desde cero. Cubre el "cómo entrenar" a nivel de ejercicio y serie; `hipertrofia-recomposicion-corporal.md` cubre el "cuánto y en qué contexto energético". v0.3.0: nueva sección 9bis (progresión de volumen y pico ENTRE mesociclos, no solo dentro de uno) a partir de una serie de casos reales trabajados fuera del flujo formal del agente — ver `CHANGELOG.md` v0.24.0.
+**Versión:** 0.4.0 · **Última actualización:** 2026-09-29
+**Procedencia:** primer módulo escrito desde cero. Cubre el "cómo entrenar" a nivel de ejercicio y serie; `hipertrofia-recomposicion-corporal.md` cubre el "cuánto y en qué contexto energético".
+**v0.3.0** (2026-09-28): el usuario reportó programas reales sin ninguna progresión de volumen durante 5-6 meses, contradiciendo directamente la sección 9 (MEV→MAV→MRV) que este módulo ya definía. Añadida una "Checklist de verificación" (ver final del documento) — el hueco no era de contenido, era que nada comprobaba que la sección 9 se aplicara de verdad DENTRO de un mesociclo. Ver `progresion-carga.md` v0.3.0 y `../validador/CHANGELOG.md` para el chequeo mecánico correspondiente (series/reps/RIR/carga, no solo volumen).
+**v0.4.0** (2026-09-29, trabajo concurrente sobre el mismo síntoma real): nueva sección 9bis — la mitad que aún faltaba tras v0.3.0 es la progresión ENTRE mesociclos (no solo dentro de uno), a partir de una serie de casos reales trabajados fuera del flujo formal del agente. Ver `CHANGELOG.md` v0.24.0.
 
 > Este módulo responde a una pregunta de control de calidad directa: ¿el agente sabe programar carga/volumen a nivel fino y conoce la biomecánica de la hipertrofia, o solo maneja el contexto de déficit/superávit? Antes de este módulo, no. Con él, sí.
 
@@ -134,6 +136,14 @@ documenta aquí, en la forma general sin los números concretos de ningún clien
 - **Con `progresion-carga.md`:** ese módulo cubre cómo progresa la **carga** (peso); este módulo cubre además cómo progresa el **volumen** (sección 9) y cómo se estructura cada serie (RIR, ROM, descansos). No progreses ambas variables (carga y volumen) de forma agresiva la misma semana.
 - **Con `gestion-fatiga-deload.md`:** ese módulo decide cuándo llega el deload (por calendario o por señales de fatiga); este módulo decide cómo se llenó el volumen de las semanas hasta llegar ahí. El MRV estimado de la sección 9 no es un número fijo — se ajusta con las señales reales que detecta `gestion-fatiga-deload.md`.
 - **Con `contraindicaciones-medicas.md` y `seleccion-ejercicios-sustitucion-lesion.md`:** ambos tienen precedencia — si limitan una articulación o gesto, este módulo se adapta (ej. usar rangos de reps más altos con menos carga en vez de cargas pesadas cerca de una articulación sensible) en vez de imponer su recomendación por defecto.
+
+## Checklist de verificación
+
+- **Verificable mecánicamente** (`validador/validar_programa.py`): ver checklist de `progresion-carga.md` — el mismo chequeo cubre volumen (series) junto con reps/RIR/RPE/carga, porque el volumen es solo uno de los ejes por los que un ejercicio puede progresar.
+- **Requiere juicio del Crítico:**
+  - ¿El volumen semanal por grupo muscular empieza cerca del MEV y termina cerca del MAV/MRV estimado al cierre del mesociclo (sección 9), o se mantiene plano desde la semana 1?
+  - ¿La progresión de volumen y la de carga se están subiendo agresivamente la misma semana para el mismo ejercicio (contradice el punto "progresa una variable a la vez" de la sección 9)?
+  - Si el cliente está en déficit calórico (`hipertrofia-recomposicion-corporal.md` activo), ¿el volumen se mantiene alto (no se reduce por defecto solo por el déficit, sección 3 de ese módulo) mientras la progresión de carga sí se ralentiza como corresponde?
 
 ## Referencias
 

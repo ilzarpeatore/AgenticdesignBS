@@ -1,5 +1,28 @@
 # Changelog — Agente de Soporte / Customer Success
 
+## v0.13.0 — 2026-09-27
+
+El usuario pidió auditar el diseño de todos los agentes contra el contenido teórico real del repositorio (`Agentic-Design-Patterns`) y aplicar las correcciones necesarias. Para este agente salió un gap real, no solo de cita.
+
+- **Exception Handling and Recovery (cap. 12), gap real:** la sección 5 ("Manejo de excepciones") solo cubría datos ambiguos del *cliente* — nada en el diseño decía qué hacer ante un fallo técnico real (API de Claude caída, un endpoint de Bckbs devolviendo 500, un timeout), pese a que este agente opera de forma autónoma 24/7 sin revisión humana previa. Nueva sección 5bis + `modulos/manejo-excepciones-tecnicas.md` (compartido con Onboarding, no duplicado): detección, reintentos con backoff corto para errores transitorios, fallback honesto (nunca generar contenido como si el cliente no tuviera historial cuando en realidad no se pudo leer), escalación vía `TaskEscalationAlertService` si el fallo persiste, y el caso límite de que la propia API de Claude falle del todo (mensaje de acuse de recibo fijo y pre-escrito, no generado por el LLM, ya que es justo lo que falló).
+- Cita corregida en la sección 3: "Planning, cap. 6 + Prompt Chaining, cap. 1" (antes sin números, inconsistente con el resto del documento).
+
+## v0.12.0 — 2026-09-27
+
+Cierra el ítem 2.21, pospuesto en una revisión anterior del diseño: cuando este agente (o el de Onboarding) escala algo vía `POST task-store`, hasta ahora nadie avisaba activamente al coach — la tarea se quedaba en el panel hasta que la abría por su cuenta.
+
+- El usuario decidió el alcance de la decisión pendiente: el aviso se dispara en **toda** tarea `priority: high` con `client_id`, sin distinguir categoría (dolor vs. precio) ni origen (agente vs. panel admin) — hoy no hay ningún campo que permita esa distinción, y el volumen real de una sola cuenta de coach no la justifica todavía.
+- **Arreglado y pusheado a Bckbs `main`** (commit `b787638`): nuevo `TaskEscalationAlertService`, mismo patrón ya probado que `EmptySessionAlertService` — item en el Panel de Excepciones (nueva categoría `tarea_escalada_agente`, idempotente por tarea), email al coach (`StaffAlertService`) y notificación push (`CommonNotification`). Conectado desde `Admin\TaskController::store()`, sin tocar nada de cómo este agente crea tareas.
+- 5 tests nuevos, suite Feature completa (138 tests) verde, sin regresiones.
+- Pendiente de confirmar en el VPS real: el pipeline automático de Bckbs sigue bloqueado por facturación de GitHub (`docs/TAREAS_PENDIENTES.md`, ítem 1.6) — requiere el mismo despliegue manual por SSH que el resto de commits recientes.
+
+## v0.11.0 — 2026-09-27
+
+Mismo hallazgo que v0.4.0 del Agente de Onboarding, mismo día — ver ese CHANGELOG para el contexto completo (el check-in semanal y el onboarding de un cliente nuevo no se coordinaban, riesgo real de sobrecargar de mensajes en la misma semana).
+
+- Nueva sección "Exclusión: cliente dentro de su ventana de Onboarding" en `modulos/checkin-semanal.md` (sube a v0.2.0): antes de construir el check-in del domingo, se consulta la entrada más reciente de `agente: "onboarding-cliente-nuevo"` de ese cliente en el log de interacciones compartido. Si `onboarding_estado: "activo"`, se salta ese domingo — no se registra como "sin respuesta", es una exclusión intencional.
+- No requirió ningún endpoint nuevo en Bckbs: se resolvió enteramente con datos que los dos agentes ya escriben en la misma hoja.
+
 ## v0.10.0 — 2026-09-27
 
 Gap de corrección encontrado al diseñar el Agente de Onboarding, y que resulta afectar igual a este agente: `GET client-session-feedback` solo filtraba por `completed_at IS NOT NULL`, sin comprobar si la sesión tenía series realmente registradas — mismo patrón de bug real que `EmptySessionAlertService` ya detecta (caso Ayoub, sesiones finalizadas con volumen 0 y cero filas de log).

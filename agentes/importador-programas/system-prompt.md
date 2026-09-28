@@ -1,8 +1,9 @@
 # Agente Importador de Programas — marco fijo
 
-**Versión:** 0.4.1
+**Versión:** 0.4.3
 **Última actualización:** 2026-09-27
 **Changelog:**
+- v0.4.3 — Auditoría del diseño contra el contenido teórico del repositorio: la sección "Flujo paso a paso" citaba "Planning + Prompt Chaining" sin los números de capítulo (inconsistente con el resto de citas del documento) — corregido a "Planning, cap. 6 + Prompt Chaining, cap. 1". La sección 5 (Manejo de excepciones) ya aplicaba bien el patrón real de Exception Handling and Recovery (cap. 12, fallos técnicos: archivo inválido, fila irreparable) desde antes de esta auditoría — a diferencia de otros agentes del sistema, no hizo falta corregirla, solo confirmarlo.
 - v0.4.1 — Documenta dos fixes reales de Bckbs del 2026-09-24, encontrados al investigar un reporte del usuario (mismo ejercicio creado una vez por semana en vez de reutilizarse — ítem 1.5 de `docs/TAREAS_PENDIENTES.md`, ya arreglado en el código para entonces): **(1)** `ExerciseMatcher::register()` (commit `70922d0`) — el matcher cargaba las firmas de la BD una sola vez al arrancar y no veía los ejercicios que el propio import iba creando, así que el mismo nombre repetido en varias semanas/sesiones se creaba una vez por cada una; ahora cada ejercicio creado se registra en el matcher en caliente. **(2)** Resolver de equivalencias con IA (commit `867c053`) — el matcher por reglas no reconocía traducciones/anglicismos de ejercicios ya existentes; ahora, si `ANTHROPIC_API_KEY` está configurada, una llamada por import (cacheada) compara los nombres sin match contra el catálogo real y solo acepta ids existentes o `null`. Sin key configurada, el comportamiento es idéntico al anterior. No cambia ningún paso del flujo de este agente (sección 3) — es una mejora interna del matcher que el agente ya invoca igual.
 - v0.4.0 — Sincroniza con `docs/AGENTE_IMPORTADOR.md` (Bckbs, commit `ada8b1b`), que cambió tras verificación real contra `bestronger-vps` con un catálogo nuevo (`nerea-media-m1.xlsx`, match nivel D 0.74 detectado correctamente por `--confidence-gate`). **Decisión explícita del usuario, sustituye el principio de diseño anterior:** el import (crear `training_program` + ejercicios de catálogo, incluidos auto-creados y matches ambiguos nivel C/D/E) se ejecuta automáticamente, sin pausa previa ni dry-run obligatorio — el coste de un ejercicio mal matcheado que ningún cliente ve todavía es bajo y reversible. La pausa humana no negociable se mueve a la asignación: **este agente nunca ejecuta `programs:assign-client`/`POST training-program-assign-client` por su cuenta**, ni aunque `review_required` venga vacío — la asignación a un cliente real la hace siempre el humano a mano desde el panel admin, revisando ahí el programa ya creado. Secciones 1, 2, 3, 4 y 5 reescritas en consecuencia.
 - v0.3.0 — Cierra el último de los cinco bloqueantes originales de `docs/AGENTE_IMPORTADOR.md`: `POST program-import` (Bckbs) permite importar sin SSH, con token de coach vía Sanctum. El agente ya no depende de una sola vía de acceso — SSH y HTTP ejecutan el mismo código y devuelven el mismo JSON, así que todas las secciones se reescriben para presentar ambas como equivalentes en vez de asumir SSH.
@@ -44,7 +45,7 @@ Con `--json`/JSON de respuesta: `{"ok": true, "renewed": bool, "assignment_id": 
 
 ---
 
-## 3. Flujo paso a paso (Planning + Prompt Chaining)
+## 3. Flujo paso a paso (Planning, cap. 6 + Prompt Chaining, cap. 1)
 
 **(Reescrito 2026-09-17 — la pausa humana se movió del import a la asignación, ver sección 4.)**
 

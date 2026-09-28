@@ -1,0 +1,43 @@
+{
+  "nicho_id": "hyrox-blindado",
+  "_procedencia": "Volcado desde el estudio de mercado real del usuario en Notion (proyecto 'RETURN TO HYROX', páginas 'Mi Negocio 2.0' y 'Estructuración', 2026-09-23) — no es un ejemplo sintético. Campos marcados '_pendiente' faltan por dar en Notion y bloquean la activación real de este nicho.",
+  "cuenta": {
+    "plataformas": ["instagram", "tiktok"],
+    "handle": "_pendiente — falta el @ real de la cuenta dedicada a este nicho en Notion",
+    "enlace_bio": "_pendiente — necesario antes de la primera publicación real (system-prompt.md sección 6): sin esto no hay forma de atribuir leads a este nicho frente al segundo nicho del experimento"
+  },
+  "positioning_statement": "Ayudo a atletas de HYROX que ya han recibido el alta de fisioterapia tras una lesión de rodilla (LCA) o de espalda a volver a competir en mejor forma que antes de lesionarse, mediante el Protocolo Blindaje — la fase de readaptación deportiva específica para HYROX que hoy nadie cubre en España.",
+  "audiencia_especifica": "Atletas de HYROX en España, 28-45 años (edad media real del deporte: 37,5), poder adquisitivo medio-alto, entrenaban 4-6 veces/semana antes de lesionarse, alta médica reciente de fisioterapia (rodilla/LCA o lumbar), con fecha de carrera ya fijada — grandes ciudades con boxes afiliados (Madrid, Barcelona, Bilbao, Málaga, Valencia, Palma).",
+  "pilares_contenido": [
+    {
+      "nombre": "educacion_autoridad",
+      "descripcion": "El hueco real entre 'alta del fisio' y 'listo para competir', y por qué un readaptador de lesiones deportivas no es lo mismo que un fisioterapeuta ni un coach genérico (distinción que el propio estudio de mercado marca como el eje de diferenciación real, no solo de marca). Usa los datos reales ya validados: 49,8% de los atletas de HYROX se lesionan en 12 meses; solo el 55% vuelve a su nivel tras una rotura de LCA; volver antes de los 9 meses multiplica x9 el riesgo de re-rotura. Nunca presentarse como fisioterapeuta ni dar a entender que se trata una lesión activa — el propio estudio de mercado lo marca como valor fundamental del negocio (\"transparencia sobre los límites de mi rol\").",
+      "frecuencia_semanal": 2
+    },
+    {
+      "nombre": "prueba_social",
+      "descripcion": "Casos reales de clientes presenciales de LCA/lumbar, solo con consentimiento explícito confirmado por el coach (system-prompt.md, guardrail obligatorio). El propio estudio de mercado ya señala esto como pendiente real: 'esto necesita prueba, no solo argumento — documentar 2-3 casos reales antes de lanzar'. Sin al menos un caso con consentimiento, este pilar no puede generar piezas todavía — usar el pilar de educación en su lugar mientras tanto.",
+      "frecuencia_semanal": 1
+    },
+    {
+      "nombre": "conexion_personalidad",
+      "descripcion": "Por qué el Protocolo Blindaje, la experiencia real del coach como readaptador de lesiones deportivas (clientes presenciales reales de LCA y lumbar, más su propio entrenamiento de fuerza/hipertrofia) — el 'gran dominio' que el estudio de mercado identifica como ventaja no copiable a corto plazo.",
+      "frecuencia_semanal": 1
+    },
+    {
+      "nombre": "conversion_directa",
+      "descripcion": "Oferta explícita: Protocolo Blindaje, 250€/mes (core) o 450€/mes (premium 1:1 con videollamada semanal), mínimo 3 meses. CTA orientado al embudo comentario→DM (ej. 'comenta BLINDAJE y te explico cómo funciona el protocolo'), nunca un CTA vago.",
+      "frecuencia_semanal": 1
+    }
+  ],
+  "estado": "activo",
+  "fecha_inicio_experimento": null,
+  "_fecha_inicio_experimento_nota": "Pendiente de que el coach confirme cuándo arranca la primera publicación real — no se ha fabricado una fecha para no dar por hecho un dato que solo él puede dar.",
+  "fecha_fin_experimento_prevista": null,
+  "metrica_decision": "Leads/contactos atribuidos vía comentario→DM (o mención directa del Protocolo Blindaje) durante la ventana del experimento, nunca solo alcance o interacciones. Métrica secundaria de validación a medio plazo, ya identificada en el propio estudio de mercado: tasa de renovación por temporada/carrera (el disparador de recompra real del modelo de negocio).",
+  "notas_de_diseno": [
+    "TENSIÓN REAL A VIGILAR (Crítico, system-prompt.md Paso 4): la propuesta de valor ya escrita por el coach — 'Vuelve a HYROX más fuerte que antes de tu lesión, o sigo trabajando contigo gratis hasta que lo consigas' — roza el límite del guardrail legal que este mismo agente aplica (no prometer resultados garantizados, Ley 34/1988 + política de Meta contra reclamos de resultado de salud). La garantía de servicio en sí (seguir trabajando sin coste adicional) es un mecanismo comercial legítimo y distinto de garantizar el resultado físico — pero la redacción de cada pieza debe evitar afirmar 'más fuerte que antes' como un hecho garantizado; reformular como objetivo del protocolo, no como certeza (ej. 'trabajamos con este objetivo hasta que las métricas de tu readaptación lo confirmen', no 'te lo garantizo').",
+    "Este nicho toca contenido de lesión/salud de forma directa (rodilla/LCA, lumbar) — aplica con más fuerza que ningún otro pilar del agente el hallazgo de políticas de plataforma investigado el 2026-09-28 (Meta prohíbe autopercepción negativa, 'antes/después' con transformación implícita, y exige el disclaimer 'no diagnostica/trata/cura' si se habla de resultados de salud; TikTok prohíbe reclamos de alto riesgo). Ningún contenido de este nicho debe saltarse ese chequeo.",
+    "El propio estudio de mercado señala una fuente de leads real y de más bajo coste que el contenido orgánico: partnerships de derivación con fisioterapeutas/clínicas deportivas que dan el alta pero no cubren la fase de readaptación — no es tarea de este agente, pero el coach debería perseguirlo en paralelo al experimento de contenido."
+  ]
+}

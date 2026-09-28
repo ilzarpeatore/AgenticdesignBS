@@ -1,13 +1,20 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Registro de interacción — Agente de Soporte / Customer Success",
-  "description": "Una entrada por mensaje entrante gestionado (respondido o escalado). Persiste en Google Sheets (M1, ver docs/ORGANIGRAMA_AGENTES.md) hasta que el volumen justifique otra cosa. Es lo único que permite auditoría por muestreo del Control de Soporte cuando exista.",
+  "title": "Registro de interacción — Agente de Soporte / Customer Success y Agente de Onboarding",
+  "description": "Una entrada por mensaje/acción gestionada por cualquiera de los dos agentes que comparten esta hoja (`agente` distingue cuál). Persiste en Google Sheets (M1, ver docs/ORGANIGRAMA_AGENTES.md) hasta que el volumen justifique otra cosa. Es lo único que permite auditoría por muestreo del Control de Soporte cuando exista, y (desde 2026-09-27) lo que usa el check-in semanal de Soporte para saber si un cliente sigue dentro de su ventana de Onboarding — ver `onboarding_estado` y `modulos/checkin-semanal.md`.",
   "type": "object",
   "required": ["agente", "timestamp", "cliente_id", "canal", "accion", "confianza", "requiere_revision"],
+  "allOf": [
+    {
+      "if": { "properties": { "agente": { "const": "onboarding-cliente-nuevo" } } },
+      "then": { "required": ["onboarding_estado"] }
+    }
+  ],
   "properties": {
     "agente": {
       "type": "string",
-      "const": "soporte-customer-success"
+      "enum": ["soporte-customer-success", "onboarding-cliente-nuevo"],
+      "description": "Antes de 2026-09-27 era const 'soporte-customer-success' — pasó a enum al confirmarse que el Agente de Onboarding reutiliza esta misma hoja, no una propia."
     },
     "timestamp": { "type": "string", "format": "date-time" },
     "cliente_id": {
@@ -46,6 +53,11 @@
     "task_id_creado": {
       "type": ["integer", "null"],
       "description": "id de la tarea creada en Bckbs (tasks.id) si requiere_revision es true. null en caso contrario."
+    },
+    "onboarding_estado": {
+      "type": "string",
+      "enum": ["activo", "cerrado"],
+      "description": "Solo presente (y obligatorio) cuando agente=onboarding-cliente-nuevo. 'activo' en cada entrada mientras el cliente sigue dentro de su ventana de onboarding (Pasos 1-5 de su system-prompt.md); 'cerrado' en la entrada que registra el cierre (Paso 3 por primera sesión real, o Paso 6 por fin de los 14 días) y en cualquier entrada posterior de ese cliente si por lo que sea el agente vuelve a escribir algo tras cerrar (no debería pasar, pero no debe leerse como 'sigue activo' si ocurre). Único propósito: que el check-in semanal de Soporte (`modulos/checkin-semanal.md`) sepa si debe saltarse a este cliente esa semana."
     }
   }
 }

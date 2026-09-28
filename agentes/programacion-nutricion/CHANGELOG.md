@@ -1,5 +1,12 @@
 # Changelog — Asistente de Programación de Nutrición
 
+## v0.12.0 — 2026-09-27
+
+Mismo hallazgo que v0.24.0 del agente de entrenamiento, mismo día — ver ese CHANGELOG para el contexto completo (auditoría del diseño contra el contenido teórico del repositorio).
+
+- Citas añadidas sin cambiar comportamiento: "Memoria del cliente" (Memory Management, cap. 8), Productor/Crítico (Reflection, cap. 4).
+- Gap real (Exception Handling and Recovery, cap. 12): `validar_plan.py` fallando en sí mismo, o `log-nutricion.json`/`perfil-cliente.json` malformado, ya no se tratan como "sin errores"/"sin historial" — podrían ocultar una alergia o restricción real.
+
 ## v0.11.0 — 2026-09-27
 
 Mismo cambio que v0.23.0 del agente de entrenamiento, mismo día — ver ese CHANGELOG para el contexto completo (check-in de satisfacción quincenal vía Forms de Bckbs). Sección "Memoria del cliente" gana `GET admin-form-submission-list` como fuente sobre adherencia real a la nutrición, sin duplicarla en `bstronger-memoria-clientes`.

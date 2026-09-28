@@ -24,6 +24,10 @@ Salida: informe JSON por stdout con `aprobado`, `errores`, `advertencias` (mismo
 `validar_programa.py`) y un campo adicional `tablas` con el detalle legible por humano de cada regla --
 pásalo por `--texto` para imprimir solo ese detalle en texto plano en vez de JSON, si lo vas a enseñar
 directamente al coach. Código de salida 0 si aprobado, 1 si no.
+
+Usa `lectura_programa.py` (el lector compartido, extraído en v0.7.0) para abrir cada `.xlsx` -- así este
+validador interpreta el formato de columnas exactamente igual que `validar_programa.py` y `control-producto`,
+en vez de parsearlo por su cuenta y divergir con el tiempo si el formato cambia.
 """
 
 from __future__ import annotations
@@ -41,13 +45,13 @@ from dataclasses import dataclass, field
 
 import openpyxl
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from lectura_programa import HOJA_PROGRAMA, HOJA_PROGRAMACION, LecturaProgramaError, leer_programa  # noqa: E402
+
 # En consolas Windows sin codepage UTF-8, stdout por defecto no es utf-8 y json.dumps(ensure_ascii=False) con
 # tildes/ñ rompe al redirigir a archivo o pipe -- fuerza UTF-8 explícitamente, no asumas el entorno.
 if (sys.stdout.encoding or "").lower() != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
-
-HOJA_PROGRAMA = "Programa"
-HOJA_PROGRAMACION = "Programación"
 
 # Grupos de estabilidad/prehab: no se les exige subida ESTRICTA mesociclo a mesociclo (V1), solo no-decreciente
 # -- su progresión es de resistencia y control, no de acumulación de volumen (ver progresion-carga.md).
@@ -148,10 +152,35 @@ class InformeMacrociclo:
         return {"aprobado": self.aprobado, "errores": self.errores, "advertencias": self.advertencias, "tablas": self.tablas}
 
 
-def _cargar_mesociclos(paths: list[str]) -> list[dict]:
+def _titulo_y_descripcion(ruta: str) -> tuple[str, str]:
+    """Lee solo la fila 2 de la hoja 'Programa' (titulo/descripcion) -- `lectura_programa.leer_programa` no
+    los expone (no los necesita para su propio contrato), así que este validador los lee aparte, únicamente
+    para la advertencia de cruce "Mesociclo N" del título."""
+    wb = openpyxl.load_workbook(ruta, data_only=True, read_only=True)
+    try:
+        if HOJA_PROGRAMA not in wb.sheetnames:
+            return "", ""
+        ws = wb[HOJA_PROGRAMA]
+        cab = [c.value for c in next(ws.iter_rows(min_row=1, max_row=1))]
+        fila = [c.value for c in next(ws.iter_rows(min_row=2, max_row=2))] if ws.max_row >= 2 else []
+        titulo = fila[cab.index("titulo")] if "titulo" in cab and cab.index("titulo") < len(fila) else ""
+        descripcion = fila[cab.index("descripcion")] if "descripcion" in cab and cab.index("descripcion") < len(fila) else ""
+        return str(titulo or ""), str(descripcion or "")
+    finally:
+        wb.close()
+
+
+def _cargar_mesociclos(paths: list[str], informe: InformeMacrociclo) -> list[dict]:
     """Devuelve una lista de mesociclos EN EL ORDEN DE LOS ARCHIVOS (ver docstring del módulo), cada uno con
-    sus filas de 'Programación' ya parseadas. No descarta un archivo por no encontrar 'Mesociclo N' en el
-    título -- eso solo se usa como advertencia de cruce, nunca como filtro."""
+    sus filas de 'Programación' ya parseadas vía `lectura_programa.leer_programa` (mismo lector que
+    `validar_programa.py` y `control-producto`). No descarta un archivo por no encontrar 'Mesociclo N' en el
+    título -- eso solo se usa como advertencia de cruce, nunca como filtro.
+
+    Un `.xlsx` sin las hojas `Programa`/`Programación` se omite en silencio (no es un mesociclo -- p. ej. el
+    Excel de revisión `formato-excel-detallado.md` suele vivir en la misma carpeta que los de importación).
+    Uno que SÍ tiene esas hojas pero está mal formado por dentro (falta una columna obligatoria, sin filas de
+    datos) sí se registra como error real en `informe` y se omite del resto de reglas -- eso no es "otro tipo
+    de archivo", es un mesociclo roto."""
     files: list[str] = []
     for p in paths:
         if os.path.isdir(p):
@@ -161,26 +190,31 @@ def _cargar_mesociclos(paths: list[str]) -> list[dict]:
 
     mesociclos = []
     for orden, f in enumerate(files, start=1):
-        wb = openpyxl.load_workbook(f, data_only=True)
-        if HOJA_PROGRAMA not in wb.sheetnames or HOJA_PROGRAMACION not in wb.sheetnames:
+        wb_check = openpyxl.load_workbook(f, read_only=True)
+        try:
+            tiene_hojas = HOJA_PROGRAMA in wb_check.sheetnames and HOJA_PROGRAMACION in wb_check.sheetnames
+        finally:
+            wb_check.close()
+        if not tiene_hojas:
             continue
-        cab = [c.value for c in wb[HOJA_PROGRAMA][1]]
-        fila = [c.value for c in wb[HOJA_PROGRAMA][2]] if wb[HOJA_PROGRAMA].max_row >= 2 else []
-        titulo = fila[cab.index("titulo")] if "titulo" in cab and cab.index("titulo") < len(fila) else ""
-        descripcion = fila[cab.index("descripcion")] if "descripcion" in cab and cab.index("descripcion") < len(fila) else ""
+
+        try:
+            lectura = leer_programa(f)
+        except LecturaProgramaError as e:
+            informe.errores.append(f"{os.path.basename(f)}: {'; '.join(e.errores)}")
+            continue
+
+        titulo, descripcion = _titulo_y_descripcion(f)
         m = re.search(r"mesociclo\s*(\d+)|\bM(\d+)\b", f"{titulo} {descripcion}", re.I)
         numero_declarado = int(m.group(1) or m.group(2)) if m else None
 
         filas = []
-        ws = wb[HOJA_PROGRAMACION]
-        cab_prog = [c.value for c in ws[1]]
-        idx = {"semana": cab_prog.index("semana"), "dia": cab_prog.index("dia"), "ejercicio": cab_prog.index("ejercicio"),
-               "series": cab_prog.index("series"), "reps": cab_prog.index("reps"), "rir": cab_prog.index("rir")}
-        for r in ws.iter_rows(min_row=2, values_only=True):
-            if r[idx["semana"]] is None or r[idx["ejercicio"]] is None:
+        for r in lectura.filas:
+            semana, ejercicio = lectura.val(r, "semana"), lectura.val(r, "ejercicio")
+            if semana is None or ejercicio is None:
                 continue
-            filas.append(dict(semana=int(r[idx["semana"]]), dia=int(r[idx["dia"]]), ejercicio=str(r[idx["ejercicio"]]),
-                               series=int(r[idx["series"]] or 0), reps=r[idx["reps"]], rir=r[idx["rir"]]))
+            filas.append(dict(semana=int(semana), dia=int(lectura.val(r, "dia")), ejercicio=str(ejercicio),
+                               series=int(lectura.val(r, "series") or 0), reps=lectura.val(r, "reps"), rir=lectura.val(r, "rir")))
         mesociclos.append(dict(archivo=f, orden=orden, numero_declarado=numero_declarado, titulo=titulo, filas=filas))
     return mesociclos
 
@@ -193,7 +227,7 @@ def validar_macrociclo(
     rir_min_seguro: float | None = None,
 ) -> InformeMacrociclo:
     informe = InformeMacrociclo()
-    mesos = _cargar_mesociclos(paths)
+    mesos = _cargar_mesociclos(paths, informe)
     if len(mesos) < 2:
         informe.advertencias.append(
             f"Solo se encontraron {len(mesos)} mesociclo(s) con hojas 'Programa'/'Programación' válidas -- "
