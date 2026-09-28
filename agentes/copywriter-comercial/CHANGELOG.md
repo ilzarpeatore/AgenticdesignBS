@@ -1,5 +1,9 @@
 # Changelog — Agente Copywriter Comercial (blog web, captación de clientes)
 
+## v0.3.0 — 2026-09-28
+
+Mismo cierre de gap de portada que el Copywriter educativo (ver su `CHANGELOG.md` v0.4.0 para la investigación completa): Pexels API, gratis, sin atribución obligatoria, nuevo Paso 6bis. También documentado: el Control correspondiente a este agente ("Control ventas"/"Control marketing" en el organigrama original) no tiene todavía ningún otro agente operativo real que controlar en esas áreas (sin Closer/CRM/Ads/Email Marketing) — su auditoría queda cubierta por el nuevo `agentes/control-contenido/system-prompt.md`, que audita ambos Copywriter juntos e incorpora el chequeo legal/comercial de este agente en su checklist, en vez de esperar a un "Control ventas" que no tiene nada más que auditar hoy.
+
 ## v0.2.0 — 2026-09-28
 
 El usuario pidió profundizar la investigación de mercado de este agente (captación) y del Copywriter educativo (retención), y reforzar los límites de ambos.

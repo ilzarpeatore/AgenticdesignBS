@@ -1,5 +1,15 @@
 # Changelog — Agente Copywriter (contenido educativo del blog in-app)
 
+## v0.4.0 — 2026-09-28
+
+El usuario pidió cerrar el gap de portada documentado desde v0.1.0, y de paso diseñar el primer agente de Control del proyecto (Control contenido).
+
+- **Investigado antes de decidir**: para un blog real de entrenamiento, la investigación de mercado señala foto de stock por encima de imagen generada por IA — evita el riesgo de "se nota que es IA" (penaliza más la sospecha que la tecnología en sí) y las obligaciones de etiquetado de la Ley de IA de la UE para contenido generado.
+- **Pexels API elegida** sobre Unsplash: ambas son gratis y de uso comercial libre, pero Unsplash exige atribución (autor + Unsplash, con enlace) cuando se consume vía API, mientras que Pexels no la exige — menos fricción de implementación, ninguna obligación nueva de cumplimiento. Límite gratuito muy por encima del volumen real (1 imagen/mes).
+- Nuevo Paso 6bis: búsqueda por palabra clave en inglés (mejor catálogo que en español), sube la primera foto horizontal relevante vía el endpoint `cover-image` que ya existía. Mismo fallback de siempre si no hay resultado relevante.
+- **Primer agente de Control del proyecto diseñado**: `agentes/control-contenido/system-prompt.md`, audita este agente y al Copywriter Comercial juntos. No se activa hasta que ambos lleven ciclos reales corriendo — diseñado ahora a petición explícita del usuario, aunque esto se adelanta al criterio de secuenciación que el propio `docs/ORGANIGRAMA_AGENTES.md` recomienda (Control solo cuando el operativo funcione sin supervisión constante); documentado como tensión real, no ignorada.
+- Fuentes: [Authenticity First — MTU Webmaster's Blog](https://blogs.mtu.edu/webmaster/2026/02/authenticity-first-when-and-when-not-to-use-stock-photography/), [AI Image Generators vs Stock Photography — getimg.ai](https://getimg.ai/blog/ai-image-generators-vs-stock-photography-comparison), [Unsplash API Terms](https://unsplash.com/api-terms), [Pexels License](https://www.pexels.com/license/).
+
 ## v0.3.0 — 2026-09-28
 
 El usuario pidió profundizar la investigación de mercado de este agente (retención) y del Copywriter Comercial (captación), y reforzar los límites de ambos.
