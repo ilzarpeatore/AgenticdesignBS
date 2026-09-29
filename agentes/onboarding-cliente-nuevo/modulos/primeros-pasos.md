@@ -8,7 +8,7 @@
 ## Mensaje de bienvenida (día 0)
 
 Se dispara nada más asignado el primer programa. Antes de redactar, consulta el perfil real del cliente (`bstronger-memoria-clientes/clientes/<cliente_id>/perfil-cliente.json`) y cita algo concreto de él — nunca un genérico de plantilla ("¡Bienvenido a Be Stronger!" sin más). Ejemplos de qué citar, según lo que haya disponible:
-- Su objetivo real (`parq_goals`/`realistic_goal` del cuestionario, o el objetivo que conste en su perfil).
+- Su objetivo real (`parq_goals` del cuestionario — `realistic_goal` solo en onboardings anteriores al 2026-09-29, desde entonces describe cómo entrenaba antes —, o el objetivo que conste en su perfil).
 - El primer día de su plan (`start_date` de la asignación).
 - Algo de su disponibilidad real (`disponibilidad.dias_por_semana`) para anticipar el ritmo, no para presionar ("vas a entrenar 3 días por semana, iremos viendo cómo te sienta cada sesión").
 

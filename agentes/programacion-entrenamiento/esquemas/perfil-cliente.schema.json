@@ -144,6 +144,10 @@
           "type": "string",
           "enum": ["principiante", "intermedio", "avanzado"],
           "description": "CONFIRMADO POR EL COACH cuando existe -- desde 2026-09-19 ya no es un valor que el Productor deba derivar por defecto. Contrastada la regla de partida (propuesta 2026-09-16: avanzado si experiencia_meses>=36 Y tecnica_autoevaluada>=7; principiante si experiencia_meses<12 O tecnica_autoevaluada<=3; intermedio en el resto) contra 6 casos reales, coincidió solo en 3 de 6 -- falló justo en el sentido que más importa: subestimó a un cliente con técnica autoevaluada muy baja (1/10) que el coach clasificó como avanzado, y sobreestimó a dos clientes con mucha experiencia/técnica alta que el coach clasificó por debajo (avanzado→intermedio, intermedio→principiante). Conclusión: experiencia_meses/tecnica_autoevaluada por sí solos no predicen fiablemente el nivel real -- son una señal más, no la fuente de verdad. Por eso este campo ahora se trata como cualquier otro dato que el coach confirma directamente (ver bstronger-memoria-clientes) -- si ya está confirmado en el perfil del cliente, úsalo tal cual, NO lo recalcules con la regla. Solo si un cliente nuevo no tiene nivel_fuerza confirmado todavía, usa la regla de partida como estimación inicial de baja confianza y márcala explícitamente para que el coach la confirme o corrija -- nunca la des por buena en silencio."
+        },
+        "historial_previo": {
+          "type": "string",
+          "description": "Texto libre de training_questionnaire_answers.realistic_goal, solo en onboardings desde 2026-09-29 (pregunta \"Describe cómo entrenabas anteriormente\": división de grupos musculares, tipos de ejercicios, organización). Antes de esa fecha esa columna guardaba el objetivo realista, no el historial -- en esos clientes omite este campo."
         }
       }
     },
